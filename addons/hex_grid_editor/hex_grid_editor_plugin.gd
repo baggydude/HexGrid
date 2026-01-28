@@ -281,7 +281,7 @@ func _update_preview(camera: Camera3D, screen_pos: Vector2) -> void:
 	_preview_instance.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
 
 	# Set position with Y offset so the bottom of the mesh sits at y=0
-	var y_offset := 0.5 * scale_factor * height_scale
+	var y_offset := scale_factor * height_scale
 	_preview_instance.position = Vector3(world_pos.x, y_offset, world_pos.z)
 
 	_update_preview_rotation()
@@ -304,7 +304,7 @@ func _update_preview_scale() -> void:
 	_preview_instance.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
 
 	# Update Y position to keep bottom at ground level
-	var y_offset := 0.5 * scale_factor * height_scale
+	var y_offset := scale_factor * height_scale
 	_preview_instance.position.y = y_offset
 
 

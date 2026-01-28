@@ -280,8 +280,8 @@ func _create_or_update_cell_instance(axial_coord: Vector2i, tile: HexTileResourc
 	instance.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
 
 	# Set position (use the stored world position)
-	# Offset Y so the bottom of the mesh sits at y=0 (mesh origin is at center)
-	var y_offset := 0.5 * scale_factor * height_scale
+	# Offset Y so the bottom of the mesh sits at y=0 (mesh origin is at top)
+	var y_offset := scale_factor * height_scale
 	instance.position = Vector3(world_pos.x, y_offset, world_pos.z)
 
 	# Store metadata
@@ -348,7 +348,7 @@ func _rebuild_all_cells() -> void:
 		instance.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
 
 		# Update position - offset Y so the bottom of the mesh sits at y=0
-		var y_offset := 0.5 * scale_factor * height_scale
+		var y_offset := scale_factor * height_scale
 		instance.position = Vector3(world_pos.x, y_offset, world_pos.z)
 
 
