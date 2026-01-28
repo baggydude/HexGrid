@@ -7,6 +7,7 @@ extends Control
 signal tile_selected(index: int)
 signal tool_changed(tool_mode: ToolMode)
 signal rotation_changed(degrees: float)
+signal height_changed(height: float)
 
 enum ToolMode { PAINT, ERASE, PICK }
 
@@ -14,6 +15,11 @@ var _tile_palette: Array[HexTileResource] = []
 var _selected_tile_index: int = -1
 var _current_tool: ToolMode = ToolMode.PAINT
 var _current_rotation: float = 0.0
+var _current_height: float = 1.0
+
+const HEIGHT_MIN: float = 1.0
+const HEIGHT_MAX: float = 2.0
+const HEIGHT_STEP: float = 0.25
 
 # UI elements
 var _toolbar_container: HBoxContainer
@@ -21,6 +27,7 @@ var _palette_scroll: ScrollContainer
 var _palette_container: HBoxContainer
 var _tool_buttons: Dictionary = {}
 var _rotation_label: Label
+var _height_label: Label
 var _palette_buttons: Array[Button] = []
 var _empty_label: Label = null
 
@@ -118,10 +125,47 @@ func _build_ui() -> void:
 	rot_cw_btn.custom_minimum_size = Vector2(32, 32)
 	rot_cw_btn.pressed.connect(rotate_tile.bind(60.0))
 	rot_row.add_child(rot_cw_btn)
-	
+
 	# Separator
 	var sep2 := VSeparator.new()
 	_toolbar_container.add_child(sep2)
+
+	# Height section
+	var height_section := VBoxContainer.new()
+	_toolbar_container.add_child(height_section)
+
+	var height_header := Label.new()
+	height_header.text = "Height"
+	height_header.add_theme_font_size_override("font_size", 14)
+	height_section.add_child(height_header)
+
+	var height_row := HBoxContainer.new()
+	height_row.add_theme_constant_override("separation", 8)
+	height_section.add_child(height_row)
+
+	_height_label = Label.new()
+	_height_label.text = "1.00x"
+	_height_label.custom_minimum_size.x = 50
+	_height_label.add_theme_font_size_override("font_size", 18)
+	height_row.add_child(_height_label)
+
+	var height_dec_btn := Button.new()
+	height_dec_btn.text = "-"
+	height_dec_btn.tooltip_text = "Decrease height (-)"
+	height_dec_btn.custom_minimum_size = Vector2(32, 32)
+	height_dec_btn.pressed.connect(adjust_height.bind(-HEIGHT_STEP))
+	height_row.add_child(height_dec_btn)
+
+	var height_inc_btn := Button.new()
+	height_inc_btn.text = "+"
+	height_inc_btn.tooltip_text = "Increase height (+)"
+	height_inc_btn.custom_minimum_size = Vector2(32, 32)
+	height_inc_btn.pressed.connect(adjust_height.bind(HEIGHT_STEP))
+	height_row.add_child(height_inc_btn)
+
+	# Separator
+	var sep3 := VSeparator.new()
+	_toolbar_container.add_child(sep3)
 	
 	# Palette section
 	var palette_section := VBoxContainer.new()
@@ -275,3 +319,20 @@ func _on_palette_button_pressed(index: int) -> void:
 	select_tile(index)
 	# Switch to paint mode when selecting a tile
 	set_tool(ToolMode.PAINT)
+
+
+func adjust_height(amount: float) -> void:
+	var new_height := clamp(_current_height + amount, HEIGHT_MIN, HEIGHT_MAX)
+	if new_height != _current_height:
+		_current_height = new_height
+		_height_label.text = "%.2fx" % _current_height
+		height_changed.emit(_current_height)
+
+
+func set_height(height: float) -> void:
+	_current_height = clamp(height, HEIGHT_MIN, HEIGHT_MAX)
+	_height_label.text = "%.2fx" % _current_height
+
+
+func get_height() -> float:
+	return _current_height

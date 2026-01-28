@@ -156,15 +156,15 @@ func _add_hex_outline(st: SurfaceTool, center: Vector3) -> void:
 
 
 ## Place a tile at the given axial coordinate
-func place_tile(axial_coord: Vector2i, tile: HexTileResource, rotation_degrees: float = 0.0) -> void:
+func place_tile(axial_coord: Vector2i, tile: HexTileResource, rotation_degrees: float = 0.0, height_scale: float = 1.0) -> void:
 	if not tile:
 		return
-	
+
 	# Check bounds
 	var offset := HexMath.axial_to_offset(axial_coord, pointy_top)
 	if not HexMath.is_in_bounds(offset, grid_width, grid_height):
 		return
-	
+
 	# Ensure data resource exists
 	if not grid_data:
 		grid_data = HexGridData.new()
@@ -173,19 +173,19 @@ func place_tile(axial_coord: Vector2i, tile: HexTileResource, rotation_degrees: 
 		grid_data.hex_size = hex_size
 		grid_data.mesh_scale = mesh_scale
 		grid_data.pointy_top = pointy_top
-	
+
 	# Calculate world position at placement time
 	var world_pos := HexMath.axial_to_world(axial_coord, hex_size, pointy_top)
 	world_pos.y = tile.height_offset
-	
-	# Update data - store position and orientation used at placement
-	grid_data.set_cell(axial_coord, tile, rotation_degrees, world_pos, pointy_top)
-	
+
+	# Update data - store position, orientation, and height scale used at placement
+	grid_data.set_cell(axial_coord, tile, rotation_degrees, world_pos, pointy_top, height_scale)
+
 	# Update visual
-	_create_or_update_cell_instance(axial_coord, tile, rotation_degrees, world_pos, pointy_top)
-	
+	_create_or_update_cell_instance(axial_coord, tile, rotation_degrees, world_pos, pointy_top, height_scale)
+
 	cell_changed.emit(axial_coord)
-	
+
 	if Engine.is_editor_hint():
 		notify_property_list_changed()
 
@@ -252,62 +252,64 @@ func is_in_bounds(axial_coord: Vector2i) -> bool:
 	return HexMath.is_in_bounds(offset, grid_width, grid_height)
 
 
-func _create_or_update_cell_instance(axial_coord: Vector2i, tile: HexTileResource, rotation_degrees: float, world_pos: Vector3, placed_pointy_top: bool) -> void:
+func _create_or_update_cell_instance(axial_coord: Vector2i, tile: HexTileResource, rotation_degrees: float, world_pos: Vector3, placed_pointy_top: bool, height_scale: float = 1.0) -> void:
 	_setup_containers()
-	
+
 	var instance: MeshInstance3D
-	
+
 	if _cell_instances.has(axial_coord):
 		instance = _cell_instances[axial_coord]
 	else:
 		instance = MeshInstance3D.new()
 		_cell_container.add_child(instance, false, Node.INTERNAL_MODE_BACK)
 		_cell_instances[axial_coord] = instance
-	
+
 	# Set mesh
 	instance.mesh = tile.mesh
-	
+
 	# Set material
 	if tile.material_override:
 		instance.material_override = tile.material_override
 	else:
 		instance.material_override = null
-	
+
 	# Set position (use the stored world position)
 	instance.position = Vector3(world_pos.x, 0, world_pos.z)
-	
+
 	# Set rotation - mesh is already oriented correctly, just apply user rotation
 	instance.rotation_degrees.y = rotation_degrees
-	
+
 	# Set scale to fit within hex bounds
 	# mesh_scale of 1.0 means the mesh fills the hex, 0.95 gives a small gap
+	# height_scale affects only the Y axis (1.0 = original, 2.0 = twice as tall)
 	var scale_factor := hex_size * mesh_scale
-	instance.scale = Vector3(scale_factor, scale_factor, scale_factor)
-	
+	instance.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
+
 	# Store metadata
 	instance.set_meta("axial_coord", axial_coord)
 	instance.set_meta("tile_resource", tile)
 	instance.set_meta("rotation_degrees", rotation_degrees)
 	instance.set_meta("world_position", world_pos)
 	instance.set_meta("placed_pointy_top", placed_pointy_top)
+	instance.set_meta("height_scale", height_scale)
 
 
 func _sync_from_data() -> void:
 	if not grid_data:
 		return
-	
+
 	# Clear existing instances
 	for cell in _cell_instances.values():
 		cell.queue_free()
 	_cell_instances.clear()
-	
+
 	# Update grid settings from data
 	grid_width = grid_data.grid_width
 	grid_height = grid_data.grid_height
 	hex_size = grid_data.hex_size
 	mesh_scale = grid_data.mesh_scale if grid_data.mesh_scale > 0 else 0.95
 	pointy_top = grid_data.pointy_top
-	
+
 	# Rebuild cells using their stored positions
 	for axial_coord in grid_data.cells:
 		var cell_data: Dictionary = grid_data.cells[axial_coord]
@@ -315,67 +317,70 @@ func _sync_from_data() -> void:
 		var rotation: float = cell_data.get("rotation_degrees", 0.0)
 		var world_pos: Vector3 = cell_data.get("world_position", Vector3.ZERO)
 		var placed_pointy: bool = cell_data.get("placed_pointy_top", pointy_top)
-		
+		var height_scale: float = cell_data.get("height_scale", 1.0)
+
 		# If no stored position (legacy data), calculate it
 		if world_pos == Vector3.ZERO:
 			world_pos = HexMath.axial_to_world(axial_coord, hex_size, placed_pointy)
 			if tile:
 				world_pos.y = tile.height_offset
-		
+
 		if tile:
-			_create_or_update_cell_instance(axial_coord, tile, rotation, world_pos, placed_pointy)
+			_create_or_update_cell_instance(axial_coord, tile, rotation, world_pos, placed_pointy, height_scale)
 
 
 func _rebuild_all_cells() -> void:
 	if not grid_data:
 		return
-	
+
 	# Rebuild using stored positions - cells don't move
 	for axial_coord in _cell_instances:
 		var instance: MeshInstance3D = _cell_instances[axial_coord]
 		var tile: HexTileResource = instance.get_meta("tile_resource")
 		var world_pos: Vector3 = instance.get_meta("world_position")
 		var rotation: float = instance.get_meta("rotation_degrees")
-		
+		var height_scale: float = instance.get_meta("height_scale") if instance.has_meta("height_scale") else 1.0
+
 		# Position stays the same (uses stored world_pos)
 		# Only update Y for height offset changes
 		if tile:
 			world_pos.y = tile.height_offset
 		instance.position = world_pos
-		
+
 		# Apply user rotation only
 		instance.rotation_degrees.y = rotation
-		
-		# Update scale
+
+		# Update scale (height_scale affects only Y axis)
 		var scale_factor := hex_size * mesh_scale
-		instance.scale = Vector3(scale_factor, scale_factor, scale_factor)
+		instance.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
 
 
 ## Optional: Call this if you want to remap all tiles to the current orientation
 func remap_tiles_to_current_orientation() -> void:
 	if not grid_data:
 		return
-	
+
 	for axial_coord in _cell_instances:
 		var instance: MeshInstance3D = _cell_instances[axial_coord]
 		var tile: HexTileResource = instance.get_meta("tile_resource")
 		var rotation: float = instance.get_meta("rotation_degrees")
-		
+		var height_scale: float = instance.get_meta("height_scale") if instance.has_meta("height_scale") else 1.0
+
 		# Recalculate position with current orientation
 		var world_pos := HexMath.axial_to_world(axial_coord, hex_size, pointy_top)
 		world_pos.y = tile.height_offset if tile else 0.0
 		instance.position = world_pos
-		
+
 		# Apply user rotation only
 		instance.rotation_degrees.y = rotation
-		
+
 		# Update stored metadata
 		instance.set_meta("world_position", world_pos)
 		instance.set_meta("placed_pointy_top", pointy_top)
-		
+
 		# Update grid data
 		if tile:
-			grid_data.set_cell(axial_coord, tile, rotation, world_pos, pointy_top)
+			grid_data.set_cell(axial_coord, tile, rotation, world_pos, pointy_top, height_scale)
 
 
 func _get_configuration_warnings() -> PackedStringArray:

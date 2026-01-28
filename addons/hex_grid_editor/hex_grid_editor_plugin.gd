@@ -108,6 +108,17 @@ func _forward_3d_gui_input(viewport_camera: Camera3D, event: InputEvent) -> int:
 				_toolbar.rotate_tile(60.0)
 			_update_preview_rotation()
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
+
+		# Handle height adjustment keys (+ and -)
+		if event.pressed:
+			if event.keycode == KEY_EQUAL or event.keycode == KEY_KP_ADD:  # + key
+				_toolbar.adjust_height(HexGridEditorToolbar.HEIGHT_STEP)
+				_update_preview_scale()
+				return EditorPlugin.AFTER_GUI_INPUT_STOP
+			elif event.keycode == KEY_MINUS or event.keycode == KEY_KP_SUBTRACT:  # - key
+				_toolbar.adjust_height(-HexGridEditorToolbar.HEIGHT_STEP)
+				_update_preview_scale()
+				return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	# Handle mouse input
 	if event is InputEventMouseButton:
@@ -179,30 +190,33 @@ func _handle_paint(camera: Camera3D, screen_pos: Vector2) -> bool:
 			var tile := _toolbar.get_selected_tile()
 			if tile:
 				var rotation := _toolbar.get_rotation()
-				
+				var height_scale := _toolbar.get_height()
+
 				# Store old state for undo
 				var old_data := _edited_grid.get_tile_at(axial_coord)
-				
+
 				undo_redo.create_action("Paint Hex Tile")
-				undo_redo.add_do_method(_edited_grid, "place_tile", axial_coord, tile, rotation)
-				
+				undo_redo.add_do_method(_edited_grid, "place_tile", axial_coord, tile, rotation, height_scale)
+
 				if old_data.is_empty():
 					undo_redo.add_undo_method(_edited_grid, "remove_tile", axial_coord)
 				else:
-					undo_redo.add_undo_method(_edited_grid, "place_tile", axial_coord, 
-						old_data.get("tile_resource"), old_data.get("rotation_degrees", 0.0))
-				
+					undo_redo.add_undo_method(_edited_grid, "place_tile", axial_coord,
+						old_data.get("tile_resource"), old_data.get("rotation_degrees", 0.0),
+						old_data.get("height_scale", 1.0))
+
 				undo_redo.commit_action()
 				return true
-		
+
 		HexGridEditorToolbar.ToolMode.ERASE:
 			if _edited_grid.has_tile_at(axial_coord):
 				var old_data := _edited_grid.get_tile_at(axial_coord)
-				
+
 				undo_redo.create_action("Erase Hex Tile")
 				undo_redo.add_do_method(_edited_grid, "remove_tile", axial_coord)
 				undo_redo.add_undo_method(_edited_grid, "place_tile", axial_coord,
-					old_data.get("tile_resource"), old_data.get("rotation_degrees", 0.0))
+					old_data.get("tile_resource"), old_data.get("rotation_degrees", 0.0),
+					old_data.get("height_scale", 1.0))
 				undo_redo.commit_action()
 				return true
 		
@@ -211,13 +225,16 @@ func _handle_paint(camera: Camera3D, screen_pos: Vector2) -> bool:
 				var cell_data := _edited_grid.get_tile_at(axial_coord)
 				var tile: HexTileResource = cell_data.get("tile_resource")
 				var rotation: float = cell_data.get("rotation_degrees", 0.0)
-				
+				var height_scale: float = cell_data.get("height_scale", 1.0)
+
 				# Find and select the tile in palette
 				for i in range(_edited_grid.tile_palette.size()):
 					if _edited_grid.tile_palette[i] == tile:
 						_toolbar.select_tile(i)
 						_toolbar.set_rotation(rotation)
+						_toolbar.set_height(height_scale)
 						_toolbar.set_tool(HexGridEditorToolbar.ToolMode.PAINT)
+						_update_preview_scale()
 						break
 				return true
 	
@@ -260,19 +277,29 @@ func _update_preview(camera: Camera3D, screen_pos: Vector2) -> void:
 	world_pos.y = tile.height_offset
 	_preview_instance.position = world_pos
 	
-	# Apply scale to match what will be placed
+	# Apply scale to match what will be placed (with height scaling)
 	var scale_factor := _edited_grid.hex_size * _edited_grid.mesh_scale
-	_preview_instance.scale = Vector3(scale_factor, scale_factor, scale_factor)
-	
+	var height_scale := _toolbar.get_height()
+	_preview_instance.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
+
 	_update_preview_rotation()
 
 
 func _update_preview_rotation() -> void:
 	if not _preview_instance:
 		return
-	
+
 	# Just apply the user's rotation - mesh is already oriented correctly
 	_preview_instance.rotation_degrees.y = _toolbar.get_rotation()
+
+
+func _update_preview_scale() -> void:
+	if not _preview_instance or not _edited_grid:
+		return
+
+	var scale_factor := _edited_grid.hex_size * _edited_grid.mesh_scale
+	var height_scale := _toolbar.get_height()
+	_preview_instance.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
 
 
 func _on_tile_selected(index: int) -> void:
