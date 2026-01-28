@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://xc2ilsqwhkdo"
+path="res://.godot/imported/hex_grass_sloped_low.obj-7dce9c9c23fcf9e17b9c44e59a2919ae.mesh"
+
+[deps]
+
+files=["res://.godot/imported/hex_grass_sloped_low.obj-7dce9c9c23fcf9e17b9c44e59a2919ae.mesh"]
+
+source_file="res://hex_tiles/tiles/base/hex_grass_sloped_low.obj"
+dest_files=["res://.godot/imported/hex_grass_sloped_low.obj-7dce9c9c23fcf9e17b9c44e59a2919ae.mesh", "res://.godot/imported/hex_grass_sloped_low.obj-7dce9c9c23fcf9e17b9c44e59a2919ae.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

@@ -1,64 +1,65 @@
-[gd_scene load_steps=8 format=3 uid="uid://jfwrehmqm6mi"]
+[gd_scene load_steps=23 format=3 uid="uid://jfwrehmqm6mi"]
 
 [ext_resource type="Script" uid="uid://cn2vjso03ayr8" path="res://addons/hex_grid_editor/hex_grid_3d.gd" id="1_hex_grid"]
 [ext_resource type="Script" uid="uid://y58lbjk3h20t" path="res://addons/hex_grid_editor/hex_grid_data.gd" id="3_sxiuf"]
+[ext_resource type="ArrayMesh" uid="uid://dsfruy2ebaj8b" path="res://hex_tiles/tiles/base/hex_grass.obj" id="4_1hljp"]
 [ext_resource type="Script" uid="uid://clji44es48wtr" path="res://addons/hex_grid_editor/hex_tile_resource.gd" id="4_yg6rb"]
-[ext_resource type="Resource" uid="uid://cicdxa64e83st" path="res://hex_tiles/tile_grass_beach.tres" id="5_om45m"]
-[ext_resource type="Resource" uid="uid://da4svi16lotf1" path="res://hex_tiles/tile_water2.tres" id="6_4qc3i"]
-[ext_resource type="Resource" uid="uid://bopq7lmywl70m" path="res://hex_tiles/tile_grass2.tres" id="9_sxiuf"]
+[ext_resource type="ArrayMesh" uid="uid://b7cmhiestoojk" path="res://hex_tiles/tiles/roads/hex_road_A.obj" id="5_h7mfa"]
+[ext_resource type="ArrayMesh" uid="uid://bwjs4pdqvhy5r" path="res://hex_tiles/tiles/roads/hex_road_B.obj" id="6_ragla"]
+[ext_resource type="ArrayMesh" uid="uid://cgisjxqwj763j" path="res://hex_tiles/tiles/roads/hex_road_C.obj" id="7_qmojn"]
+[ext_resource type="ArrayMesh" uid="uid://c5ov2greecc2c" path="res://hex_tiles/tiles/roads/hex_road_D.obj" id="8_scy3m"]
+[ext_resource type="ArrayMesh" uid="uid://ch60wv6ghgkl6" path="res://hex_tiles/tiles/roads/hex_road_E.obj" id="9_tap1b"]
+[ext_resource type="ArrayMesh" uid="uid://bws7kl4ow33se" path="res://hex_tiles/tiles/roads/hex_road_F.obj" id="10_nfkfi"]
+[ext_resource type="ArrayMesh" uid="uid://sno0tsnp8dc0" path="res://hex_tiles/tiles/roads/hex_road_G.obj" id="11_5hhy1"]
+[ext_resource type="ArrayMesh" uid="uid://ynpjc6ohxqfn" path="res://hex_tiles/tiles/base/hex_water.obj" id="12_8ei73"]
 
 [sub_resource type="Resource" id="Resource_qmojn"]
 script = ExtResource("3_sxiuf")
-cells = {
-Vector2i(0, 0): {
-"placed_pointy_top": true,
-"rotation_degrees": 0.0,
-"tile_resource": ExtResource("9_sxiuf"),
-"world_position": Vector3(0, 0, 0)
-},
-Vector2i(0, 1): {
-"placed_pointy_top": true,
-"rotation_degrees": 0.0,
-"tile_resource": ExtResource("6_4qc3i"),
-"world_position": Vector3(0.8660254, -0.05, 1.5)
-},
-Vector2i(0, 2): {
-"placed_pointy_top": true,
-"rotation_degrees": 0.0,
-"tile_resource": ExtResource("5_om45m"),
-"world_position": Vector3(1.7320508, 0, 3)
-},
-Vector2i(1, 0): {
-"placed_pointy_top": true,
-"rotation_degrees": 0.0,
-"tile_resource": ExtResource("9_sxiuf"),
-"world_position": Vector3(1.7320508, 0, 0)
-},
-Vector2i(1, 1): {
-"placed_pointy_top": true,
-"rotation_degrees": 0.0,
-"tile_resource": ExtResource("6_4qc3i"),
-"world_position": Vector3(2.598076, -0.05, 1.5)
-},
-Vector2i(1, 2): {
-"placed_pointy_top": true,
-"rotation_degrees": 0.0,
-"tile_resource": ExtResource("5_om45m"),
-"world_position": Vector3(3.4641016, 0, 3)
-},
-Vector2i(2, 0): {
-"placed_pointy_top": true,
-"rotation_degrees": 0.0,
-"tile_resource": ExtResource("9_sxiuf"),
-"world_position": Vector3(3.4641016, 0, 0)
-},
-Vector2i(2, 1): {
-"placed_pointy_top": true,
-"rotation_degrees": 0.0,
-"tile_resource": ExtResource("9_sxiuf"),
-"world_position": Vector3(4.3301272, 0, 1.5)
-}
-}
+
+[sub_resource type="Resource" id="Resource_cyigx"]
+script = ExtResource("4_yg6rb")
+tile_name = "Grass"
+mesh = ExtResource("4_1hljp")
+
+[sub_resource type="Resource" id="Resource_mhui6"]
+script = ExtResource("4_yg6rb")
+tile_name = "GrassRoadA"
+mesh = ExtResource("5_h7mfa")
+
+[sub_resource type="Resource" id="Resource_gh461"]
+script = ExtResource("4_yg6rb")
+tile_name = "GrassRoadB"
+mesh = ExtResource("6_ragla")
+
+[sub_resource type="Resource" id="Resource_ntvxq"]
+script = ExtResource("4_yg6rb")
+tile_name = "GrassRoadC"
+mesh = ExtResource("7_qmojn")
+
+[sub_resource type="Resource" id="Resource_odeuj"]
+script = ExtResource("4_yg6rb")
+tile_name = "GrassRoadD"
+mesh = ExtResource("8_scy3m")
+
+[sub_resource type="Resource" id="Resource_5r23a"]
+script = ExtResource("4_yg6rb")
+tile_name = "GrassRoadE"
+mesh = ExtResource("9_tap1b")
+
+[sub_resource type="Resource" id="Resource_ryhke"]
+script = ExtResource("4_yg6rb")
+tile_name = "GrassRoadF"
+mesh = ExtResource("10_nfkfi")
+
+[sub_resource type="Resource" id="Resource_kxb64"]
+script = ExtResource("4_yg6rb")
+tile_name = "GrassRoadG"
+mesh = ExtResource("11_5hhy1")
+
+[sub_resource type="Resource" id="Resource_l5kdx"]
+script = ExtResource("4_yg6rb")
+tile_name = "Water"
+mesh = ExtResource("12_8ei73")
 
 [node name="DemoScene" type="Node3D"]
 
@@ -66,4 +67,4 @@ Vector2i(2, 1): {
 script = ExtResource("1_hex_grid")
 mesh_scale = 0.87
 grid_data = SubResource("Resource_qmojn")
-tile_palette = Array[ExtResource("4_yg6rb")]([ExtResource("9_sxiuf"), ExtResource("5_om45m"), ExtResource("6_4qc3i")])
+tile_palette = Array[ExtResource("4_yg6rb")]([SubResource("Resource_cyigx"), SubResource("Resource_mhui6"), SubResource("Resource_gh461"), SubResource("Resource_ntvxq"), SubResource("Resource_odeuj"), SubResource("Resource_5r23a"), SubResource("Resource_ryhke"), SubResource("Resource_kxb64"), SubResource("Resource_l5kdx")])

@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cgf6abv6e5i5w"
+path="res://.godot/imported/hex_road_A_sloped_low.obj-2257d3a8769b960730fd7cabe7d309ba.mesh"
+
+[deps]
+
+files=["res://.godot/imported/hex_road_A_sloped_low.obj-2257d3a8769b960730fd7cabe7d309ba.mesh"]
+
+source_file="res://hex_tiles/tiles/roads/hex_road_A_sloped_low.obj"
+dest_files=["res://.godot/imported/hex_road_A_sloped_low.obj-2257d3a8769b960730fd7cabe7d309ba.mesh", "res://.godot/imported/hex_road_A_sloped_low.obj-2257d3a8769b960730fd7cabe7d309ba.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false
