@@ -292,11 +292,10 @@ func get_tool() -> ToolMode:
 
 
 func rotate_tile(amount: float = 60.0) -> void:
-	# Toggle between 0 and 60 degrees only
-	if _current_rotation == 0.0:
-		_current_rotation = 60.0
-	else:
-		_current_rotation = 0.0
+	# Cycle through all 6 hex orientations (0, 60, 120, 180, 240, 300)
+	_current_rotation = fmod(_current_rotation + amount, 360.0)
+	if _current_rotation < 0:
+		_current_rotation += 360.0
 	_rotation_label.text = "%d°" % int(_current_rotation)
 	rotation_changed.emit(_current_rotation)
 
