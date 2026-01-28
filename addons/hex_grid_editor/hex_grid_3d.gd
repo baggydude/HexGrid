@@ -273,17 +273,16 @@ func _create_or_update_cell_instance(axial_coord: Vector2i, tile: HexTileResourc
 	else:
 		instance.material_override = null
 
-	# Set position (use the stored world position)
-	instance.position = Vector3(world_pos.x, 0, world_pos.z)
-
-	# Set rotation - mesh is already oriented correctly, just apply user rotation
-	instance.rotation_degrees.y = rotation_degrees
-
 	# Set scale to fit within hex bounds
 	# mesh_scale of 1.0 means the mesh fills the hex, 0.95 gives a small gap
 	# height_scale affects only the Y axis (1.0 = original, 2.0 = twice as tall)
 	var scale_factor := hex_size * mesh_scale
 	instance.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
+
+	# Set position (use the stored world position)
+	# Offset Y so the bottom of the mesh sits at y=0 (mesh origin is at center)
+	var y_offset := 0.5 * scale_factor * height_scale
+	instance.position = Vector3(world_pos.x, y_offset, world_pos.z)
 
 	# Store metadata
 	instance.set_meta("axial_coord", axial_coord)
@@ -341,18 +340,16 @@ func _rebuild_all_cells() -> void:
 		var rotation: float = instance.get_meta("rotation_degrees")
 		var height_scale: float = instance.get_meta("height_scale") if instance.has_meta("height_scale") else 1.0
 
-		# Position stays the same (uses stored world_pos)
-		# Only update Y for height offset changes
-		if tile:
-			world_pos.y = tile.height_offset
-		instance.position = world_pos
-
 		# Apply user rotation only
 		instance.rotation_degrees.y = rotation
 
 		# Update scale (height_scale affects only Y axis)
 		var scale_factor := hex_size * mesh_scale
 		instance.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
+
+		# Update position - offset Y so the bottom of the mesh sits at y=0
+		var y_offset := 0.5 * scale_factor * height_scale
+		instance.position = Vector3(world_pos.x, y_offset, world_pos.z)
 
 
 ## Optional: Call this if you want to remap all tiles to the current orientation
