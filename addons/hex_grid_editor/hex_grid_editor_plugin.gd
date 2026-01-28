@@ -33,11 +33,10 @@ func _enter_tree() -> void:
 	# Add to the spatial editor area (below the 3D viewport toolbar)
 	add_control_to_container(EditorPlugin.CONTAINER_SPATIAL_EDITOR_BOTTOM, _toolbar_container)
 	
-	# Create preview material
+	# Create preview material - subtle transparency to indicate preview
 	_preview_material = StandardMaterial3D.new()
-	_preview_material.albedo_color = Color(1, 1, 1, 0.5)
+	_preview_material.albedo_color = Color(1, 1, 1, 0.85)
 	_preview_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_preview_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 
 
 func _exit_tree() -> void:

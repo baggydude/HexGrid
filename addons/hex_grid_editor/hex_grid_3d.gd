@@ -279,6 +279,9 @@ func _create_or_update_cell_instance(axial_coord: Vector2i, tile: HexTileResourc
 	var scale_factor := hex_size * mesh_scale
 	instance.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
 
+	# Set rotation - apply user rotation on Y axis
+	instance.rotation_degrees.y = rotation_degrees
+
 	# Set position (use the stored world position)
 	# Offset Y so the bottom of the mesh sits at y=0 (mesh origin is at top)
 	var y_offset := scale_factor * height_scale
