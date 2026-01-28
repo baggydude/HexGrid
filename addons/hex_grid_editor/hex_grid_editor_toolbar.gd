@@ -297,6 +297,7 @@ func rotate_tile(amount: float = 60.0) -> void:
 	if _current_rotation < 0:
 		_current_rotation += 360.0
 	_rotation_label.text = "%d°" % int(_current_rotation)
+	print("[HexToolbar] rotate_tile called, new rotation: ", _current_rotation)
 	rotation_changed.emit(_current_rotation)
 
 func set_rotation(degrees: float) -> void:
@@ -307,6 +308,7 @@ func set_rotation(degrees: float) -> void:
 
 
 func get_rotation() -> float:
+	print("[HexToolbar] get_rotation called, returning: ", _current_rotation)
 	return _current_rotation
 
 

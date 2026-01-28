@@ -291,7 +291,9 @@ func _update_preview_rotation() -> void:
 		return
 
 	# Just apply the user's rotation - mesh is already oriented correctly
-	_preview_instance.rotation_degrees.y = _toolbar.get_rotation()
+	var rot := _toolbar.get_rotation()
+	_preview_instance.rotation_degrees.y = rot
+	print("[HexPlugin] _update_preview_rotation set to: ", rot, " actual: ", _preview_instance.rotation_degrees.y)
 
 
 func _update_preview_scale() -> void:
