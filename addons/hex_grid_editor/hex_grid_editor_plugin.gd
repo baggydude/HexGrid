@@ -188,7 +188,7 @@ func _handle_paint(camera: Camera3D, screen_pos: Vector2) -> bool:
 		HexGridEditorToolbar.ToolMode.PAINT:
 			var tile := _toolbar.get_selected_tile()
 			if tile:
-				var rotation := _toolbar.get_rotation()
+				var rotation := _toolbar.get_tile_rotation()
 				var height_scale := _toolbar.get_height()
 
 				# Store old state for undo
@@ -230,7 +230,7 @@ func _handle_paint(camera: Camera3D, screen_pos: Vector2) -> bool:
 				for i in range(_edited_grid.tile_palette.size()):
 					if _edited_grid.tile_palette[i] == tile:
 						_toolbar.select_tile(i)
-						_toolbar.set_rotation(rotation)
+						_toolbar.set_tile_rotation(rotation)
 						_toolbar.set_height(height_scale)
 						_toolbar.set_tool(HexGridEditorToolbar.ToolMode.PAINT)
 						_update_preview_scale()
@@ -291,7 +291,7 @@ func _update_preview_rotation() -> void:
 		return
 
 	# Just apply the user's rotation - mesh is already oriented correctly
-	var rot := _toolbar.get_rotation()
+	var rot := _toolbar.get_tile_rotation()
 	_preview_instance.rotation_degrees.y = rot
 	print("[HexPlugin] _update_preview_rotation set to: ", rot, " actual: ", _preview_instance.rotation_degrees.y)
 
