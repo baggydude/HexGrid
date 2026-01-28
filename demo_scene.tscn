@@ -1,0 +1,69 @@
+[gd_scene load_steps=8 format=3 uid="uid://jfwrehmqm6mi"]
+
+[ext_resource type="Script" uid="uid://cn2vjso03ayr8" path="res://addons/hex_grid_editor/hex_grid_3d.gd" id="1_hex_grid"]
+[ext_resource type="Script" uid="uid://y58lbjk3h20t" path="res://addons/hex_grid_editor/hex_grid_data.gd" id="3_sxiuf"]
+[ext_resource type="Script" uid="uid://clji44es48wtr" path="res://addons/hex_grid_editor/hex_tile_resource.gd" id="4_yg6rb"]
+[ext_resource type="Resource" uid="uid://cicdxa64e83st" path="res://hex_tiles/tile_grass_beach.tres" id="5_om45m"]
+[ext_resource type="Resource" uid="uid://da4svi16lotf1" path="res://hex_tiles/tile_water2.tres" id="6_4qc3i"]
+[ext_resource type="Resource" uid="uid://bopq7lmywl70m" path="res://hex_tiles/tile_grass2.tres" id="9_sxiuf"]
+
+[sub_resource type="Resource" id="Resource_qmojn"]
+script = ExtResource("3_sxiuf")
+cells = {
+Vector2i(0, 0): {
+"placed_pointy_top": true,
+"rotation_degrees": 0.0,
+"tile_resource": ExtResource("9_sxiuf"),
+"world_position": Vector3(0, 0, 0)
+},
+Vector2i(0, 1): {
+"placed_pointy_top": true,
+"rotation_degrees": 0.0,
+"tile_resource": ExtResource("6_4qc3i"),
+"world_position": Vector3(0.8660254, -0.05, 1.5)
+},
+Vector2i(0, 2): {
+"placed_pointy_top": true,
+"rotation_degrees": 0.0,
+"tile_resource": ExtResource("5_om45m"),
+"world_position": Vector3(1.7320508, 0, 3)
+},
+Vector2i(1, 0): {
+"placed_pointy_top": true,
+"rotation_degrees": 0.0,
+"tile_resource": ExtResource("9_sxiuf"),
+"world_position": Vector3(1.7320508, 0, 0)
+},
+Vector2i(1, 1): {
+"placed_pointy_top": true,
+"rotation_degrees": 0.0,
+"tile_resource": ExtResource("6_4qc3i"),
+"world_position": Vector3(2.598076, -0.05, 1.5)
+},
+Vector2i(1, 2): {
+"placed_pointy_top": true,
+"rotation_degrees": 0.0,
+"tile_resource": ExtResource("5_om45m"),
+"world_position": Vector3(3.4641016, 0, 3)
+},
+Vector2i(2, 0): {
+"placed_pointy_top": true,
+"rotation_degrees": 0.0,
+"tile_resource": ExtResource("9_sxiuf"),
+"world_position": Vector3(3.4641016, 0, 0)
+},
+Vector2i(2, 1): {
+"placed_pointy_top": true,
+"rotation_degrees": 0.0,
+"tile_resource": ExtResource("9_sxiuf"),
+"world_position": Vector3(4.3301272, 0, 1.5)
+}
+}
+
+[node name="DemoScene" type="Node3D"]
+
+[node name="HexGrid3D" type="Node3D" parent="."]
+script = ExtResource("1_hex_grid")
+mesh_scale = 0.87
+grid_data = SubResource("Resource_qmojn")
+tile_palette = Array[ExtResource("4_yg6rb")]([ExtResource("9_sxiuf"), ExtResource("5_om45m"), ExtResource("6_4qc3i")])

@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://c7brk4y7v1gyy"
+path="res://.godot/imported/hex_river_L.obj-806389a86d8ce177384cb5cd959762dc.mesh"
+
+[deps]
+
+files=["res://.godot/imported/hex_river_L.obj-806389a86d8ce177384cb5cd959762dc.mesh"]
+
+source_file="res://hex_tiles/HexObj/tiles/rivers/hex_river_L.obj"
+dest_files=["res://.godot/imported/hex_river_L.obj-806389a86d8ce177384cb5cd959762dc.mesh", "res://.godot/imported/hex_river_L.obj-806389a86d8ce177384cb5cd959762dc.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

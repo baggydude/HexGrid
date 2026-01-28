@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://q71thcmb236q"
+path="res://.godot/imported/building_home_B_yellow.obj-e47e1d25f3cf189f52da8f2914ab28d8.mesh"
+
+[deps]
+
+files=["res://.godot/imported/building_home_B_yellow.obj-e47e1d25f3cf189f52da8f2914ab28d8.mesh"]
+
+source_file="res://hex_tiles/HexObj/buildings/yellow/building_home_B_yellow.obj"
+dest_files=["res://.godot/imported/building_home_B_yellow.obj-e47e1d25f3cf189f52da8f2914ab28d8.mesh", "res://.godot/imported/building_home_B_yellow.obj-e47e1d25f3cf189f52da8f2914ab28d8.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

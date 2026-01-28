@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HexTileResource" load_steps=3 format=3 uid="uid://cicdxa64e83st"]
+
+[ext_resource type="ArrayMesh" uid="uid://dkux3h4ruj6j1" path="res://hex_tiles/HexObj/tiles/coast/hex_coast_D.obj" id="1_3eikc"]
+[ext_resource type="Script" uid="uid://clji44es48wtr" path="res://addons/hex_grid_editor/hex_tile_resource.gd" id="2_gsb0q"]
+
+[resource]
+script = ExtResource("2_gsb0q")
+tile_name = "GrassBeach"
+mesh = ExtResource("1_3eikc")
+preview_color = Color(0.3, 0.6, 0.2, 1)

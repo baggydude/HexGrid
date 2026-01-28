@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://ru4akaa3dr4c"
+path="res://.godot/imported/building_tower_catapult_blue_catapult_turret_blue_catapult_arm_blue.obj-db7754dae574a81c71d47518b136069d.mesh"
+
+[deps]
+
+files=["res://.godot/imported/building_tower_catapult_blue_catapult_turret_blue_catapult_arm_blue.obj-db7754dae574a81c71d47518b136069d.mesh"]
+
+source_file="res://hex_tiles/HexObj/buildings/blue/building_tower_catapult_blue_catapult_turret_blue_catapult_arm_blue.obj"
+dest_files=["res://.godot/imported/building_tower_catapult_blue_catapult_turret_blue_catapult_arm_blue.obj-db7754dae574a81c71d47518b136069d.mesh", "res://.godot/imported/building_tower_catapult_blue_catapult_turret_blue_catapult_arm_blue.obj-db7754dae574a81c71d47518b136069d.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

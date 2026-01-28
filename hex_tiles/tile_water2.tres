@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HexTileResource" load_steps=3 format=3 uid="uid://da4svi16lotf1"]
+
+[ext_resource type="ArrayMesh" uid="uid://ynpjc6ohxqfn" path="res://hex_tiles/HexObj/tiles/base/hex_water.obj" id="1_5maup"]
+[ext_resource type="Script" uid="uid://clji44es48wtr" path="res://addons/hex_grid_editor/hex_tile_resource.gd" id="1_wxg4m"]
+
+[resource]
+script = ExtResource("1_wxg4m")
+tile_name = "Water2"
+mesh = ExtResource("1_5maup")
+is_blocked = true
+movement_cost = 99.0
+height_offset = -0.05
+preview_color = Color(0.2, 0.4, 0.8, 1)
