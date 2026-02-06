@@ -1,0 +1,150 @@
+[gd_scene load_steps=28 format=3 uid="uid://csemjd6gyxlaa"]
+
+[ext_resource type="ArrayMesh" uid="uid://dsfruy2ebaj8b" path="res://hex_tiles/tiles/base/hex_grass.obj" id="1_oj33e"]
+[ext_resource type="ArrayMesh" uid="uid://dq5xl44u05ipx" path="res://hex_tiles/placeables/buildings/neutral/wall_straight.obj" id="2_ujinx"]
+[ext_resource type="ArrayMesh" uid="uid://deslgqoyaslie" path="res://hex_tiles/placeables/buildings/neutral/wall_straight_gate.obj" id="3_54rjf"]
+[ext_resource type="ArrayMesh" uid="uid://c7oehb6fy20gr" path="res://hex_tiles/placeables/buildings/neutral/wall_straight_gate_door_left.obj" id="4_t0hwj"]
+[ext_resource type="ArrayMesh" uid="uid://bouh6078ajjp0" path="res://hex_tiles/placeables/buildings/neutral/wall_straight_gate_door_right.obj" id="5_hpn1s"]
+[ext_resource type="ArrayMesh" uid="uid://c3csqs06iaw26" path="res://hex_tiles/placeables/buildings/neutral/wall_corner_A_gate.obj" id="6_6vs3c"]
+[ext_resource type="ArrayMesh" uid="uid://c7k3baaf0210c" path="res://hex_tiles/placeables/buildings/neutral/wall_corner_A_gate_door_left.obj" id="7_b1aub"]
+[ext_resource type="ArrayMesh" uid="uid://dsvv7kd4w88sw" path="res://hex_tiles/placeables/buildings/neutral/wall_corner_A_gate_door_right.obj" id="8_px75l"]
+[ext_resource type="ArrayMesh" uid="uid://cs1wa4km13g6l" path="res://hex_tiles/placeables/buildings/neutral/wall_corner_A_inside.obj" id="9_kr5ex"]
+[ext_resource type="ArrayMesh" uid="uid://bos8itf7tk1q6" path="res://hex_tiles/placeables/buildings/neutral/wall_corner_A_outside.obj" id="10_r6sxy"]
+[ext_resource type="ArrayMesh" uid="uid://4d1nstrbblw0" path="res://hex_tiles/placeables/buildings/neutral/wall_corner_B_inside.obj" id="11_5xw4j"]
+[ext_resource type="ArrayMesh" uid="uid://7bs3lsswivxl" path="res://hex_tiles/placeables/buildings/neutral/wall_corner_B_outside.obj" id="12_pv6da"]
+[ext_resource type="ArrayMesh" uid="uid://bnq605o5kmiga" path="res://hex_tiles/placeables/buildings/neutral/building_bridge_A.obj" id="13_m3clt"]
+[ext_resource type="ArrayMesh" uid="uid://5qa3lfl3j5cv" path="res://hex_tiles/placeables/buildings/neutral/building_bridge_B.obj" id="14_3qrc6"]
+[ext_resource type="ArrayMesh" uid="uid://it38gwt3jpj" path="res://hex_tiles/placeables/buildings/neutral/building_destroyed.obj" id="15_324bd"]
+[ext_resource type="ArrayMesh" uid="uid://cm4bqpfu2wlvu" path="res://hex_tiles/placeables/buildings/neutral/building_dirt.obj" id="16_bcnus"]
+[ext_resource type="ArrayMesh" uid="uid://bn8owwp7ndxg" path="res://hex_tiles/placeables/buildings/neutral/building_grain.obj" id="17_0w1uu"]
+[ext_resource type="ArrayMesh" uid="uid://chu8tp5itnfxq" path="res://hex_tiles/placeables/buildings/neutral/building_scaffolding.obj" id="18_oa12e"]
+[ext_resource type="ArrayMesh" uid="uid://b2svas8ss5ewg" path="res://hex_tiles/placeables/buildings/neutral/building_stage_A.obj" id="19_qsnq0"]
+[ext_resource type="ArrayMesh" uid="uid://chkjd31qkwsxg" path="res://hex_tiles/placeables/buildings/neutral/building_stage_B.obj" id="20_023et"]
+[ext_resource type="ArrayMesh" uid="uid://bee2grqspmiuw" path="res://hex_tiles/placeables/buildings/neutral/building_stage_C.obj" id="21_5r7pr"]
+[ext_resource type="ArrayMesh" uid="uid://d2fjt8xtf7vlw" path="res://hex_tiles/placeables/buildings/neutral/fence_stone_straight.obj" id="22_6ad2v"]
+[ext_resource type="ArrayMesh" uid="uid://dcrk6t21qw5qx" path="res://hex_tiles/placeables/buildings/neutral/fence_stone_straight_gate.obj" id="23_2ne2y"]
+[ext_resource type="ArrayMesh" uid="uid://2heaoqufexhb" path="res://hex_tiles/placeables/buildings/neutral/fence_stone_straight_gate_fence_stone_straight_door.obj" id="24_xu64m"]
+[ext_resource type="ArrayMesh" uid="uid://b51vejava1bqa" path="res://hex_tiles/placeables/buildings/neutral/fence_wood_straight.obj" id="25_55bqq"]
+[ext_resource type="ArrayMesh" uid="uid://driyqcl63y6b2" path="res://hex_tiles/placeables/buildings/neutral/fence_wood_straight_gate.obj" id="26_4hxcy"]
+[ext_resource type="ArrayMesh" uid="uid://b56tfy7ddjlmr" path="res://hex_tiles/placeables/buildings/neutral/fence_wood_straight_gate_fence_wood_straight_door.obj" id="27_7b4p4"]
+
+[node name="Tile" type="Node3D"]
+
+[node name="HexGrass" type="MeshInstance3D" parent="."]
+mesh = ExtResource("1_oj33e")
+
+[node name="WallStraight" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("2_ujinx")
+
+[node name="WallStraightGate" type="Node3D" parent="."]
+visible = false
+
+[node name="WallStraightGate" type="MeshInstance3D" parent="WallStraightGate"]
+mesh = ExtResource("3_54rjf")
+skeleton = NodePath("../..")
+
+[node name="WallStraightGateDoorLeft" type="MeshInstance3D" parent="WallStraightGate"]
+mesh = ExtResource("4_t0hwj")
+skeleton = NodePath("../..")
+
+[node name="WallStraightGateDoorRight" type="MeshInstance3D" parent="WallStraightGate"]
+mesh = ExtResource("5_hpn1s")
+skeleton = NodePath("../..")
+
+[node name="WallCornerAGate" type="Node3D" parent="."]
+visible = false
+
+[node name="WallCornerAGate" type="MeshInstance3D" parent="WallCornerAGate"]
+mesh = ExtResource("6_6vs3c")
+skeleton = NodePath("../..")
+
+[node name="WallCornerAGateDoorLeft" type="MeshInstance3D" parent="WallCornerAGate"]
+mesh = ExtResource("7_b1aub")
+skeleton = NodePath("../..")
+
+[node name="WallCornerAGateDoorRight" type="MeshInstance3D" parent="WallCornerAGate"]
+mesh = ExtResource("8_px75l")
+skeleton = NodePath("../..")
+
+[node name="WallCornerAInside" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("9_kr5ex")
+
+[node name="WallCornerAOutside" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("10_r6sxy")
+
+[node name="WallCornerBInside" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("11_5xw4j")
+
+[node name="WallCornerBOutside" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("12_pv6da")
+
+[node name="BuildingBridgeA" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("13_m3clt")
+
+[node name="BuildingBridgeB" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("14_3qrc6")
+
+[node name="BuildingDestroyed" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("15_324bd")
+
+[node name="BuildingDirt" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("16_bcnus")
+
+[node name="BuildingGrain" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("17_0w1uu")
+
+[node name="BuildingScaffolding" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("18_oa12e")
+
+[node name="BuildingStageA" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("19_qsnq0")
+
+[node name="BuildingStageB" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("20_023et")
+
+[node name="BuildingStageC" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("21_5r7pr")
+
+[node name="FenceStoneStraight" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("22_6ad2v")
+
+[node name="Node3D" type="Node3D" parent="."]
+visible = false
+
+[node name="FenceStoneStraightGate" type="MeshInstance3D" parent="Node3D"]
+mesh = ExtResource("23_2ne2y")
+skeleton = NodePath("../..")
+
+[node name="FenceStoneStraightGateFenceStoneStraightDoor" type="MeshInstance3D" parent="Node3D"]
+mesh = ExtResource("24_xu64m")
+skeleton = NodePath("../..")
+
+[node name="FenceWoodStraight" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("25_55bqq")
+
+[node name="Node3D2" type="Node3D" parent="."]
+visible = false
+
+[node name="FenceWoodStraightGate" type="MeshInstance3D" parent="Node3D2"]
+mesh = ExtResource("26_4hxcy")
+skeleton = NodePath("../..")
+
+[node name="FenceWoodStraightGateFenceWoodStraightDoor" type="MeshInstance3D" parent="Node3D2"]
+mesh = ExtResource("27_7b4p4")
+skeleton = NodePath("../..")
