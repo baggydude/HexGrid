@@ -1,0 +1,60 @@
+[gd_scene load_steps=10 format=3 uid="uid://cn6dv0kw1okex"]
+
+[sub_resource type="Curve" id="Curve_7227o"]
+_data = [Vector2(0.102612, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_48gr2"]
+curve = SubResource("Curve_7227o")
+
+[sub_resource type="Curve" id="Curve_cbibj"]
+_limits = [0.0, 5.0, 0.0, 1.0]
+_data = [Vector2(0.164179, 5), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_cdlk0"]
+curve = SubResource("Curve_cbibj")
+
+[sub_resource type="Curve" id="Curve_6h23u"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.141791, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_ada02"]
+curve = SubResource("Curve_6h23u")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_coeu5"]
+lifetime_randomness = 0.4
+particle_flag_align_y = true
+angle_max = 180.0
+velocity_pivot = Vector3(1, 1, 1)
+direction = Vector3(1, 1, 1)
+spread = 180.0
+initial_velocity_min = 2.0
+initial_velocity_max = 3.0
+scale_min = 0.01
+scale_max = 0.05
+scale_curve = SubResource("CurveTexture_ada02")
+alpha_curve = SubResource("CurveTexture_48gr2")
+emission_curve = SubResource("CurveTexture_cdlk0")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gkk36"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_dpb7a"]
+material = SubResource("StandardMaterial3D_gkk36")
+
+[node name="ElectricSparks_3" type="GPUParticles3D"]
+sorting_offset = -1.0
+amount = 16
+explosiveness = 0.38
+randomness = 1.0
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_coeu5")
+draw_pass_1 = SubResource("QuadMesh_dpb7a")

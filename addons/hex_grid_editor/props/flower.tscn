@@ -1,0 +1,18 @@
+[gd_scene load_steps=5 format=3 uid="uid://d4h4jsnr5wv6e"]
+
+[ext_resource type="Shader" uid="uid://iyc4ummxceak" path="res://addons/hex_grid_editor/shaders/flower.gdshader" id="1_dap5k"]
+[ext_resource type="Texture2D" uid="uid://cahixrg1fs87m" path="res://addons/hex_grid_editor/textures/flower.png" id="2_jtq22"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jtq22"]
+render_priority = 0
+shader = ExtResource("1_dap5k")
+shader_parameter/albedo_texture = ExtResource("2_jtq22")
+shader_parameter/groups = 6
+shader_parameter/fps = 5.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_oekcs"]
+material = SubResource("ShaderMaterial_jtq22")
+size = Vector2(0.2, 0.2)
+
+[node name="Flower" type="MeshInstance3D"]
+mesh = SubResource("QuadMesh_oekcs")

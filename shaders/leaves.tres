@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://ch401nydrdn85"]
+
+[ext_resource type="Texture2D" uid="uid://bksugacvir0qn" path="res://addons/hex_grid_editor/textures/leaves.png" id="1_3vc3b"]
+
+[resource]
+resource_name = "Leaves_NormalTree"
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("1_3vc3b")
+texture_filter = 0

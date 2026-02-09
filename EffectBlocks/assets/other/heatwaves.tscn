@@ -1,0 +1,28 @@
+[gd_scene load_steps=6 format=3 uid="uid://bkv7kpk5q1itl"]
+
+[ext_resource type="Material" uid="uid://cgmjb14xh3alj" path="res://PolyBlocks/EffectBlocks/source_files/materials/shockwave.material" id="1_eytim"]
+
+[sub_resource type="Curve" id="Curve_wcuhi"]
+_data = [Vector2(0, 0.439899), 0.0, 0.226867, 0, 0, Vector2(1, 0.731716), -0.0474886, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_337kd"]
+curve = SubResource("Curve_wcuhi")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_hxoso"]
+gravity = Vector3(0, -20, 0)
+scale_min = 3.0
+scale_max = 3.0
+scale_curve = SubResource("CurveTexture_337kd")
+
+[sub_resource type="TorusMesh" id="TorusMesh_y4qv0"]
+material = ExtResource("1_eytim")
+inner_radius = 0.2
+outer_radius = 0.5
+
+[node name="Heatwaves" type="GPUParticles3D"]
+amount = 6
+lifetime = 0.8
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_hxoso")
+draw_pass_1 = SubResource("TorusMesh_y4qv0")

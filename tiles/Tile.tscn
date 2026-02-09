@@ -1,150 +1,861 @@
-[gd_scene load_steps=28 format=3 uid="uid://csemjd6gyxlaa"]
+[gd_scene load_steps=53 format=4 uid="uid://csemjd6gyxlaa"]
 
 [ext_resource type="ArrayMesh" uid="uid://dsfruy2ebaj8b" path="res://hex_tiles/tiles/base/hex_grass.obj" id="1_oj33e"]
-[ext_resource type="ArrayMesh" uid="uid://dq5xl44u05ipx" path="res://hex_tiles/placeables/buildings/neutral/wall_straight.obj" id="2_ujinx"]
-[ext_resource type="ArrayMesh" uid="uid://deslgqoyaslie" path="res://hex_tiles/placeables/buildings/neutral/wall_straight_gate.obj" id="3_54rjf"]
-[ext_resource type="ArrayMesh" uid="uid://c7oehb6fy20gr" path="res://hex_tiles/placeables/buildings/neutral/wall_straight_gate_door_left.obj" id="4_t0hwj"]
-[ext_resource type="ArrayMesh" uid="uid://bouh6078ajjp0" path="res://hex_tiles/placeables/buildings/neutral/wall_straight_gate_door_right.obj" id="5_hpn1s"]
-[ext_resource type="ArrayMesh" uid="uid://c3csqs06iaw26" path="res://hex_tiles/placeables/buildings/neutral/wall_corner_A_gate.obj" id="6_6vs3c"]
-[ext_resource type="ArrayMesh" uid="uid://c7k3baaf0210c" path="res://hex_tiles/placeables/buildings/neutral/wall_corner_A_gate_door_left.obj" id="7_b1aub"]
-[ext_resource type="ArrayMesh" uid="uid://dsvv7kd4w88sw" path="res://hex_tiles/placeables/buildings/neutral/wall_corner_A_gate_door_right.obj" id="8_px75l"]
-[ext_resource type="ArrayMesh" uid="uid://cs1wa4km13g6l" path="res://hex_tiles/placeables/buildings/neutral/wall_corner_A_inside.obj" id="9_kr5ex"]
-[ext_resource type="ArrayMesh" uid="uid://bos8itf7tk1q6" path="res://hex_tiles/placeables/buildings/neutral/wall_corner_A_outside.obj" id="10_r6sxy"]
-[ext_resource type="ArrayMesh" uid="uid://4d1nstrbblw0" path="res://hex_tiles/placeables/buildings/neutral/wall_corner_B_inside.obj" id="11_5xw4j"]
-[ext_resource type="ArrayMesh" uid="uid://7bs3lsswivxl" path="res://hex_tiles/placeables/buildings/neutral/wall_corner_B_outside.obj" id="12_pv6da"]
-[ext_resource type="ArrayMesh" uid="uid://bnq605o5kmiga" path="res://hex_tiles/placeables/buildings/neutral/building_bridge_A.obj" id="13_m3clt"]
-[ext_resource type="ArrayMesh" uid="uid://5qa3lfl3j5cv" path="res://hex_tiles/placeables/buildings/neutral/building_bridge_B.obj" id="14_3qrc6"]
-[ext_resource type="ArrayMesh" uid="uid://it38gwt3jpj" path="res://hex_tiles/placeables/buildings/neutral/building_destroyed.obj" id="15_324bd"]
-[ext_resource type="ArrayMesh" uid="uid://cm4bqpfu2wlvu" path="res://hex_tiles/placeables/buildings/neutral/building_dirt.obj" id="16_bcnus"]
-[ext_resource type="ArrayMesh" uid="uid://bn8owwp7ndxg" path="res://hex_tiles/placeables/buildings/neutral/building_grain.obj" id="17_0w1uu"]
-[ext_resource type="ArrayMesh" uid="uid://chu8tp5itnfxq" path="res://hex_tiles/placeables/buildings/neutral/building_scaffolding.obj" id="18_oa12e"]
-[ext_resource type="ArrayMesh" uid="uid://b2svas8ss5ewg" path="res://hex_tiles/placeables/buildings/neutral/building_stage_A.obj" id="19_qsnq0"]
-[ext_resource type="ArrayMesh" uid="uid://chkjd31qkwsxg" path="res://hex_tiles/placeables/buildings/neutral/building_stage_B.obj" id="20_023et"]
-[ext_resource type="ArrayMesh" uid="uid://bee2grqspmiuw" path="res://hex_tiles/placeables/buildings/neutral/building_stage_C.obj" id="21_5r7pr"]
-[ext_resource type="ArrayMesh" uid="uid://d2fjt8xtf7vlw" path="res://hex_tiles/placeables/buildings/neutral/fence_stone_straight.obj" id="22_6ad2v"]
-[ext_resource type="ArrayMesh" uid="uid://dcrk6t21qw5qx" path="res://hex_tiles/placeables/buildings/neutral/fence_stone_straight_gate.obj" id="23_2ne2y"]
-[ext_resource type="ArrayMesh" uid="uid://2heaoqufexhb" path="res://hex_tiles/placeables/buildings/neutral/fence_stone_straight_gate_fence_stone_straight_door.obj" id="24_xu64m"]
-[ext_resource type="ArrayMesh" uid="uid://b51vejava1bqa" path="res://hex_tiles/placeables/buildings/neutral/fence_wood_straight.obj" id="25_55bqq"]
-[ext_resource type="ArrayMesh" uid="uid://driyqcl63y6b2" path="res://hex_tiles/placeables/buildings/neutral/fence_wood_straight_gate.obj" id="26_4hxcy"]
-[ext_resource type="ArrayMesh" uid="uid://b56tfy7ddjlmr" path="res://hex_tiles/placeables/buildings/neutral/fence_wood_straight_gate_fence_wood_straight_door.obj" id="27_7b4p4"]
+[ext_resource type="Script" uid="uid://bk5dk5bdeipmk" path="res://addons/proton_scatter/src/scatter.gd" id="3_324bd"]
+[ext_resource type="Script" uid="uid://b2mwrn2mwvfa8" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="4_bcnus"]
+[ext_resource type="Script" uid="uid://dqu58a8dpsbli" path="res://addons/proton_scatter/src/modifiers/base_modifier.gd" id="5_0w1uu"]
+[ext_resource type="Script" uid="uid://bq1r6jmdmak2m" path="res://addons/proton_scatter/src/modifiers/create_inside_random.gd" id="6_oa12e"]
+[ext_resource type="Script" uid="uid://bb5jilqywmc0l" path="res://addons/proton_scatter/src/modifiers/randomize_transforms.gd" id="6_s0c8i"]
+[ext_resource type="Script" uid="uid://bm3ixcfuilrne" path="res://addons/proton_scatter/src/scatter_item.gd" id="10_6ad2v"]
+[ext_resource type="Script" uid="uid://dfrj2v7tp74i4" path="res://addons/proton_scatter/src/scatter_shape.gd" id="11_2ne2y"]
+[ext_resource type="Material" uid="uid://x38xyx35cr5w" path="res://tiles/Tile.tres" id="12_6ad2v"]
+[ext_resource type="Script" uid="uid://cxqx3jnrniuge" path="res://addons/proton_scatter/src/shapes/sphere_shape.gd" id="12_xu64m"]
+[ext_resource type="Material" uid="uid://cjgoj12p3pb0g" path="res://EffectBlocks/source_files/materials/fire_billboard.material" id="14_up6o0"]
+[ext_resource type="Material" uid="uid://ks1kly3dfqvc" path="res://EffectBlocks/source_files/materials/smoke_billboard.material" id="15_av3j2"]
+[ext_resource type="Script" uid="uid://d0tvwudpva6qy" path="res://EffectBlocks/source_files/scripts/light_flicker.gd" id="16_gr4nk"]
+[ext_resource type="Texture2D" uid="uid://dmwgb2vgafbd4" path="res://assets/MiniHorseMan.png" id="42_023et"]
+[ext_resource type="Material" uid="uid://bpn0ar4cp7y0v" path="res://shaders/water.tres" id="44_6ad2v"]
+[ext_resource type="ArrayMesh" uid="uid://bi7ngf2pxcn1r" path="res://hex_tiles/tiles/rivers/waterless/hex_river_C_waterless.obj" id="46_xu64m"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6ad2v"]
+atlas = ExtResource("42_023et")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2ne2y"]
+atlas = ExtResource("42_023et")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xu64m"]
+atlas = ExtResource("42_023et")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_55bqq"]
+atlas = ExtResource("42_023et")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_4hxcy"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6ad2v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2ne2y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xu64m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_55bqq")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="Resource" id="Resource_wd7vk"]
+script = ExtResource("6_oa12e")
+amount = 700
+custom_seed = 1
+restrict_height = true
+reference_frame = 1
+
+[sub_resource type="Resource" id="Resource_17cd2"]
+script = ExtResource("4_bcnus")
+stack = Array[ExtResource("5_0w1uu")]([SubResource("Resource_wd7vk")])
+
+[sub_resource type="Resource" id="Resource_g8bsm"]
+script = ExtResource("12_xu64m")
+radius = 0.94341636
+
+[sub_resource type="Resource" id="Resource_geday"]
+script = ExtResource("6_oa12e")
+amount = 4
+restrict_height = true
+reference_frame = 1
+
+[sub_resource type="Resource" id="Resource_up6o0"]
+script = ExtResource("6_s0c8i")
+rotation = Vector3(4, 360, 4)
+scale = Vector3(0.1, 0.1, 0.1)
+reference_frame = 2
+
+[sub_resource type="Resource" id="Resource_iqyf6"]
+script = ExtResource("4_bcnus")
+stack = Array[ExtResource("5_0w1uu")]([SubResource("Resource_geday"), SubResource("Resource_up6o0")])
+
+[sub_resource type="Resource" id="Resource_s0c8i"]
+script = ExtResource("12_xu64m")
+radius = 0.68119055
+metadata/_custom_type_script = "uid://cxqx3jnrniuge"
+
+[sub_resource type="Gradient" id="Gradient_35pg8"]
+colors = PackedColorArray(0.94902, 0, 0, 1, 1, 0.776471, 0.0823529, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_g5e81"]
+gradient = SubResource("Gradient_35pg8")
+
+[sub_resource type="Curve" id="Curve_0rrya"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.231164, 1), 0.0, 0.0, 0, 0, Vector2(0.640411, 0.407905), -1.4431, -1.4431, 0, 0, Vector2(1, 0), -0.159099, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_h47cw"]
+curve = SubResource("Curve_0rrya")
+
+[sub_resource type="Curve" id="Curve_p60nb"]
+_data = [Vector2(0.243682, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_0j0si"]
+curve = SubResource("Curve_p60nb")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_opo1g"]
+emission_shape_scale = Vector3(0.2, 0.2, 0.2)
+emission_shape = 1
+emission_sphere_radius = 0.05
+gravity = Vector3(0, 2, 0)
+scale_min = 0.01
+scale_max = 0.049999997
+scale_curve = SubResource("CurveTexture_h47cw")
+color_ramp = SubResource("GradientTexture1D_g5e81")
+turbulence_enabled = true
+turbulence_noise_strength = 0.02
+turbulence_noise_scale = 0.5
+turbulence_influence_over_life = SubResource("CurveTexture_0j0si")
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_udcdq"]
+_surfaces = [{
+"aabb": AABB(-1.15811, -1.02635, -4.7252e-08, 2.17129, 2.09224, 1.00998e-05),
+"format": 34896613377,
+"index_count": 18,
+"index_data": PackedByteArray("BAABAAcAAAAHAAEAAQADAAIABAADAAEABAAGAAUABgAEAAcA"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("apP+/4cCAAAnQ/fuugIAAAAAzYBJAQAAFSTpJFoAAADqoQAAAAAAAPbrpTbZAAAA///keh8BAAAa8Oq7TgEAAA==")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_83sco"]
+resource_name = "particle_circle_particle_circle"
+_surfaces = [{
+"aabb": AABB(-1.15811, -1.02635, -4.7252e-08, 2.17129, 2.09224, 1.00998e-05),
+"attribute_data": PackedByteArray("AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8="),
+"format": 34896613399,
+"index_count": 18,
+"index_data": PackedByteArray("BAABAAcAAAAHAAEAAQADAAIABAADAAEABAAGAAUABgAEAAcA"),
+"material": ExtResource("14_up6o0"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("apP+/4cC/n8nQ/fuugL+fwAAzYBJAf5/FSTpJFoA/n/qoQAAAAD+f/brpTbZAP5////keh8B/n8a8Oq7TgH+f/9/////f////3////9/////f////3////9/////f///")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_udcdq")
+
+[sub_resource type="Gradient" id="Gradient_oyxsh"]
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_8l3ko"]
+gradient = SubResource("Gradient_oyxsh")
+
+[sub_resource type="Curve" id="Curve_b100s"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.25, 1), 0.0, 0.0, 0, 0, Vector2(0.587329, 0.501806), -3.14482, -3.14482, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_bgnyc"]
+curve = SubResource("Curve_b100s")
+
+[sub_resource type="Curve" id="Curve_quq64"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_er5xf"]
+curve = SubResource("Curve_quq64")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_rgggq"]
+emission_shape_scale = Vector3(0.2, 0.2, 0.2)
+emission_shape = 1
+emission_sphere_radius = 0.2
+angle_max = 90.0
+direction = Vector3(0, 0, 0)
+spread = 0.0
+gravity = Vector3(0, 2, 0)
+scale_min = 0.01
+scale_max = 0.099999994
+scale_curve = SubResource("CurveTexture_bgnyc")
+color = Color(0.414704, 0.414704, 0.414704, 0.219608)
+color_ramp = SubResource("GradientTexture1D_8l3ko")
+turbulence_enabled = true
+turbulence_noise_strength = 0.5
+turbulence_noise_scale = 5.0
+turbulence_influence_over_life = SubResource("CurveTexture_er5xf")
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_biwkl"]
+resource_name = "particle_circle_particle_circle"
+_surfaces = [{
+"aabb": AABB(-1.15811, -1.02635, -4.7252e-08, 2.17129, 2.09224, 1.00998e-05),
+"attribute_data": PackedByteArray("AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8="),
+"format": 34896613399,
+"index_count": 18,
+"index_data": PackedByteArray("BAABAAcAAAAHAAEAAQADAAIABAADAAEABAAGAAUABgAEAAcA"),
+"material": ExtResource("15_av3j2"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("apP+/4cC/n8nQ/fuugL+fwAAzYBJAf5/FSTpJFoA/n/qoQAAAAD+f/brpTbZAP5////keh8B/n8a8Oq7TgH+f/9/////f////3////9/////f////3////9/////f///")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_udcdq")
+
+[sub_resource type="Curve" id="Curve_dgvdv"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.183219, 1), 0.0, 0.0, 0, 0, Vector2(0.732877, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_60vxl"]
+curve = SubResource("Curve_dgvdv")
+
+[sub_resource type="Curve" id="Curve_1b6me"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.350498, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_mwxtg"]
+curve = SubResource("Curve_1b6me")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ujinx"]
+emission_shape_scale = Vector3(0.01, 0.01, 0.01)
+emission_shape = 1
+emission_sphere_radius = 0.2
+direction = Vector3(0, 1, 0)
+spread = 7.364
+flatness = 0.2
+initial_velocity_min = 0.049999997
+initial_velocity_max = 1.0
+gravity = Vector3(0, 1, 0)
+linear_accel_max = 1.0
+tangential_accel_max = 1.0
+damping_max = 2.0
+scale_min = 0.01
+scale_max = 0.01
+scale_curve = SubResource("CurveTexture_60vxl")
+color = Color(1, 1, 0.113725, 1)
+turbulence_noise_strength = 0.5
+turbulence_noise_scale = 1.0
+turbulence_influence_over_life = SubResource("CurveTexture_mwxtg")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2knnp"]
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.815686, 0.443137, 0.258824, 1)
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_cmt5e"]
+resource_name = "particle_circle_particle_circle"
+_surfaces = [{
+"aabb": AABB(-1.15811, -1.02635, -4.7252e-08, 2.17129, 2.09224, 1.00998e-05),
+"attribute_data": PackedByteArray("AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8="),
+"format": 34896613399,
+"index_count": 18,
+"index_data": PackedByteArray("BAABAAcAAAAHAAEAAQADAAIABAADAAEABAAGAAUABgAEAAcA"),
+"material": SubResource("StandardMaterial3D_2knnp"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("apP+/4cC/n8nQ/fuugL+fwAAzYBJAf5/FSTpJFoA/n/qoQAAAAD+f/brpTbZAP5////keh8B/n8a8Oq7TgH+f/9/////f////3////9/////f////3////9/////f///")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_udcdq")
 
 [node name="Tile" type="Node3D"]
 
-[node name="HexGrass" type="MeshInstance3D" parent="."]
+[node name="Units" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00965178, 0, 0)
+visible = false
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="Units"]
+transform = Transform3D(1.785, 0, 0, 0, 1.785, 0, 0, 0, 1.785, 0.06576049, 0.24897346, 0.35753646)
+billboard = 1
+shaded = true
+double_sided = false
+alpha_cut = 3
+texture_filter = 0
+sprite_frames = SubResource("SpriteFrames_4hxcy")
+
+[node name="AnimatedSprite3D2" type="AnimatedSprite3D" parent="Units"]
+transform = Transform3D(1.785, 0, 0, 0, 1.785, 0, 0, 0, 1.785, 0.4450765, 0.24897346, 0.17197229)
+billboard = 1
+shaded = true
+double_sided = false
+alpha_cut = 3
+texture_filter = 0
+sprite_frames = SubResource("SpriteFrames_4hxcy")
+
+[node name="AnimatedSprite3D6" type="AnimatedSprite3D" parent="Units"]
+transform = Transform3D(1.785, 0, 0, 0, 1.785, 0, 0, 0, 1.785, -0.33243248, 0.24897346, 0.27710333)
+billboard = 1
+shaded = true
+double_sided = false
+alpha_cut = 3
+texture_filter = 0
+sprite_frames = SubResource("SpriteFrames_4hxcy")
+
+[node name="AnimatedSprite3D3" type="AnimatedSprite3D" parent="Units"]
+transform = Transform3D(1.785, 0, 0, 0, 1.785, 0, 0, 0, 1.785, -0.02659154, 0.24897346, -0.23621818)
+billboard = 1
+shaded = true
+double_sided = false
+alpha_cut = 3
+texture_filter = 0
+sprite_frames = SubResource("SpriteFrames_4hxcy")
+
+[node name="AnimatedSprite3D4" type="AnimatedSprite3D" parent="Units"]
+transform = Transform3D(1.785, 0, 0, 0, 1.785, 0, 0, 0, 1.785, 0.36270833, 0.24897346, -0.41476306)
+billboard = 1
+shaded = true
+double_sided = false
+alpha_cut = 3
+texture_filter = 0
+sprite_frames = SubResource("SpriteFrames_4hxcy")
+
+[node name="AnimatedSprite3D5" type="AnimatedSprite3D" parent="Units"]
+transform = Transform3D(1.785, 0, 0, 0, 1.785, 0, 0, 0, 1.785, -0.40094233, 0.24897346, -0.42477235)
+billboard = 1
+shaded = true
+double_sided = false
+alpha_cut = 3
+texture_filter = 0
+sprite_frames = SubResource("SpriteFrames_4hxcy")
+
+[node name="GrassHex" type="Node3D" parent="."]
+
+[node name="GrassScatter" type="Node3D" parent="GrassHex"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0307948, 0)
+script = ExtResource("3_324bd")
+global_seed = 107
+modifier_stack = SubResource("Resource_17cd2")
+Performance/use_chunks = true
+Performance/chunk_dimensions = Vector3(15, 15, 15)
+metadata/_custom_type_script = "uid://bk5dk5bdeipmk"
+
+[node name="Grass" type="Node3D" parent="GrassHex/GrassScatter"]
+visible = false
+script = ExtResource("10_6ad2v")
+proportion = 720
+override_cast_shadow = 0
+path = "uid://7vlbx64bxpc1"
+
+[node name="Flowers" type="Node3D" parent="GrassHex/GrassScatter"]
+visible = false
+script = ExtResource("10_6ad2v")
+proportion = 7
+source_ignore_scale = false
+override_cast_shadow = 0
+path = "uid://d4h4jsnr5wv6e"
+metadata/_custom_type_script = "uid://bm3ixcfuilrne"
+
+[node name="ScatterShape" type="Node3D" parent="GrassHex/GrassScatter"]
+transform = Transform3D(1, 0, -2.98023e-08, 0, 1, 0, 2.98023e-08, 0, 1, 0, 0, 0)
+visible = false
+script = ExtResource("11_2ne2y")
+shape = SubResource("Resource_g8bsm")
+
+[node name="TreeScatter" type="Node3D" parent="GrassHex"]
+script = ExtResource("3_324bd")
+global_seed = 6
+modifier_stack = SubResource("Resource_iqyf6")
+Performance/use_chunks = true
+Performance/chunk_dimensions = Vector3(15, 15, 15)
+metadata/_custom_type_script = "uid://bk5dk5bdeipmk"
+
+[node name="Tree1" type="Node3D" parent="GrassHex/TreeScatter"]
+script = ExtResource("10_6ad2v")
+proportion = 1
+source_ignore_position = false
+source_ignore_rotation = false
+source_ignore_scale = false
+path = "uid://botwfgf3a0yvv"
+
+[node name="Tree2" type="Node3D" parent="GrassHex/TreeScatter"]
+script = ExtResource("10_6ad2v")
+proportion = 1
+source_ignore_scale = false
+path = "uid://cktdptlj0mk74"
+
+[node name="ScatterShape" type="Node3D" parent="GrassHex/TreeScatter"]
+transform = Transform3D(1, 0, -2.98023e-08, 0, 1, 0, 2.98023e-08, 0, 1, 4.055121e-09, 0, -0.13606739)
+visible = false
+script = ExtResource("11_2ne2y")
+shape = SubResource("Resource_s0c8i")
+
+[node name="HexGrass" type="MeshInstance3D" parent="GrassHex"]
 mesh = ExtResource("1_oj33e")
-
-[node name="WallStraight" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("2_ujinx")
-
-[node name="WallStraightGate" type="Node3D" parent="."]
-visible = false
-
-[node name="WallStraightGate" type="MeshInstance3D" parent="WallStraightGate"]
-mesh = ExtResource("3_54rjf")
 skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("12_6ad2v")
 
-[node name="WallStraightGateDoorLeft" type="MeshInstance3D" parent="WallStraightGate"]
-mesh = ExtResource("4_t0hwj")
+[node name="Fires" type="Node3D" parent="GrassHex"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0948039, 0, 0.03578949)
+visible = false
+
+[node name="FireSmall" type="Node3D" parent="GrassHex/Fires"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.79441106, 0.7448645, -0.091168106)
+
+[node name="Flame" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall"]
+amount = 60
+lifetime = 0.8
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_opo1g")
+draw_pass_1 = SubResource("ArrayMesh_83sco")
+
+[node name="Smoke" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1747351, 0)
+visible = false
+amount = 64
+lifetime = 3.0
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_rgggq")
+draw_pass_1 = SubResource("ArrayMesh_biwkl")
+
+[node name="Sparks" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00946045, 0.0300996, 0.000244141)
+amount = 32
+randomness = 1.0
+fixed_fps = 60
+local_coords = true
+draw_order = 3
+process_material = SubResource("ParticleProcessMaterial_ujinx")
+draw_pass_1 = SubResource("ArrayMesh_cmt5e")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="GrassHex/Fires/FireSmall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.017907513, -0.009809554, 0.012741927)
+light_color = Color(2, 1.2, 0, 1)
+light_energy = 0.4238167
+light_specular = 0.1
+omni_range = 0.45
+omni_attenuation = 0.3
+script = ExtResource("16_gr4nk")
+min_intensity = 0.1
+max_intensity = 1.0
+flicker_speed = 0.5
+min_size = 0.30000000000000004
+movement_radius = 0.01
+movement_speed = 0.1
+
+[node name="FireSmall2" type="Node3D" parent="GrassHex/Fires"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5298027, 0.0055678487, 0.5494972)
+
+[node name="Flame" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall2"]
+amount = 60
+lifetime = 0.8
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_opo1g")
+draw_pass_1 = SubResource("ArrayMesh_83sco")
+
+[node name="Smoke" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1747351, 0)
+visible = false
+amount = 64
+lifetime = 3.0
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_rgggq")
+draw_pass_1 = SubResource("ArrayMesh_biwkl")
+
+[node name="Sparks" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00946045, 0.0300996, 0.000244141)
+amount = 32
+randomness = 1.0
+fixed_fps = 60
+local_coords = true
+draw_order = 3
+process_material = SubResource("ParticleProcessMaterial_ujinx")
+draw_pass_1 = SubResource("ArrayMesh_cmt5e")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="GrassHex/Fires/FireSmall2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.017907513, -0.009809554, 0.012741927)
+light_color = Color(2, 1.2, 0, 1)
+light_energy = 0.5017597
+light_specular = 0.1
+omni_range = 0.45
+omni_attenuation = 0.3
+script = ExtResource("16_gr4nk")
+min_intensity = 0.1
+max_intensity = 1.0
+flicker_speed = 0.5
+min_size = 0.30000000000000004
+movement_radius = 0.01
+movement_speed = 0.1
+
+[node name="FireSmall3" type="Node3D" parent="GrassHex/Fires"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5616096, 0.0055678487, -0.5463613)
+
+[node name="Flame" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall3"]
+amount = 60
+lifetime = 0.8
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_opo1g")
+draw_pass_1 = SubResource("ArrayMesh_83sco")
+
+[node name="Smoke" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1747351, 0)
+visible = false
+amount = 64
+lifetime = 3.0
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_rgggq")
+draw_pass_1 = SubResource("ArrayMesh_biwkl")
+
+[node name="Sparks" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00946045, 0.0300996, 0.000244141)
+amount = 32
+randomness = 1.0
+fixed_fps = 60
+local_coords = true
+draw_order = 3
+process_material = SubResource("ParticleProcessMaterial_ujinx")
+draw_pass_1 = SubResource("ArrayMesh_cmt5e")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="GrassHex/Fires/FireSmall3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.017907513, -0.009809554, 0.012741927)
+light_color = Color(2, 1.2, 0, 1)
+light_energy = 0.5175319
+light_specular = 0.1
+omni_range = 0.45
+omni_attenuation = 0.3
+script = ExtResource("16_gr4nk")
+min_intensity = 0.1
+max_intensity = 1.0
+flicker_speed = 0.5
+min_size = 0.30000000000000004
+movement_radius = 0.01
+movement_speed = 0.1
+
+[node name="FireSmall4" type="Node3D" parent="GrassHex/Fires"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.10825336, 0.6750118, 0.3417083)
+
+[node name="Flame" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall4"]
+amount = 60
+lifetime = 0.8
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_opo1g")
+draw_pass_1 = SubResource("ArrayMesh_83sco")
+
+[node name="Smoke" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1747351, 0)
+visible = false
+amount = 64
+lifetime = 3.0
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_rgggq")
+draw_pass_1 = SubResource("ArrayMesh_biwkl")
+
+[node name="Sparks" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00946045, 0.0300996, 0.000244141)
+amount = 32
+randomness = 1.0
+fixed_fps = 60
+local_coords = true
+draw_order = 3
+process_material = SubResource("ParticleProcessMaterial_ujinx")
+draw_pass_1 = SubResource("ArrayMesh_cmt5e")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="GrassHex/Fires/FireSmall4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.017907513, -0.009809554, 0.012741927)
+light_color = Color(2, 1.2, 0, 1)
+light_energy = 0.62317294
+light_specular = 0.1
+omni_range = 0.45
+omni_attenuation = 0.3
+script = ExtResource("16_gr4nk")
+min_intensity = 0.1
+max_intensity = 1.0
+flicker_speed = 0.5
+min_size = 0.30000000000000004
+movement_radius = 0.01
+movement_speed = 0.1
+
+[node name="FireSmall5" type="Node3D" parent="GrassHex/Fires"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.54280317, 0.0055678487, 0.3204893)
+
+[node name="Flame" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall5"]
+amount = 60
+lifetime = 0.8
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_opo1g")
+draw_pass_1 = SubResource("ArrayMesh_83sco")
+
+[node name="Smoke" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1747351, 0)
+visible = false
+amount = 64
+lifetime = 3.0
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_rgggq")
+draw_pass_1 = SubResource("ArrayMesh_biwkl")
+
+[node name="Sparks" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00946045, 0.0300996, 0.000244141)
+amount = 32
+randomness = 1.0
+fixed_fps = 60
+local_coords = true
+draw_order = 3
+process_material = SubResource("ParticleProcessMaterial_ujinx")
+draw_pass_1 = SubResource("ArrayMesh_cmt5e")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="GrassHex/Fires/FireSmall5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.017907513, -0.009809554, 0.012741927)
+light_color = Color(2, 1.2, 0, 1)
+light_energy = 0.5137649
+light_specular = 0.1
+omni_range = 0.45
+omni_attenuation = 0.3
+script = ExtResource("16_gr4nk")
+min_intensity = 0.1
+max_intensity = 1.0
+flicker_speed = 0.5
+min_size = 0.30000000000000004
+movement_radius = 0.01
+movement_speed = 0.1
+
+[node name="FireSmall6" type="Node3D" parent="GrassHex/Fires"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.02161768, 0.0055678487, 0.59601575)
+
+[node name="Flame" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall6"]
+amount = 60
+lifetime = 0.8
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_opo1g")
+draw_pass_1 = SubResource("ArrayMesh_83sco")
+
+[node name="Smoke" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1747351, 0)
+visible = false
+amount = 64
+lifetime = 3.0
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_rgggq")
+draw_pass_1 = SubResource("ArrayMesh_biwkl")
+
+[node name="Sparks" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00946045, 0.0300996, 0.000244141)
+amount = 32
+randomness = 1.0
+fixed_fps = 60
+local_coords = true
+draw_order = 3
+process_material = SubResource("ParticleProcessMaterial_ujinx")
+draw_pass_1 = SubResource("ArrayMesh_cmt5e")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="GrassHex/Fires/FireSmall6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.017907513, -0.009809554, 0.012741927)
+light_color = Color(2, 1.2, 0, 1)
+light_energy = 0.60665345
+light_specular = 0.1
+omni_range = 0.45
+omni_attenuation = 0.3
+script = ExtResource("16_gr4nk")
+min_intensity = 0.1
+max_intensity = 1.0
+flicker_speed = 0.5
+min_size = 0.30000000000000004
+movement_radius = 0.01
+movement_speed = 0.1
+
+[node name="FireSmall7" type="Node3D" parent="GrassHex/Fires"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.23016405, 0.0055678487, -0.7214806)
+
+[node name="Flame" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall7"]
+amount = 60
+lifetime = 0.8
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_opo1g")
+draw_pass_1 = SubResource("ArrayMesh_83sco")
+
+[node name="Smoke" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1747351, 0)
+visible = false
+amount = 64
+lifetime = 3.0
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_rgggq")
+draw_pass_1 = SubResource("ArrayMesh_biwkl")
+
+[node name="Sparks" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00946045, 0.0300996, 0.000244141)
+amount = 32
+randomness = 1.0
+fixed_fps = 60
+local_coords = true
+draw_order = 3
+process_material = SubResource("ParticleProcessMaterial_ujinx")
+draw_pass_1 = SubResource("ArrayMesh_cmt5e")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="GrassHex/Fires/FireSmall7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.017907513, -0.009809554, 0.012741927)
+light_color = Color(2, 1.2, 0, 1)
+light_energy = 0.3873461
+light_specular = 0.1
+omni_range = 0.45
+omni_attenuation = 0.3
+script = ExtResource("16_gr4nk")
+min_intensity = 0.1
+max_intensity = 1.0
+flicker_speed = 0.5
+min_size = 0.30000000000000004
+movement_radius = 0.01
+movement_speed = 0.1
+
+[node name="FireSmall8" type="Node3D" parent="GrassHex/Fires"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13068482, -0.019262671, -0.78830445)
+
+[node name="Flame" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall8"]
+amount = 60
+lifetime = 0.8
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_opo1g")
+draw_pass_1 = SubResource("ArrayMesh_83sco")
+
+[node name="Smoke" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall8"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1747351, 0)
+visible = false
+amount = 64
+lifetime = 3.0
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_rgggq")
+draw_pass_1 = SubResource("ArrayMesh_biwkl")
+
+[node name="Sparks" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall8"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00946045, 0.0300996, 0.000244141)
+amount = 32
+randomness = 1.0
+fixed_fps = 60
+local_coords = true
+draw_order = 3
+process_material = SubResource("ParticleProcessMaterial_ujinx")
+draw_pass_1 = SubResource("ArrayMesh_cmt5e")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="GrassHex/Fires/FireSmall8"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.017907513, -0.009809554, 0.012741927)
+light_color = Color(2, 1.2, 0, 1)
+light_energy = 0.41447222
+light_specular = 0.1
+omni_range = 0.45
+omni_attenuation = 0.3
+script = ExtResource("16_gr4nk")
+min_intensity = 0.1
+max_intensity = 1.0
+flicker_speed = 0.5
+min_size = 0.30000000000000004
+movement_radius = 0.01
+movement_speed = 0.1
+
+[node name="FireSmall9" type="Node3D" parent="GrassHex/Fires"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.35111344, 0.00037509203, -0.19520414)
+
+[node name="Flame" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall9"]
+amount = 60
+lifetime = 0.8
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_opo1g")
+draw_pass_1 = SubResource("ArrayMesh_83sco")
+
+[node name="Smoke" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall9"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1747351, 0)
+visible = false
+amount = 64
+lifetime = 3.0
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_rgggq")
+draw_pass_1 = SubResource("ArrayMesh_biwkl")
+
+[node name="Sparks" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall9"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00946045, 0.0300996, 0.000244141)
+amount = 32
+randomness = 1.0
+fixed_fps = 60
+local_coords = true
+draw_order = 3
+process_material = SubResource("ParticleProcessMaterial_ujinx")
+draw_pass_1 = SubResource("ArrayMesh_cmt5e")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="GrassHex/Fires/FireSmall9"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.017907513, -0.009809554, 0.012741927)
+light_color = Color(2, 1.2, 0, 1)
+light_energy = 0.48262927
+light_specular = 0.1
+omni_range = 0.45
+omni_attenuation = 0.3
+script = ExtResource("16_gr4nk")
+min_intensity = 0.1
+max_intensity = 1.0
+flicker_speed = 0.5
+min_size = 0.30000000000000004
+movement_radius = 0.01
+movement_speed = 0.1
+
+[node name="FireSmall10" type="Node3D" parent="GrassHex/Fires"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1888144, 0.00075018406, 0.03780377)
+
+[node name="Flame" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall10"]
+amount = 60
+lifetime = 0.8
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_opo1g")
+draw_pass_1 = SubResource("ArrayMesh_83sco")
+
+[node name="Smoke" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall10"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1747351, 0)
+visible = false
+amount = 64
+lifetime = 3.0
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_rgggq")
+draw_pass_1 = SubResource("ArrayMesh_biwkl")
+
+[node name="Sparks" type="GPUParticles3D" parent="GrassHex/Fires/FireSmall10"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00946045, 0.0300996, 0.000244141)
+amount = 32
+randomness = 1.0
+fixed_fps = 60
+local_coords = true
+draw_order = 3
+process_material = SubResource("ParticleProcessMaterial_ujinx")
+draw_pass_1 = SubResource("ArrayMesh_cmt5e")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="GrassHex/Fires/FireSmall10"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.017907513, -0.009809554, 0.012741927)
+light_color = Color(2, 1.2, 0, 1)
+light_energy = 0.4423689
+light_specular = 0.1
+omni_range = 0.45
+omni_attenuation = 0.3
+script = ExtResource("16_gr4nk")
+min_intensity = 0.1
+max_intensity = 1.0
+flicker_speed = 0.5
+min_size = 0.30000000000000004
+movement_radius = 0.01
+movement_speed = 0.1
+
+[node name="WaterHex" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9991238, 0, 0)
+visible = false
+
+[node name="Water2" type="MeshInstance3D" parent="WaterHex"]
+transform = Transform3D(1, 0, 0, 0, -0.021852717, 0, 0, 0, 0.9830337, 0, -0.17161977, 0)
+mesh = ExtResource("1_oj33e")
+surface_material_override/0 = ExtResource("44_6ad2v")
+
+[node name="Ground" type="MeshInstance3D" parent="WaterHex"]
+transform = Transform3D(1, 0, 0, 0, 0.00047754124, 0, 0, 0, 0.96635526, 0, -0.9983921, 0)
+mesh = ExtResource("1_oj33e")
+skeleton = NodePath("../Water2")
+surface_material_override/0 = ExtResource("12_6ad2v")
+
+[node name="HexRiverCWaterless" type="MeshInstance3D" parent="WaterHex"]
+mesh = ExtResource("46_xu64m")
 skeleton = NodePath("../..")
-
-[node name="WallStraightGateDoorRight" type="MeshInstance3D" parent="WallStraightGate"]
-mesh = ExtResource("5_hpn1s")
-skeleton = NodePath("../..")
-
-[node name="WallCornerAGate" type="Node3D" parent="."]
-visible = false
-
-[node name="WallCornerAGate" type="MeshInstance3D" parent="WallCornerAGate"]
-mesh = ExtResource("6_6vs3c")
-skeleton = NodePath("../..")
-
-[node name="WallCornerAGateDoorLeft" type="MeshInstance3D" parent="WallCornerAGate"]
-mesh = ExtResource("7_b1aub")
-skeleton = NodePath("../..")
-
-[node name="WallCornerAGateDoorRight" type="MeshInstance3D" parent="WallCornerAGate"]
-mesh = ExtResource("8_px75l")
-skeleton = NodePath("../..")
-
-[node name="WallCornerAInside" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("9_kr5ex")
-
-[node name="WallCornerAOutside" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("10_r6sxy")
-
-[node name="WallCornerBInside" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("11_5xw4j")
-
-[node name="WallCornerBOutside" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("12_pv6da")
-
-[node name="BuildingBridgeA" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("13_m3clt")
-
-[node name="BuildingBridgeB" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("14_3qrc6")
-
-[node name="BuildingDestroyed" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("15_324bd")
-
-[node name="BuildingDirt" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("16_bcnus")
-
-[node name="BuildingGrain" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("17_0w1uu")
-
-[node name="BuildingScaffolding" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("18_oa12e")
-
-[node name="BuildingStageA" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("19_qsnq0")
-
-[node name="BuildingStageB" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("20_023et")
-
-[node name="BuildingStageC" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("21_5r7pr")
-
-[node name="FenceStoneStraight" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("22_6ad2v")
-
-[node name="Node3D" type="Node3D" parent="."]
-visible = false
-
-[node name="FenceStoneStraightGate" type="MeshInstance3D" parent="Node3D"]
-mesh = ExtResource("23_2ne2y")
-skeleton = NodePath("../..")
-
-[node name="FenceStoneStraightGateFenceStoneStraightDoor" type="MeshInstance3D" parent="Node3D"]
-mesh = ExtResource("24_xu64m")
-skeleton = NodePath("../..")
-
-[node name="FenceWoodStraight" type="MeshInstance3D" parent="."]
-visible = false
-mesh = ExtResource("25_55bqq")
-
-[node name="Node3D2" type="Node3D" parent="."]
-visible = false
-
-[node name="FenceWoodStraightGate" type="MeshInstance3D" parent="Node3D2"]
-mesh = ExtResource("26_4hxcy")
-skeleton = NodePath("../..")
-
-[node name="FenceWoodStraightGateFenceWoodStraightDoor" type="MeshInstance3D" parent="Node3D2"]
-mesh = ExtResource("27_7b4p4")
-skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("12_6ad2v")
