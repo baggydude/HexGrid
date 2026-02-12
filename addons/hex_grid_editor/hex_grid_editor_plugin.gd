@@ -337,6 +337,8 @@ func _update_preview(camera: Camera3D, screen_pos: Vector2) -> void:
 
 	# Update Base child Y scale for height preview
 	var height_scale := _toolbar.get_height()
+	_preview_instance.position = Vector3(world_pos.x, height_scale, world_pos.z)
+
 	var base_node := _preview_instance.find_child("Base", true, false) as MeshInstance3D
 	if base_node:
 		base_node.scale.y = height_scale

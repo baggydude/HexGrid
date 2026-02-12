@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HexBrushResource" load_steps=3 format=3 uid="uid://di4rqcvcj6ccg"]
+
+[ext_resource type="Script" uid="uid://uvbj58u3g13l" path="res://addons/hex_grid_editor/hex_brush_resource.gd" id="1_tqxnm"]
+[ext_resource type="PackedScene" uid="uid://csemjd6gyxlaa" path="res://tiles/Tile.tscn" id="2_q2h0o"]
+
+[resource]
+script = ExtResource("1_tqxnm")
+name = "Grass"
+variations = Array[PackedScene]([ExtResource("2_q2h0o")])
+metadata/_custom_type_script = "uid://uvbj58u3g13l"

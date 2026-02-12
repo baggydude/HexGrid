@@ -298,7 +298,7 @@ func _create_or_update_cell_instance(axial_coord: Vector2i, brush: HexBrushResou
 	instance.rotation_degrees.y = rotation_degrees
 
 	# Place scene at hex center on the grid plane
-	instance.position = Vector3(world_pos.x, 0, world_pos.z)
+	instance.position = Vector3(world_pos.x, height_scale, world_pos.z)
 
 	# Only scale the Base MeshInstance3D child's Y for height
 	# Base mesh origin is at top, body extends in -Y direction
