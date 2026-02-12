@@ -290,8 +290,9 @@ func _create_or_update_cell_instance(axial_coord: Vector2i, brush: HexBrushResou
 		return
 
 	var instance: Node3D = scene.instantiate()
-	_clear_owners(instance)
 	_cell_container.add_child(instance)
+	if Engine.is_editor_hint() and get_tree():
+		_set_owners(instance, get_tree().edited_scene_root)
 	_cell_instances[axial_coord] = instance
 
 	# Apply rotation on Y axis
@@ -374,10 +375,10 @@ func _rebuild_all_cells() -> void:
 			base_node.scale.y = height_scale
 
 
-static func _clear_owners(node: Node) -> void:
-	node.owner = null
+static func _set_owners(node: Node, new_owner: Node) -> void:
+	node.owner = new_owner
 	for child in node.get_children():
-		_clear_owners(child)
+		_set_owners(child, new_owner)
 
 
 func _get_configuration_warnings() -> PackedStringArray:

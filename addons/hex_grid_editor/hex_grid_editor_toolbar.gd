@@ -32,7 +32,6 @@ var _brush_name_label: Label
 var _variation_label: Label
 
 # SubViewport preview
-var _preview_viewport_container: SubViewportContainer
 var _preview_viewport: SubViewport
 var _preview_camera: Camera3D
 var _preview_light: DirectionalLight3D
@@ -234,23 +233,28 @@ func _build_ui() -> void:
 
 
 func _build_preview_viewport(parent: Control) -> void:
-	_preview_viewport_container = SubViewportContainer.new()
-	_preview_viewport_container.custom_minimum_size = Vector2(120, 120)
-	_preview_viewport_container.stretch = true
-	parent.add_child(_preview_viewport_container)
-
+	# SubViewport added to toolbar tree for processing (not inside SubViewportContainer)
 	_preview_viewport = SubViewport.new()
 	_preview_viewport.size = Vector2i(120, 120)
 	_preview_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	_preview_viewport.transparent_bg = true
+	_preview_viewport.transparent_bg = false
 	_preview_viewport.own_world_3d = true
-	_preview_viewport_container.add_child(_preview_viewport)
+	add_child(_preview_viewport)
+
+	# TextureRect displays the viewport's rendered output
+	var preview_rect := TextureRect.new()
+	preview_rect.custom_minimum_size = Vector2(120, 120)
+	preview_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	preview_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	preview_rect.texture = _preview_viewport.get_texture()
+	parent.add_child(preview_rect)
 
 	# Camera looking at the scene from an angled position
 	_preview_camera = Camera3D.new()
 	_preview_camera.position = Vector3(1.5, 2.0, 1.5)
 	_preview_camera.look_at(Vector3.ZERO)
 	_preview_viewport.add_child(_preview_camera)
+	_preview_camera.make_current()
 
 	# Directional light for illumination
 	_preview_light = DirectionalLight3D.new()
@@ -370,7 +374,6 @@ func _update_preview_scene() -> void:
 		return
 
 	_preview_scene_instance = scene.instantiate()
-	_clear_owners(_preview_scene_instance)
 	_preview_scene_instance.rotation_degrees.y = _current_rotation
 	_preview_viewport.add_child(_preview_scene_instance)
 
@@ -436,7 +439,3 @@ func _on_tool_button_pressed(tool_mode: ToolMode) -> void:
 	set_tool(tool_mode)
 
 
-static func _clear_owners(node: Node) -> void:
-	node.owner = null
-	for child in node.get_children():
-		_clear_owners(child)

@@ -88,7 +88,6 @@ func _setup_preview() -> void:
 		return
 
 	_preview_instance = scene.instantiate()
-	_clear_owners(_preview_instance)
 	_apply_ghost_material(_preview_instance)
 
 	if _edited_grid:
@@ -113,12 +112,6 @@ func _apply_ghost_material(node: Node) -> void:
 		(node as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	for child in node.get_children():
 		_apply_ghost_material(child)
-
-
-static func _clear_owners(node: Node) -> void:
-	node.owner = null
-	for child in node.get_children():
-		_clear_owners(child)
 
 
 func _rebuild_ghost_preview() -> void:
