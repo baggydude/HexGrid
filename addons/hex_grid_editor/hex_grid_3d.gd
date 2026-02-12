@@ -14,22 +14,31 @@ const DEFAULT_BRUSH_PATH := "res://addons/hex_grid_editor/brushes/"
 @export var grid_width: int = 10:
 	set(value):
 		grid_width = max(1, value)
+		if grid_data:
+			grid_data.grid_width = grid_width
 		_update_guide_grid()
 
 @export var grid_height: int = 10:
 	set(value):
 		grid_height = max(1, value)
+		if grid_data:
+			grid_data.grid_height = grid_height
 		_update_guide_grid()
 
-@export var hex_size: float = 1.0:
+## Outer radius: distance from hex center to vertex, in meters
+@export_range(0.1, 100.0, 0.01, "suffix:m") var hex_size: float = 1.0:
 	set(value):
 		hex_size = max(0.1, value)
+		if grid_data:
+			grid_data.hex_size = hex_size
 		_update_guide_grid()
 
 @export var pointy_top: bool = true:
 	set(value):
 		if value != pointy_top:
 			pointy_top = value
+			if grid_data:
+				grid_data.pointy_top = pointy_top
 			clear_all_tiles()
 			_update_guide_grid()
 		else:
@@ -282,7 +291,7 @@ func _create_or_update_cell_instance(axial_coord: Vector2i, brush: HexBrushResou
 
 	var instance: Node3D = scene.instantiate()
 	_clear_owners(instance)
-	_cell_container.add_child(instance, false, Node.INTERNAL_MODE_BACK)
+	_cell_container.add_child(instance)
 	_cell_instances[axial_coord] = instance
 
 	# Apply rotation on Y axis
@@ -317,11 +326,11 @@ func _sync_from_data() -> void:
 		cell.queue_free()
 	_cell_instances.clear()
 
-	# Update grid settings from data
-	grid_width = grid_data.grid_width
-	grid_height = grid_data.grid_height
-	hex_size = grid_data.hex_size
-	pointy_top = grid_data.pointy_top
+	# Node properties are the source of truth - sync TO data
+	grid_data.grid_width = grid_width
+	grid_data.grid_height = grid_height
+	grid_data.hex_size = hex_size
+	grid_data.pointy_top = pointy_top
 
 	# Rebuild cells using their stored positions
 	for axial_coord in grid_data.cells:

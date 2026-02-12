@@ -257,6 +257,17 @@ func _build_preview_viewport(parent: Control) -> void:
 	_preview_light.rotation_degrees = Vector3(-45, -45, 0)
 	_preview_viewport.add_child(_preview_light)
 
+	# Environment with ambient light (required for own_world_3d viewports)
+	var env := Environment.new()
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color(0.2, 0.2, 0.2)
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color.WHITE
+	env.ambient_light_energy = 0.5
+	var world_env := WorldEnvironment.new()
+	world_env.environment = env
+	_preview_viewport.add_child(world_env)
+
 
 # --- Brush palette methods ---
 
