@@ -2,7 +2,7 @@
 class_name HexGrid3D
 extends Node3D
 
-## 3D Hex Grid node with editor support for painting tiles
+## 3D Hex Grid node with editor support for painting hex brushes (scene-based)
 
 signal cell_changed(axial_coord: Vector2i)
 signal grid_cleared
@@ -13,7 +13,7 @@ signal grid_cleared
 	set(value):
 		grid_width = max(1, value)
 		_update_guide_grid()
-		
+
 @export var grid_height: int = 10:
 	set(value):
 		grid_height = max(1, value)
@@ -25,7 +25,7 @@ signal grid_cleared
 		_rebuild_all_cells()
 		_update_guide_grid()
 
-## Scale factor for placed meshes (0.0-1.0). 1.0 = full hex size, 0.9 = 90% etc.
+## Scale factor for placed scenes (0.0-1.0). 1.0 = full hex size, 0.9 = 90% etc.
 @export_range(0.1, 1.0, 0.01) var mesh_scale: float = 1:
 	set(value):
 		mesh_scale = clamp(value, 0.1, 1.0)
@@ -35,7 +35,6 @@ signal grid_cleared
 	set(value):
 		if value != pointy_top:
 			pointy_top = value
-			# Clear all placed tiles when orientation changes - they won't align anyway
 			clear_all_tiles()
 			_update_guide_grid()
 		else:
@@ -65,13 +64,13 @@ signal grid_cleared
 		if grid_data:
 			_sync_from_data()
 
-## Available tile resources for painting
-@export var tile_palette: Array[HexTileResource] = []
+## Available brush resources for painting
+@export var brush_palette: Array[HexBrushResource] = []
 
 ## Internal references
 var _guide_mesh_instance: MeshInstance3D
 var _cell_container: Node3D
-var _cell_instances: Dictionary = {}  # Vector2i -> MeshInstance3D
+var _cell_instances: Dictionary = {}  # Vector2i -> Node3D (instantiated scene)
 
 
 func _ready() -> void:
@@ -88,7 +87,7 @@ func _setup_containers() -> void:
 		_cell_container = Node3D.new()
 		_cell_container.name = "CellContainer"
 		add_child(_cell_container, false, Node.INTERNAL_MODE_BACK)
-	
+
 	# Guide grid mesh
 	_guide_mesh_instance = get_node_or_null("GuideGrid")
 	if not _guide_mesh_instance:
@@ -115,20 +114,19 @@ func _update_guide_material() -> void:
 func _update_guide_grid() -> void:
 	if not is_inside_tree():
 		return
-	
+
 	_setup_containers()
-	
+
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_LINES)
-	
-	# Generate hex outline for each cell in the grid
+
 	var coords := HexMath.get_grid_coords(grid_width, grid_height, pointy_top)
-	
+
 	for axial in coords:
 		var center := HexMath.axial_to_world(axial, hex_size, pointy_top)
 		center.y = guide_grid_height
 		_add_hex_outline(st, center)
-	
+
 	var mesh := st.commit()
 	_guide_mesh_instance.mesh = mesh
 	_update_guide_material()
@@ -136,11 +134,9 @@ func _update_guide_grid() -> void:
 
 
 func _add_hex_outline(st: SurfaceTool, center: Vector3) -> void:
-	# For pointy-top: first vertex points up (angle = -PI/2 or 90 degrees from +X toward -Z)
-	# For flat-top: first vertex points right (angle = 0), giving flat edge on top
 	var angle_offset := -PI / 2.0 if pointy_top else 0.0
 	var corners: Array[Vector3] = []
-	
+
 	for i in range(6):
 		var angle := angle_offset + i * PI / 3.0
 		var corner := Vector3(
@@ -149,16 +145,19 @@ func _add_hex_outline(st: SurfaceTool, center: Vector3) -> void:
 			center.z + hex_size * sin(angle)
 		)
 		corners.append(corner)
-	
+
 	for i in range(6):
 		st.add_vertex(corners[i])
 		st.add_vertex(corners[(i + 1) % 6])
 
 
-## Place a tile at the given axial coordinate
-func place_tile(axial_coord: Vector2i, tile: HexTileResource, rotation_degrees: float = 0.0, height_scale: float = 1.0) -> void:
-	if not tile:
+## Place a brush scene at the given axial coordinate
+func place_brush(axial_coord: Vector2i, brush: HexBrushResource, variation_index: int = 0, rotation_degrees: float = 0.0, height_scale: float = 1.0) -> void:
+	if not brush:
 		return
+	if brush.variations.is_empty():
+		return
+	variation_index = clampi(variation_index, 0, brush.variations.size() - 1)
 
 	# Check bounds
 	var offset := HexMath.axial_to_offset(axial_coord, pointy_top)
@@ -176,13 +175,12 @@ func place_tile(axial_coord: Vector2i, tile: HexTileResource, rotation_degrees: 
 
 	# Calculate world position at placement time
 	var world_pos := HexMath.axial_to_world(axial_coord, hex_size, pointy_top)
-	world_pos.y = tile.height_offset
 
-	# Update data - store position, orientation, and height scale used at placement
-	grid_data.set_cell(axial_coord, tile, rotation_degrees, world_pos, pointy_top, height_scale)
+	# Update data
+	grid_data.set_cell(axial_coord, brush, variation_index, rotation_degrees, world_pos, pointy_top, height_scale)
 
 	# Update visual
-	_create_or_update_cell_instance(axial_coord, tile, rotation_degrees, world_pos, pointy_top, height_scale)
+	_create_or_update_cell_instance(axial_coord, brush, variation_index, rotation_degrees, world_pos, pointy_top, height_scale)
 
 	cell_changed.emit(axial_coord)
 
@@ -194,11 +192,11 @@ func place_tile(axial_coord: Vector2i, tile: HexTileResource, rotation_degrees: 
 func remove_tile(axial_coord: Vector2i) -> void:
 	if grid_data:
 		grid_data.remove_cell(axial_coord)
-	
+
 	if _cell_instances.has(axial_coord):
 		_cell_instances[axial_coord].queue_free()
 		_cell_instances.erase(axial_coord)
-	
+
 	cell_changed.emit(axial_coord)
 
 
@@ -220,11 +218,11 @@ func has_tile_at(axial_coord: Vector2i) -> bool:
 func clear_all_tiles() -> void:
 	if grid_data:
 		grid_data.clear()
-	
+
 	for cell in _cell_instances.values():
 		cell.queue_free()
 	_cell_instances.clear()
-	
+
 	grid_cleared.emit()
 
 
@@ -252,44 +250,42 @@ func is_in_bounds(axial_coord: Vector2i) -> bool:
 	return HexMath.is_in_bounds(offset, grid_width, grid_height)
 
 
-func _create_or_update_cell_instance(axial_coord: Vector2i, tile: HexTileResource, rotation_degrees: float, world_pos: Vector3, placed_pointy_top: bool, height_scale: float = 1.0) -> void:
+func _create_or_update_cell_instance(axial_coord: Vector2i, brush: HexBrushResource, variation_index: int, rotation_degrees: float, world_pos: Vector3, placed_pointy_top: bool, height_scale: float = 1.0) -> void:
 	_setup_containers()
 
-	var instance: MeshInstance3D
-
+	# Remove existing instance if present (scenes must be fully replaced)
 	if _cell_instances.has(axial_coord):
-		instance = _cell_instances[axial_coord]
-	else:
-		instance = MeshInstance3D.new()
-		_cell_container.add_child(instance, false, Node.INTERNAL_MODE_BACK)
-		_cell_instances[axial_coord] = instance
+		_cell_instances[axial_coord].queue_free()
+		_cell_instances.erase(axial_coord)
 
-	# Set mesh
-	instance.mesh = tile.mesh
+	# Instantiate the scene variation
+	var scene: PackedScene = brush.variations[variation_index]
+	if not scene:
+		return
 
-	# Set material
-	if tile.material_override:
-		instance.material_override = tile.material_override
-	else:
-		instance.material_override = null
+	var instance: Node3D = scene.instantiate()
+	_cell_container.add_child(instance, false, Node.INTERNAL_MODE_BACK)
+	_cell_instances[axial_coord] = instance
 
-	# Set scale to fit within hex bounds
-	# mesh_scale of 1.0 means the mesh fills the hex, 0.95 gives a small gap
-	# height_scale affects only the Y axis (1.0 = original, 2.0 = twice as tall)
-	var scale_factor := hex_size * mesh_scale
-	instance.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
-
-	# Set rotation - apply user rotation on Y axis
+	# Apply rotation on Y axis
 	instance.rotation_degrees.y = rotation_degrees
 
-	# Set position (use the stored world position)
-	# Offset Y so the bottom of the mesh sits at y=0 (mesh origin is at top)
-	var y_offset := scale_factor * height_scale
-	instance.position = Vector3(world_pos.x, y_offset, world_pos.z)
+	# Position the scene root at the hex center, at "surface level"
+	var scale_factor := hex_size * mesh_scale
+	var surface_y := scale_factor * height_scale
+	instance.position = Vector3(world_pos.x, surface_y, world_pos.z)
 
-	# Store metadata
+	# Scale only the Base MeshInstance3D child for height
+	# Base mesh origin is at top, body extends in -Y direction
+	# This creates a pillar effect: top stays at surface, base extends downward
+	var base_node := instance.find_child("Base", true, false) as MeshInstance3D
+	if base_node:
+		base_node.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
+
+	# Store metadata on the instance for later retrieval
 	instance.set_meta("axial_coord", axial_coord)
-	instance.set_meta("tile_resource", tile)
+	instance.set_meta("brush_resource", brush)
+	instance.set_meta("variation_index", variation_index)
 	instance.set_meta("rotation_degrees", rotation_degrees)
 	instance.set_meta("world_position", world_pos)
 	instance.set_meta("placed_pointy_top", placed_pointy_top)
@@ -315,7 +311,8 @@ func _sync_from_data() -> void:
 	# Rebuild cells using their stored positions
 	for axial_coord in grid_data.cells:
 		var cell_data: Dictionary = grid_data.cells[axial_coord]
-		var tile: HexTileResource = cell_data.get("tile_resource")
+		var brush: HexBrushResource = cell_data.get("brush_resource")
+		var variation_index: int = cell_data.get("variation_index", 0)
 		var rotation: float = cell_data.get("rotation_degrees", 0.0)
 		var world_pos: Vector3 = cell_data.get("world_position", Vector3.ZERO)
 		var placed_pointy: bool = cell_data.get("placed_pointy_top", pointy_top)
@@ -324,67 +321,39 @@ func _sync_from_data() -> void:
 		# If no stored position (legacy data), calculate it
 		if world_pos == Vector3.ZERO:
 			world_pos = HexMath.axial_to_world(axial_coord, hex_size, placed_pointy)
-			if tile:
-				world_pos.y = tile.height_offset
 
-		if tile:
-			_create_or_update_cell_instance(axial_coord, tile, rotation, world_pos, placed_pointy, height_scale)
+		if brush and not brush.variations.is_empty():
+			variation_index = clampi(variation_index, 0, brush.variations.size() - 1)
+			_create_or_update_cell_instance(axial_coord, brush, variation_index, rotation, world_pos, placed_pointy, height_scale)
 
 
 func _rebuild_all_cells() -> void:
 	if not grid_data:
 		return
 
-	# Rebuild using stored positions - cells don't move
+	# Update existing instances without re-instantiating
 	for axial_coord in _cell_instances:
-		var instance: MeshInstance3D = _cell_instances[axial_coord]
-		var tile: HexTileResource = instance.get_meta("tile_resource")
+		var instance: Node3D = _cell_instances[axial_coord]
 		var world_pos: Vector3 = instance.get_meta("world_position")
-		var rotation: float = instance.get_meta("rotation_degrees")
 		var height_scale: float = instance.get_meta("height_scale") if instance.has_meta("height_scale") else 1.0
+		var rotation: float = instance.get_meta("rotation_degrees") if instance.has_meta("rotation_degrees") else 0.0
 
-		# Apply user rotation only
+		# Apply rotation
 		instance.rotation_degrees.y = rotation
 
-		# Update scale (height_scale affects only Y axis)
+		# Update position at surface level
 		var scale_factor := hex_size * mesh_scale
-		instance.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
+		var surface_y := scale_factor * height_scale
+		instance.position = Vector3(world_pos.x, surface_y, world_pos.z)
 
-		# Update position - offset Y so the bottom of the mesh sits at y=0
-		var y_offset := scale_factor * height_scale
-		instance.position = Vector3(world_pos.x, y_offset, world_pos.z)
-
-
-## Optional: Call this if you want to remap all tiles to the current orientation
-func remap_tiles_to_current_orientation() -> void:
-	if not grid_data:
-		return
-
-	for axial_coord in _cell_instances:
-		var instance: MeshInstance3D = _cell_instances[axial_coord]
-		var tile: HexTileResource = instance.get_meta("tile_resource")
-		var rotation: float = instance.get_meta("rotation_degrees")
-		var height_scale: float = instance.get_meta("height_scale") if instance.has_meta("height_scale") else 1.0
-
-		# Recalculate position with current orientation
-		var world_pos := HexMath.axial_to_world(axial_coord, hex_size, pointy_top)
-		world_pos.y = tile.height_offset if tile else 0.0
-		instance.position = world_pos
-
-		# Apply user rotation only
-		instance.rotation_degrees.y = rotation
-
-		# Update stored metadata
-		instance.set_meta("world_position", world_pos)
-		instance.set_meta("placed_pointy_top", pointy_top)
-
-		# Update grid data
-		if tile:
-			grid_data.set_cell(axial_coord, tile, rotation, world_pos, pointy_top, height_scale)
+		# Update Base child scaling
+		var base_node := instance.find_child("Base", true, false) as MeshInstance3D
+		if base_node:
+			base_node.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
 
 
 func _get_configuration_warnings() -> PackedStringArray:
 	var warnings: PackedStringArray = []
-	if tile_palette.is_empty():
-		warnings.append("No tile resources in palette. Add HexTileResource items to the Tile Palette.")
+	if brush_palette.is_empty():
+		warnings.append("No brush resources in palette. Add HexBrushResource items to the Brush Palette.")
 	return warnings
