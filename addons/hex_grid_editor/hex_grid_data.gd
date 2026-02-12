@@ -19,7 +19,6 @@ extends Resource
 @export var grid_width: int = 10
 @export var grid_height: int = 10
 @export var hex_size: float = 1.0
-@export var mesh_scale: float = 0.95
 @export var pointy_top: bool = true
 
 func set_cell(axial_coord: Vector2i, brush: HexBrushResource, variation_index: int, rotation_deg: float, world_pos: Vector3, was_pointy_top: bool, height_scale: float = 1.0) -> void:

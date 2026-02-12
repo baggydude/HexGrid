@@ -7,6 +7,8 @@ extends Node3D
 signal cell_changed(axial_coord: Vector2i)
 signal grid_cleared
 
+const DEFAULT_BRUSH_PATH := "res://addons/hex_grid_editor/brushes/"
+
 ## Grid configuration
 @export_group("Grid Settings")
 @export var grid_width: int = 10:
@@ -22,14 +24,7 @@ signal grid_cleared
 @export var hex_size: float = 1.0:
 	set(value):
 		hex_size = max(0.1, value)
-		_rebuild_all_cells()
 		_update_guide_grid()
-
-## Scale factor for placed scenes (0.0-1.0). 1.0 = full hex size, 0.9 = 90% etc.
-@export_range(0.1, 1.0, 0.01) var mesh_scale: float = 1:
-	set(value):
-		mesh_scale = clamp(value, 0.1, 1.0)
-		_rebuild_all_cells()
 
 @export var pointy_top: bool = true:
 	set(value):
@@ -64,8 +59,14 @@ signal grid_cleared
 		if grid_data:
 			_sync_from_data()
 
-## Available brush resources for painting
-@export var brush_palette: Array[HexBrushResource] = []
+## Path to folder containing HexBrushResource .tres files
+@export var brush_resource_folder: String = DEFAULT_BRUSH_PATH:
+	set(value):
+		brush_resource_folder = value
+		_scan_brush_folder()
+
+## Brush palette (auto-populated from brush_resource_folder)
+var brush_palette: Array[HexBrushResource] = []
 
 ## Internal references
 var _guide_mesh_instance: MeshInstance3D
@@ -76,6 +77,7 @@ var _cell_instances: Dictionary = {}  # Vector2i -> Node3D (instantiated scene)
 func _ready() -> void:
 	_setup_containers()
 	_update_guide_grid()
+	_scan_brush_folder()
 	if grid_data:
 		_sync_from_data()
 
@@ -94,6 +96,22 @@ func _setup_containers() -> void:
 		_guide_mesh_instance = MeshInstance3D.new()
 		_guide_mesh_instance.name = "GuideGrid"
 		add_child(_guide_mesh_instance, false, Node.INTERNAL_MODE_BACK)
+
+
+func _scan_brush_folder() -> void:
+	brush_palette.clear()
+	var dir := DirAccess.open(brush_resource_folder)
+	if not dir:
+		return
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+	while file_name != "":
+		if not dir.current_is_dir() and (file_name.ends_with(".tres") or file_name.ends_with(".res")):
+			var res := ResourceLoader.load(brush_resource_folder.path_join(file_name))
+			if res is HexBrushResource:
+				brush_palette.append(res)
+		file_name = dir.get_next()
+	brush_palette.sort_custom(func(a: HexBrushResource, b: HexBrushResource) -> bool: return a.name < b.name)
 
 
 func _update_guide_visibility() -> void:
@@ -170,7 +188,6 @@ func place_brush(axial_coord: Vector2i, brush: HexBrushResource, variation_index
 		grid_data.grid_width = grid_width
 		grid_data.grid_height = grid_height
 		grid_data.hex_size = hex_size
-		grid_data.mesh_scale = mesh_scale
 		grid_data.pointy_top = pointy_top
 
 	# Calculate world position at placement time
@@ -264,23 +281,22 @@ func _create_or_update_cell_instance(axial_coord: Vector2i, brush: HexBrushResou
 		return
 
 	var instance: Node3D = scene.instantiate()
+	_clear_owners(instance)
 	_cell_container.add_child(instance, false, Node.INTERNAL_MODE_BACK)
 	_cell_instances[axial_coord] = instance
 
 	# Apply rotation on Y axis
 	instance.rotation_degrees.y = rotation_degrees
 
-	# Position the scene root at the hex center, at "surface level"
-	var scale_factor := hex_size * mesh_scale
-	var surface_y := scale_factor * height_scale
-	instance.position = Vector3(world_pos.x, surface_y, world_pos.z)
+	# Place scene at hex center on the grid plane
+	instance.position = Vector3(world_pos.x, 0, world_pos.z)
 
-	# Scale only the Base MeshInstance3D child for height
+	# Only scale the Base MeshInstance3D child's Y for height
 	# Base mesh origin is at top, body extends in -Y direction
-	# This creates a pillar effect: top stays at surface, base extends downward
+	# height_scale stretches it further downward, creating a pillar effect
 	var base_node := instance.find_child("Base", true, false) as MeshInstance3D
 	if base_node:
-		base_node.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
+		base_node.scale.y = height_scale
 
 	# Store metadata on the instance for later retrieval
 	instance.set_meta("axial_coord", axial_coord)
@@ -305,7 +321,6 @@ func _sync_from_data() -> void:
 	grid_width = grid_data.grid_width
 	grid_height = grid_data.grid_height
 	hex_size = grid_data.hex_size
-	mesh_scale = grid_data.mesh_scale if grid_data.mesh_scale > 0 else 0.95
 	pointy_top = grid_data.pointy_top
 
 	# Rebuild cells using their stored positions
@@ -341,19 +356,23 @@ func _rebuild_all_cells() -> void:
 		# Apply rotation
 		instance.rotation_degrees.y = rotation
 
-		# Update position at surface level
-		var scale_factor := hex_size * mesh_scale
-		var surface_y := scale_factor * height_scale
-		instance.position = Vector3(world_pos.x, surface_y, world_pos.z)
+		# Place at grid plane
+		instance.position = Vector3(world_pos.x, 0, world_pos.z)
 
-		# Update Base child scaling
+		# Only scale Base's Y for height
 		var base_node := instance.find_child("Base", true, false) as MeshInstance3D
 		if base_node:
-			base_node.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
+			base_node.scale.y = height_scale
+
+
+static func _clear_owners(node: Node) -> void:
+	node.owner = null
+	for child in node.get_children():
+		_clear_owners(child)
 
 
 func _get_configuration_warnings() -> PackedStringArray:
 	var warnings: PackedStringArray = []
 	if brush_palette.is_empty():
-		warnings.append("No brush resources in palette. Add HexBrushResource items to the Brush Palette.")
+		warnings.append("No brush resources found. Add HexBrushResource .tres files to: " + brush_resource_folder)
 	return warnings

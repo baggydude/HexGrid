@@ -88,6 +88,7 @@ func _setup_preview() -> void:
 		return
 
 	_preview_instance = scene.instantiate()
+	_clear_owners(_preview_instance)
 	_apply_ghost_material(_preview_instance)
 
 	if _edited_grid:
@@ -112,6 +113,12 @@ func _apply_ghost_material(node: Node) -> void:
 		(node as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	for child in node.get_children():
 		_apply_ghost_material(child)
+
+
+static func _clear_owners(node: Node) -> void:
+	node.owner = null
+	for child in node.get_children():
+		_clear_owners(child)
 
 
 func _rebuild_ghost_preview() -> void:
@@ -323,18 +330,16 @@ func _update_preview(camera: Camera3D, screen_pos: Vector2) -> void:
 
 	var world_pos := HexMath.axial_to_world(axial_coord, _edited_grid.hex_size, _edited_grid.pointy_top)
 
-	# Position the scene root at "surface level"
-	var scale_factor := _edited_grid.hex_size * _edited_grid.mesh_scale
-	var height_scale := _toolbar.get_height()
-	var surface_y := scale_factor * height_scale
-	_preview_instance.position = Vector3(world_pos.x, surface_y, world_pos.z)
+	# Place scene at hex center on the grid plane
+	_preview_instance.position = Vector3(world_pos.x, 0, world_pos.z)
 
 	_update_preview_rotation()
 
-	# Update Base child scaling for preview
+	# Update Base child Y scale for height preview
+	var height_scale := _toolbar.get_height()
 	var base_node := _preview_instance.find_child("Base", true, false) as MeshInstance3D
 	if base_node:
-		base_node.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
+		base_node.scale.y = height_scale
 
 
 func _update_preview_rotation() -> void:
@@ -347,17 +352,12 @@ func _update_preview_scale() -> void:
 	if not _preview_instance or not _edited_grid:
 		return
 
-	var scale_factor := _edited_grid.hex_size * _edited_grid.mesh_scale
 	var height_scale := _toolbar.get_height()
 
-	# Update position at surface level
-	var surface_y := scale_factor * height_scale
-	_preview_instance.position.y = surface_y
-
-	# Update Base child scaling
+	# Update Base child Y scale for height
 	var base_node := _preview_instance.find_child("Base", true, false) as MeshInstance3D
 	if base_node:
-		base_node.scale = Vector3(scale_factor, scale_factor * height_scale, scale_factor)
+		base_node.scale.y = height_scale
 
 
 func _on_brush_selected(_index: int) -> void:

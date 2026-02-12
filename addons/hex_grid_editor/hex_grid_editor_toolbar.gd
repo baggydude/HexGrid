@@ -359,6 +359,7 @@ func _update_preview_scene() -> void:
 		return
 
 	_preview_scene_instance = scene.instantiate()
+	_clear_owners(_preview_scene_instance)
 	_preview_scene_instance.rotation_degrees.y = _current_rotation
 	_preview_viewport.add_child(_preview_scene_instance)
 
@@ -422,3 +423,9 @@ func get_height() -> float:
 
 func _on_tool_button_pressed(tool_mode: ToolMode) -> void:
 	set_tool(tool_mode)
+
+
+static func _clear_owners(node: Node) -> void:
+	node.owner = null
+	for child in node.get_children():
+		_clear_owners(child)
