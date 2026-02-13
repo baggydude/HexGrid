@@ -1,120 +1,57 @@
-[gd_scene load_steps=19 format=3 uid="uid://csemjd6gyxlaa"]
+[gd_scene load_steps=14 format=3 uid="uid://c7a7pn85cihur"]
 
-[ext_resource type="ArrayMesh" uid="uid://dsfruy2ebaj8b" path="res://hex_tiles/tiles/base/hex_grass.obj" id="1_oj33e"]
-[ext_resource type="Script" uid="uid://bk5dk5bdeipmk" path="res://addons/proton_scatter/src/scatter.gd" id="3_324bd"]
-[ext_resource type="Script" uid="uid://b2mwrn2mwvfa8" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="4_bcnus"]
-[ext_resource type="Script" uid="uid://dqu58a8dpsbli" path="res://addons/proton_scatter/src/modifiers/base_modifier.gd" id="5_0w1uu"]
-[ext_resource type="Script" uid="uid://bq1r6jmdmak2m" path="res://addons/proton_scatter/src/modifiers/create_inside_random.gd" id="6_oa12e"]
-[ext_resource type="Script" uid="uid://bb5jilqywmc0l" path="res://addons/proton_scatter/src/modifiers/randomize_transforms.gd" id="6_s0c8i"]
-[ext_resource type="Script" uid="uid://bm3ixcfuilrne" path="res://addons/proton_scatter/src/scatter_item.gd" id="10_6ad2v"]
-[ext_resource type="Script" uid="uid://dfrj2v7tp74i4" path="res://addons/proton_scatter/src/scatter_shape.gd" id="11_2ne2y"]
-[ext_resource type="ArrayMesh" uid="uid://d0tcavefqlh3q" path="res://hex_tiles/tiles/base/hex_grass_bottom.obj" id="11_yu51w"]
-[ext_resource type="Material" uid="uid://x38xyx35cr5w" path="res://tiles/Tile.tres" id="12_6ad2v"]
-[ext_resource type="Script" uid="uid://cxqx3jnrniuge" path="res://addons/proton_scatter/src/shapes/sphere_shape.gd" id="12_xu64m"]
+[ext_resource type="Script" uid="uid://bk5dk5bdeipmk" path="res://addons/proton_scatter/src/scatter.gd" id="1_3t8lw"]
+[ext_resource type="Script" uid="uid://b2mwrn2mwvfa8" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="2_puem8"]
+[ext_resource type="Script" uid="uid://dqu58a8dpsbli" path="res://addons/proton_scatter/src/modifiers/base_modifier.gd" id="3_msti7"]
+[ext_resource type="Script" uid="uid://bq1r6jmdmak2m" path="res://addons/proton_scatter/src/modifiers/create_inside_random.gd" id="4_icuxn"]
+[ext_resource type="Script" uid="uid://bm3ixcfuilrne" path="res://addons/proton_scatter/src/scatter_item.gd" id="5_5a0of"]
+[ext_resource type="Script" uid="uid://dfrj2v7tp74i4" path="res://addons/proton_scatter/src/scatter_shape.gd" id="6_s51u1"]
+[ext_resource type="Script" uid="uid://cxqx3jnrniuge" path="res://addons/proton_scatter/src/shapes/sphere_shape.gd" id="7_vmj2p"]
+[ext_resource type="ArrayMesh" uid="uid://dsfruy2ebaj8b" path="res://hex_tiles/tiles/base/hex_grass.obj" id="9_njyrf"]
+[ext_resource type="Material" uid="uid://x38xyx35cr5w" path="res://tiles/Tile.tres" id="10_20oks"]
+[ext_resource type="ArrayMesh" uid="uid://d0tcavefqlh3q" path="res://hex_tiles/tiles/base/hex_grass_bottom.obj" id="11_wexyq"]
 
-[sub_resource type="Resource" id="Resource_wd7vk"]
-script = ExtResource("6_oa12e")
+[sub_resource type="Resource" id="Resource_e1xg3"]
+script = ExtResource("4_icuxn")
 amount = 700
-custom_seed = 1
 restrict_height = true
 reference_frame = 1
 
-[sub_resource type="Resource" id="Resource_17cd2"]
-script = ExtResource("4_bcnus")
-stack = Array[ExtResource("5_0w1uu")]([SubResource("Resource_wd7vk")])
+[sub_resource type="Resource" id="Resource_3t8lw"]
+script = ExtResource("2_puem8")
+stack = Array[ExtResource("3_msti7")]([SubResource("Resource_e1xg3")])
 
 [sub_resource type="Resource" id="Resource_g8bsm"]
-script = ExtResource("12_xu64m")
-radius = 0.94341636
-
-[sub_resource type="Resource" id="Resource_geday"]
-script = ExtResource("6_oa12e")
-amount = 4
-restrict_height = true
-reference_frame = 1
-
-[sub_resource type="Resource" id="Resource_up6o0"]
-script = ExtResource("6_s0c8i")
-rotation = Vector3(4, 360, 4)
-scale = Vector3(0.1, 0.1, 0.1)
-reference_frame = 2
-
-[sub_resource type="Resource" id="Resource_iqyf6"]
-script = ExtResource("4_bcnus")
-stack = Array[ExtResource("5_0w1uu")]([SubResource("Resource_geday"), SubResource("Resource_up6o0")])
-
-[sub_resource type="Resource" id="Resource_s0c8i"]
-script = ExtResource("12_xu64m")
-radius = 0.68119055
-metadata/_custom_type_script = "uid://cxqx3jnrniuge"
+script = ExtResource("7_vmj2p")
+radius = 0.944
 
 [node name="Tile" type="Node3D"]
 
-[node name="GrassScatter" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0307948, 0)
-script = ExtResource("3_324bd")
-global_seed = 107
-modifier_stack = SubResource("Resource_17cd2")
+[node name="ProtonScatter" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.115403295, 0)
+script = ExtResource("1_3t8lw")
+modifier_stack = SubResource("Resource_3t8lw")
 Performance/use_chunks = true
 Performance/chunk_dimensions = Vector3(15, 15, 15)
 metadata/_custom_type_script = "uid://bk5dk5bdeipmk"
 
-[node name="Grass" type="Node3D" parent="GrassScatter"]
+[node name="ScatterItem" type="Node3D" parent="ProtonScatter"]
 visible = false
-script = ExtResource("10_6ad2v")
-proportion = 720
+script = ExtResource("5_5a0of")
 override_cast_shadow = 0
 path = "uid://7vlbx64bxpc1"
 
-[node name="Flowers" type="Node3D" parent="GrassScatter"]
+[node name="ScatterShape" type="Node3D" parent="ProtonScatter"]
+transform = Transform3D(1, 0, -2.98023e-08, 0, 1, 0, 2.98023e-08, 0, 1, 0, 0.16965485, 0)
 visible = false
-script = ExtResource("10_6ad2v")
-proportion = 7
-source_ignore_scale = false
-override_cast_shadow = 0
-path = "uid://d4h4jsnr5wv6e"
-metadata/_custom_type_script = "uid://bm3ixcfuilrne"
-
-[node name="ScatterShape" type="Node3D" parent="GrassScatter"]
-transform = Transform3D(1, 0, -2.98023e-08, 0, 1, 0, 2.98023e-08, 0, 1, 0, 0, 0)
-visible = false
-script = ExtResource("11_2ne2y")
+script = ExtResource("6_s51u1")
 shape = SubResource("Resource_g8bsm")
 
-[node name="TreeScatter" type="Node3D" parent="."]
-visible = false
-script = ExtResource("3_324bd")
-global_seed = 6
-modifier_stack = SubResource("Resource_iqyf6")
-Performance/use_chunks = true
-Performance/chunk_dimensions = Vector3(15, 15, 15)
-metadata/_custom_type_script = "uid://bk5dk5bdeipmk"
-
-[node name="Tree1" type="Node3D" parent="TreeScatter"]
-script = ExtResource("10_6ad2v")
-proportion = 1
-source_ignore_position = false
-source_ignore_rotation = false
-source_ignore_scale = false
-path = "uid://botwfgf3a0yvv"
-
-[node name="Tree2" type="Node3D" parent="TreeScatter"]
-script = ExtResource("10_6ad2v")
-proportion = 1
-source_ignore_scale = false
-path = "uid://cktdptlj0mk74"
-
-[node name="ScatterShape" type="Node3D" parent="TreeScatter"]
-transform = Transform3D(1, 0, -2.98023e-08, 0, 1, 0, 2.98023e-08, 0, 1, 4.055121e-09, 0, -0.13606739)
-visible = false
-script = ExtResource("11_2ne2y")
-shape = SubResource("Resource_s0c8i")
-
 [node name="HexGrass" type="MeshInstance3D" parent="."]
-mesh = ExtResource("1_oj33e")
-surface_material_override/0 = ExtResource("12_6ad2v")
+mesh = ExtResource("9_njyrf")
+surface_material_override/0 = ExtResource("10_20oks")
 
 [node name="Base" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.061032027, 0)
-mesh = ExtResource("11_yu51w")
-surface_material_override/0 = ExtResource("12_6ad2v")
+mesh = ExtResource("11_wexyq")
+surface_material_override/0 = ExtResource("10_20oks")

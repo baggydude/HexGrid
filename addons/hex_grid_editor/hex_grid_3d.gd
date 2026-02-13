@@ -97,14 +97,14 @@ func _setup_containers() -> void:
 	if not _cell_container:
 		_cell_container = Node3D.new()
 		_cell_container.name = "CellContainer"
-		add_child(_cell_container, false, Node.INTERNAL_MODE_BACK)
+		add_child(_cell_container)
 
 	# Guide grid mesh
 	_guide_mesh_instance = get_node_or_null("GuideGrid")
 	if not _guide_mesh_instance:
 		_guide_mesh_instance = MeshInstance3D.new()
 		_guide_mesh_instance.name = "GuideGrid"
-		add_child(_guide_mesh_instance, false, Node.INTERNAL_MODE_BACK)
+		add_child(_guide_mesh_instance)
 
 
 func _scan_brush_folder() -> void:
@@ -291,8 +291,6 @@ func _create_or_update_cell_instance(axial_coord: Vector2i, brush: HexBrushResou
 
 	var instance: Node3D = scene.instantiate()
 	_cell_container.add_child(instance)
-	if Engine.is_editor_hint() and get_tree():
-		_set_owners(instance, get_tree().edited_scene_root)
 	_cell_instances[axial_coord] = instance
 
 	# Apply rotation on Y axis
@@ -373,12 +371,6 @@ func _rebuild_all_cells() -> void:
 		var base_node := instance.find_child("Base", true, false) as MeshInstance3D
 		if base_node:
 			base_node.scale.y = height_scale
-
-
-static func _set_owners(node: Node, new_owner: Node) -> void:
-	node.owner = new_owner
-	for child in node.get_children():
-		_set_owners(child, new_owner)
 
 
 func _get_configuration_warnings() -> PackedStringArray:
