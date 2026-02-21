@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="HexBrushResource" load_steps=4 format=3 uid="uid://dny7djx68exur"]
+
+[ext_resource type="Script" uid="uid://uvbj58u3g13l" path="res://addons/hex_grid_editor/hex_brush_resource.gd" id="1_g2kg5"]
+[ext_resource type="PackedScene" uid="uid://baysofwb88x5k" path="res://addons/hex_grid_editor/tiles/road_1.tscn" id="2_g2kg5"]
+[ext_resource type="PackedScene" uid="uid://0cendmjabtm6" path="res://addons/hex_grid_editor/tiles/road_2.tscn" id="3_4ucox"]
+
+[resource]
+script = ExtResource("1_g2kg5")
+name = "Road"
+variations = Array[PackedScene]([ExtResource("2_g2kg5"), ExtResource("3_4ucox")])
+metadata/_custom_type_script = "uid://uvbj58u3g13l"

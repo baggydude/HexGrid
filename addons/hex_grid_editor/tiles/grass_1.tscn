@@ -1,0 +1,57 @@
+[gd_scene load_steps=14 format=3 uid="uid://c7a7pn85cihur"]
+
+[ext_resource type="Script" uid="uid://bk5dk5bdeipmk" path="res://addons/proton_scatter/src/scatter.gd" id="1_4mgaw"]
+[ext_resource type="Script" uid="uid://b2mwrn2mwvfa8" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="2_wo1o7"]
+[ext_resource type="Script" uid="uid://dqu58a8dpsbli" path="res://addons/proton_scatter/src/modifiers/base_modifier.gd" id="3_jd486"]
+[ext_resource type="Script" uid="uid://bq1r6jmdmak2m" path="res://addons/proton_scatter/src/modifiers/create_inside_random.gd" id="4_w23e4"]
+[ext_resource type="Script" uid="uid://bm3ixcfuilrne" path="res://addons/proton_scatter/src/scatter_item.gd" id="5_6b8k2"]
+[ext_resource type="Script" uid="uid://dfrj2v7tp74i4" path="res://addons/proton_scatter/src/scatter_shape.gd" id="6_8m1tw"]
+[ext_resource type="Script" uid="uid://cxqx3jnrniuge" path="res://addons/proton_scatter/src/shapes/sphere_shape.gd" id="7_60p2w"]
+[ext_resource type="ArrayMesh" uid="uid://dsfruy2ebaj8b" path="res://addons/hex_grid_editor/meshes/tiles/base/hex_grass.obj" id="8_tpjyy"]
+[ext_resource type="Material" uid="uid://x38xyx35cr5w" path="res://addons/hex_grid_editor/materials/tile.tres" id="9_2w205"]
+[ext_resource type="ArrayMesh" uid="uid://d0tcavefqlh3q" path="res://addons/hex_grid_editor/meshes/tiles/base/hex_grass_bottom.obj" id="10_0yci3"]
+
+[sub_resource type="Resource" id="Resource_gnfoe"]
+script = ExtResource("4_w23e4")
+amount = 700
+restrict_height = true
+reference_frame = 1
+
+[sub_resource type="Resource" id="Resource_yg8fc"]
+script = ExtResource("2_wo1o7")
+stack = Array[ExtResource("3_jd486")]([SubResource("Resource_gnfoe")])
+
+[sub_resource type="Resource" id="Resource_g8bsm"]
+script = ExtResource("7_60p2w")
+radius = 0.944
+
+[node name="Tile" type="Node3D"]
+
+[node name="ProtonScatter" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.115403295, 0)
+script = ExtResource("1_4mgaw")
+modifier_stack = SubResource("Resource_yg8fc")
+Performance/use_chunks = true
+Performance/chunk_dimensions = Vector3(15, 15, 15)
+metadata/_custom_type_script = "uid://bk5dk5bdeipmk"
+
+[node name="ScatterItem" type="Node3D" parent="ProtonScatter"]
+visible = false
+script = ExtResource("5_6b8k2")
+override_cast_shadow = 0
+path = "uid://7vlbx64bxpc1"
+
+[node name="ScatterShape" type="Node3D" parent="ProtonScatter"]
+transform = Transform3D(1, 0, -2.98023e-08, 0, 1, 0, 2.98023e-08, 0, 1, 0, 0.16965485, 0)
+visible = false
+script = ExtResource("6_8m1tw")
+shape = SubResource("Resource_g8bsm")
+
+[node name="HexGrass" type="MeshInstance3D" parent="."]
+mesh = ExtResource("8_tpjyy")
+surface_material_override/0 = ExtResource("9_2w205")
+
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.061032027, 0)
+mesh = ExtResource("10_0yci3")
+surface_material_override/0 = ExtResource("9_2w205")

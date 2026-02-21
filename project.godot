@@ -22,3 +22,7 @@ project/assembly_name="Hex Grid Tool"
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/hex_grid_editor/plugin.cfg", "res://addons/proton_scatter/plugin.cfg")
+
+[filesystem]
+
+import/blender/enabled=false

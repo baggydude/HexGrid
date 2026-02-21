@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://caoc8o0q1i080"
+path="res://.godot/imported/crate_A_big.obj-afdb3905ff245b20e2547594f410d00d.mesh"
+
+[deps]
+
+files=["res://.godot/imported/crate_A_big.obj-afdb3905ff245b20e2547594f410d00d.mesh"]
+
+source_file="res://addons/hex_grid_editor/meshes/placeables/decoration/props/crate_A_big.obj"
+dest_files=["res://.godot/imported/crate_A_big.obj-afdb3905ff245b20e2547594f410d00d.mesh", "res://.godot/imported/crate_A_big.obj-afdb3905ff245b20e2547594f410d00d.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://b7fgs6l45ldce"
+path="res://.godot/imported/mountain_B_grass_trees.obj-e4b3b9588818d8d506657347ff75a37d.mesh"
+
+[deps]
+
+files=["res://.godot/imported/mountain_B_grass_trees.obj-e4b3b9588818d8d506657347ff75a37d.mesh"]
+
+source_file="res://addons/hex_grid_editor/meshes/placeables/decoration/nature/mountain_B_grass_trees.obj"
+dest_files=["res://.godot/imported/mountain_B_grass_trees.obj-e4b3b9588818d8d506657347ff75a37d.mesh", "res://.godot/imported/mountain_B_grass_trees.obj-e4b3b9588818d8d506657347ff75a37d.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

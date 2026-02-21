@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://7qbr68ui6el1"
+path="res://.godot/imported/tent.obj-7eb3b26c42b02e53c228ac2aa95c7912.mesh"
+
+[deps]
+
+files=["res://.godot/imported/tent.obj-7eb3b26c42b02e53c228ac2aa95c7912.mesh"]
+
+source_file="res://addons/hex_grid_editor/meshes/placeables/decoration/props/tent.obj"
+dest_files=["res://.godot/imported/tent.obj-7eb3b26c42b02e53c228ac2aa95c7912.mesh", "res://.godot/imported/tent.obj-7eb3b26c42b02e53c228ac2aa95c7912.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

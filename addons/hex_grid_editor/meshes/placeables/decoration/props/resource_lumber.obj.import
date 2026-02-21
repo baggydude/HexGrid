@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bepy3gejixj1v"
+path="res://.godot/imported/resource_lumber.obj-1a7a8dc69d2dec5a003096c698e52752.mesh"
+
+[deps]
+
+files=["res://.godot/imported/resource_lumber.obj-1a7a8dc69d2dec5a003096c698e52752.mesh"]
+
+source_file="res://addons/hex_grid_editor/meshes/placeables/decoration/props/resource_lumber.obj"
+dest_files=["res://.godot/imported/resource_lumber.obj-1a7a8dc69d2dec5a003096c698e52752.mesh", "res://.godot/imported/resource_lumber.obj-1a7a8dc69d2dec5a003096c698e52752.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

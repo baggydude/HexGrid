@@ -1,8 +1,0 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://br8b67o78bu0q"]
-
-[ext_resource type="Shader" uid="uid://cjx3c6t1yuelf" path="res://shaders/mesh-pixelate.gdshader" id="1_m8fmi"]
-
-[resource]
-render_priority = 0
-shader = ExtResource("1_m8fmi")
-shader_parameter/target_resolution = Vector2(640, 360)
