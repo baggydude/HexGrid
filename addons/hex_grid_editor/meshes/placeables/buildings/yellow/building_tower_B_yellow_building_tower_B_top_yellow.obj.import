@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cbamub6lbpqfp"
+path="res://.godot/imported/building_tower_B_yellow_building_tower_B_top_yellow.obj-758684c65686f2a582d4a2992dc347cd.mesh"
+
+[deps]
+
+files=["res://.godot/imported/building_tower_B_yellow_building_tower_B_top_yellow.obj-758684c65686f2a582d4a2992dc347cd.mesh"]
+
+source_file="res://addons/hex_grid_editor/meshes/placeables/buildings/yellow/building_tower_B_yellow_building_tower_B_top_yellow.obj"
+dest_files=["res://.godot/imported/building_tower_B_yellow_building_tower_B_top_yellow.obj-758684c65686f2a582d4a2992dc347cd.mesh", "res://.godot/imported/building_tower_B_yellow_building_tower_B_top_yellow.obj-758684c65686f2a582d4a2992dc347cd.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

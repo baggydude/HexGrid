@@ -5,11 +5,13 @@ extends Resource
 ## Serializable data representing all cells in a hex grid
 
 ## Dictionary mapping Vector2i (axial coords) to cell data
-## Each entry: { 
-##   "tile_resource": HexTileResource, 
+## Each entry: {
+##   "brush_resource": HexBrushResource,
+##   "variation_index": int,
 ##   "rotation_degrees": float,
 ##   "world_position": Vector3,  # Stored position for persistence
-##   "placed_pointy_top": bool   # Orientation when placed
+##   "placed_pointy_top": bool,  # Orientation when placed
+##   "height_scale": float       # Height multiplier (1.0 = normal, 2.0 = twice as tall)
 ## }
 @export var cells: Dictionary = {}
 
@@ -17,15 +19,16 @@ extends Resource
 @export var grid_width: int = 10
 @export var grid_height: int = 10
 @export var hex_size: float = 1.0
-@export var mesh_scale: float = 0.95
 @export var pointy_top: bool = true
 
-func set_cell(axial_coord: Vector2i, tile: HexTileResource, rotation_deg: float, world_pos: Vector3, was_pointy_top: bool) -> void:
+func set_cell(axial_coord: Vector2i, brush: HexBrushResource, variation_index: int, rotation_deg: float, world_pos: Vector3, was_pointy_top: bool, height_scale: float = 1.0) -> void:
 	cells[axial_coord] = {
-		"tile_resource": tile,
+		"brush_resource": brush,
+		"variation_index": variation_index,
 		"rotation_degrees": rotation_deg,
 		"world_position": world_pos,
-		"placed_pointy_top": was_pointy_top
+		"placed_pointy_top": was_pointy_top,
+		"height_scale": height_scale
 	}
 
 func remove_cell(axial_coord: Vector2i) -> void:
