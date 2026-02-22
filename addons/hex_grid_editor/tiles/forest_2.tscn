@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://dtqnqs6jws2ej"]
+[gd_scene load_steps=22 format=3 uid="uid://dtqnqs6jws2ej"]
 
 [ext_resource type="Script" uid="uid://bk5dk5bdeipmk" path="res://addons/proton_scatter/src/scatter.gd" id="1_m3m7o"]
 [ext_resource type="Script" uid="uid://b2mwrn2mwvfa8" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="2_t6ujo"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://bm3ixcfuilrne" path="res://addons/proton_scatter/src/scatter_item.gd" id="5_qjhdt"]
 [ext_resource type="Script" uid="uid://dfrj2v7tp74i4" path="res://addons/proton_scatter/src/scatter_shape.gd" id="6_so04g"]
 [ext_resource type="Script" uid="uid://cxqx3jnrniuge" path="res://addons/proton_scatter/src/shapes/sphere_shape.gd" id="7_kh32x"]
+[ext_resource type="Script" uid="uid://dw7scetgo3eg5" path="res://addons/proton_scatter/src/shapes/path_shape.gd" id="7_t6ujo"]
 [ext_resource type="Script" uid="uid://dp2p01ydd06f2" path="res://addons/proton_scatter/src/modifiers/create_inside_poisson.gd" id="8_t0243"]
 [ext_resource type="Script" uid="uid://bb5jilqywmc0l" path="res://addons/proton_scatter/src/modifiers/randomize_transforms.gd" id="9_xb8ra"]
 [ext_resource type="ArrayMesh" uid="uid://dsfruy2ebaj8b" path="res://addons/hex_grid_editor/meshes/tiles/base/hex_grass.obj" id="10_hoo0a"]
@@ -23,9 +24,16 @@ reference_frame = 1
 script = ExtResource("2_t6ujo")
 stack = Array[ExtResource("3_qnomy")]([SubResource("Resource_gnfoe")])
 
-[sub_resource type="Resource" id="Resource_g8bsm"]
-script = ExtResource("7_kh32x")
-radius = 0.944
+[sub_resource type="Curve3D" id="Curve3D_qnomy"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.9604246, 2.9802322e-08, -0.5482121, 0, 0, 0, 0, 0, 0, -0.94926476, -5.2332878e-05, 0.5642215, 0, 0, 0, 0, 0, 0, 0.0038125839, -5.2332878e-05, 1.0826955, 0, 0, 0, 0, 0, 0, 0.9378278, -5.2332878e-05, 0.55278456, 0, 0, 0, 0, 0, 0, 0.96832633, -5.2332878e-05, -0.54516006, 0, 0, 0, 0, 0, 0, 0.0038125187, -5.2332878e-05, -1.1017569, 0, 0, 0, 0, 0, 0, -0.9596478, -2.9802322e-08, -0.5479232),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 7
+
+[sub_resource type="Resource" id="Resource_x58b2"]
+script = ExtResource("7_t6ujo")
+curve = SubResource("Curve3D_qnomy")
 
 [sub_resource type="Resource" id="Resource_fgrs6"]
 script = ExtResource("8_t0243")
@@ -52,7 +60,7 @@ radius = 0.8012498
 [node name="Tile" type="Node3D"]
 
 [node name="ProtonScatter" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.115403295, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.18, 0)
 script = ExtResource("1_m3m7o")
 global_seed = 19
 modifier_stack = SubResource("Resource_yg8fc")
@@ -71,7 +79,7 @@ path = "uid://7vlbx64bxpc1"
 transform = Transform3D(1, 0, -2.98023e-08, 0, 1, 0, 2.98023e-08, 0, 1, 0, 0.16965485, 0)
 visible = false
 script = ExtResource("6_so04g")
-shape = SubResource("Resource_g8bsm")
+shape = SubResource("Resource_x58b2")
 
 [node name="ProtonScatter2" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.115403295, 0)

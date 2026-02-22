@@ -15,8 +15,6 @@ var _last_painted_coord: Vector2i = Vector2i(-99999, -99999)
 
 # Ghost preview in the 3D viewport (instantiated scene)
 var _preview_instance: Node3D = null
-var _preview_material: StandardMaterial3D = null
-
 
 func _enter_tree() -> void:
 	# Create toolbar container with background
@@ -33,11 +31,6 @@ func _enter_tree() -> void:
 
 	# Add to the spatial editor area (below the 3D viewport toolbar)
 	add_control_to_container(EditorPlugin.CONTAINER_SPATIAL_EDITOR_BOTTOM, _toolbar_container)
-
-	# Create ghost preview material - subtle transparency to indicate preview
-	_preview_material = StandardMaterial3D.new()
-	_preview_material.albedo_color = Color(1, 1, 1, 0.5)
-	_preview_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 
 
 func _exit_tree() -> void:
@@ -108,7 +101,6 @@ func _apply_ghost_material(node: Node) -> void:
 	elif node is Light3D:
 		node.visible = false
 	elif node is GeometryInstance3D:
-		(node as GeometryInstance3D).material_override = _preview_material
 		(node as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	for child in node.get_children():
 		_apply_ghost_material(child)

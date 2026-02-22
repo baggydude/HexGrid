@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://dcmdk7v8v3xjq"
+path="res://.godot/imported/Pebble_Round_5.obj-3e4eb1905888127cff3783047d47372d.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Pebble_Round_5.obj-3e4eb1905888127cff3783047d47372d.mesh"]
+
+source_file="res://addons/hex_grid_editor/meshes/nature2/Pebble_Round_5.obj"
+dest_files=["res://.godot/imported/Pebble_Round_5.obj-3e4eb1905888127cff3783047d47372d.mesh", "res://.godot/imported/Pebble_Round_5.obj-3e4eb1905888127cff3783047d47372d.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

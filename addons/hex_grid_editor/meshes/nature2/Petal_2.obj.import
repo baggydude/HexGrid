@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://pf7ymkp6uon2"
+path="res://.godot/imported/Petal_2.obj-d21e4e73dee6ab4590f63b46103b050e.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Petal_2.obj-d21e4e73dee6ab4590f63b46103b050e.mesh"]
+
+source_file="res://addons/hex_grid_editor/meshes/nature2/Petal_2.obj"
+dest_files=["res://.godot/imported/Petal_2.obj-d21e4e73dee6ab4590f63b46103b050e.mesh", "res://.godot/imported/Petal_2.obj-d21e4e73dee6ab4590f63b46103b050e.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false
