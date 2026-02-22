@@ -1,0 +1,91 @@
+[gd_resource type="ShaderMaterial" load_steps=8 format=3 uid="uid://bpn2hx1a68l1q"]
+
+[ext_resource type="Shader" uid="uid://y18qjj6y41uw" path="res://addons/hex_grid_editor/shaders/water2.gdshader" id="1_pg6gn"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_xknf0"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_m2cov"]
+noise = SubResource("FastNoiseLite_xknf0")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_q7cy1"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_dpi7t"]
+noise = SubResource("FastNoiseLite_q7cy1")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gbqsw"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_744ep"]
+noise = SubResource("FastNoiseLite_gbqsw")
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_pg6gn")
+shader_parameter/use_global_weather_controller = false
+shader_parameter/non_global_gale_strength = 0.2
+shader_parameter/non_global_wind_direction = Vector3(1, 0, 0)
+shader_parameter/smoothness = 0.766
+shader_parameter/metallic = 0.0
+shader_parameter/base_opacity = 0.941
+shader_parameter/shallows_opacity = 0.661
+shader_parameter/shallow_color = Color(0.5, 0.5, 0.2, 1)
+shader_parameter/deep_color = Color(0.16402295, 0.41984397, 0.9125366, 1)
+shader_parameter/very_deep_color = Color(0.1, 0.1, 0.2, 1)
+shader_parameter/deep_height = 1.16
+shader_parameter/very_deep_height = 1.78
+shader_parameter/maximum_depth = 15.0
+shader_parameter/enable_normals = true
+shader_parameter/normal_texture = SubResource("NoiseTexture2D_dpi7t")
+shader_parameter/normal_offset = Vector2(0, 0)
+shader_parameter/normal_tiling = 0.0
+shader_parameter/normal_intensity = 1.0
+shader_parameter/normal_pan_speed = 1.0
+shader_parameter/normal_noise_tiling = 0.2
+shader_parameter/normal_noise_intensity = 0.23
+shader_parameter/enable_fresnel_fade = false
+shader_parameter/fade_distance = 1.0
+shader_parameter/fade_power = 0.0
+shader_parameter/enable_shore_wave_foam = true
+shader_parameter/enable_shore_animation = true
+shader_parameter/animation_offset = 0
+shader_parameter/shore_wave_speed = 0.1070000050825
+shader_parameter/shore_wave_return_amount = 1.0
+shader_parameter/shore_wave_tickness = 0.1
+shader_parameter/shore_edge_opacity = 0.2970000141075
+shader_parameter/shore_wave_color_tint = Color(1, 1, 1, 1)
+shader_parameter/shore_edge_tickness = 0.1
+shader_parameter/shore_edge_noise_scale = 0.86
+shader_parameter/shore_lap_fade_out_speed = 1.0
+shader_parameter/shore_lap_fade_in_speed = 3.0
+shader_parameter/shore_foam_noise_scale = 100
+shader_parameter/shore_foam_noise_texture = SubResource("NoiseTexture2D_744ep")
+shader_parameter/enable_shore_foam = false
+shader_parameter/shore_small_foam_opacity = 0.725
+shader_parameter/shore_small_foam_tiling = 2.5
+shader_parameter/shore_foam_color_tint = Color(1, 1, 1, 1)
+shader_parameter/enable_global_foam = true
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_m2cov")
+shader_parameter/enable_top_scrolling_texture = false
+shader_parameter/top_scrolling_direction = Vector2(0, -0.01)
+shader_parameter/scrolling_texture_tiling = Vector2(1, 1)
+shader_parameter/scrolling_texture_tint = Color(0.3, 0.8, 0.95, 1)
+shader_parameter/scrolling_texture_opacity = 0.49600002356
+shader_parameter/enable_ocean_waves = false
+shader_parameter/ocean_wave_height = 0.4
+shader_parameter/ocean_wave_speed = 0.3
+shader_parameter/ocean_foam_amount = 0.5
+shader_parameter/ocean_foam_opacity = 0.321
+shader_parameter/ocean_wave_frequency = 1.0
+shader_parameter/ocean_breakup_tiling = 1
+shader_parameter/enable_caustics = true
+shader_parameter/caustics_use_voronoi_noise = true
+shader_parameter/caustics_intensity = 1.0
+shader_parameter/caustics_color = Color(1, 1, 1, 1)
+shader_parameter/caustics_speed = 2.97200014117
+shader_parameter/caustics_scale = 1
+shader_parameter/enable_distortion = false
+shader_parameter/distortion_speed = 0.5
+shader_parameter/distortion_direction = Vector2(1, 1)
+shader_parameter/distortion_size = 0.1
+shader_parameter/distortion_strength = 0.5
+shader_parameter/WindDirection = Vector3(0, 0, 0)
+shader_parameter/GaleStrength = 0.0

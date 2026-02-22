@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HexBrushResource" load_steps=5 format=3 uid="uid://cy642dblhnv6b"]
+
+[ext_resource type="Script" uid="uid://uvbj58u3g13l" path="res://addons/hex_grid_editor/hex_brush_resource.gd" id="1_bglix"]
+[ext_resource type="PackedScene" uid="uid://6iffw68wv227" path="res://addons/hex_grid_editor/tiles/river_1.tscn" id="2_euums"]
+[ext_resource type="PackedScene" uid="uid://turi534b6kp6" path="res://addons/hex_grid_editor/tiles/river_2.tscn" id="3_7d8ub"]
+[ext_resource type="PackedScene" uid="uid://dgl50tj5kpcke" path="res://addons/hex_grid_editor/tiles/river_waterwheel.tscn" id="4_ojjby"]
+
+[resource]
+script = ExtResource("1_bglix")
+name = "River"
+is_blocked = true
+variations = Array[PackedScene]([ExtResource("2_euums"), ExtResource("3_7d8ub"), ExtResource("4_ojjby")])
+metadata/_custom_type_script = "uid://uvbj58u3g13l"

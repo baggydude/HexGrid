@@ -1,9 +1,10 @@
-[gd_scene load_steps=18 format=3 uid="uid://jfwrehmqm6mi"]
+[gd_scene load_steps=19 format=3 uid="uid://jfwrehmqm6mi"]
 
 [ext_resource type="Script" uid="uid://cn2vjso03ayr8" path="res://addons/hex_grid_editor/hex_grid_3d.gd" id="1_hex_grid"]
 [ext_resource type="Resource" uid="uid://dny7djx68exur" path="res://addons/hex_grid_editor/brushes/Road.tres" id="3_1hm1i"]
 [ext_resource type="Script" uid="uid://y58lbjk3h20t" path="res://addons/hex_grid_editor/hex_grid_data.gd" id="3_sxiuf"]
 [ext_resource type="Resource" uid="uid://bplr0rtxtbvks" path="res://addons/hex_grid_editor/brushes/Forest.tres" id="4_om45m"]
+[ext_resource type="Resource" uid="uid://cy642dblhnv6b" path="res://addons/hex_grid_editor/brushes/River.tres" id="5_mssda"]
 [ext_resource type="Resource" uid="uid://di4rqcvcj6ccg" path="res://addons/hex_grid_editor/brushes/Grass.tres" id="5_om45m"]
 [ext_resource type="Texture2D" uid="uid://b4d3kk0q8ev3b" path="res://addons/hex_grid_editor/assets/humans/MiniHorseMan.png" id="6_om45m"]
 [ext_resource type="Shader" uid="uid://mcwtdws31fkg" path="res://addons/hex_grid_editor/shaders/occluded.gdshader" id="7_4qc3i"]
@@ -129,6 +130,38 @@ Vector2i(2, 2): {
 "variation_index": 1,
 "world_position": Vector3(5.9755754, 0, 3.45)
 },
+Vector2i(2, 3): {
+"brush_resource": ExtResource("3_1hm1i"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 120.0,
+"variation_index": 1,
+"world_position": Vector3(6.9715047, 0, 5.175)
+},
+Vector2i(2, 4): {
+"brush_resource": ExtResource("3_1hm1i"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 60.0,
+"variation_index": 1,
+"world_position": Vector3(7.967434, 0, 6.9)
+},
+Vector2i(2, 5): {
+"brush_resource": ExtResource("5_mssda"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 240.0,
+"variation_index": 1,
+"world_position": Vector3(8.963363, 0, 8.625)
+},
+Vector2i(2, 6): {
+"brush_resource": ExtResource("5_mssda"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 300.0,
+"variation_index": 1,
+"world_position": Vector3(9.959292, 0, 10.35)
+},
 Vector2i(3, 0): {
 "brush_resource": ExtResource("5_om45m"),
 "height_scale": 1.25,
@@ -146,12 +179,44 @@ Vector2i(3, 1): {
 "world_position": Vector3(6.9715047, 0, 1.725)
 },
 Vector2i(3, 2): {
-"brush_resource": ExtResource("5_om45m"),
+"brush_resource": ExtResource("4_om45m"),
 "height_scale": 1.0,
 "placed_pointy_top": true,
-"rotation_degrees": 180.0,
-"variation_index": 0,
+"rotation_degrees": 0.0,
+"variation_index": 1,
 "world_position": Vector3(7.967434, 0, 3.45)
+},
+Vector2i(3, 3): {
+"brush_resource": ExtResource("4_om45m"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 60.0,
+"variation_index": 0,
+"world_position": Vector3(8.963363, 0, 5.175)
+},
+Vector2i(3, 4): {
+"brush_resource": ExtResource("5_mssda"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 60.0,
+"variation_index": 2,
+"world_position": Vector3(9.959292, 0, 6.9)
+},
+Vector2i(3, 6): {
+"brush_resource": ExtResource("5_mssda"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 120.0,
+"variation_index": 1,
+"world_position": Vector3(11.951151, 0, 10.35)
+},
+Vector2i(3, 7): {
+"brush_resource": ExtResource("5_mssda"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 120.0,
+"variation_index": 0,
+"world_position": Vector3(12.94708, 0, 12.075)
 },
 Vector2i(4, 0): {
 "brush_resource": ExtResource("5_om45m"),
@@ -168,6 +233,38 @@ Vector2i(4, 1): {
 "rotation_degrees": 120.0,
 "variation_index": 0,
 "world_position": Vector3(8.963363, 0, 1.725)
+},
+Vector2i(4, 2): {
+"brush_resource": ExtResource("5_mssda"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 240.0,
+"variation_index": 1,
+"world_position": Vector3(9.959292, 0, 3.45)
+},
+Vector2i(4, 3): {
+"brush_resource": ExtResource("5_mssda"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 60.0,
+"variation_index": 1,
+"world_position": Vector3(10.955221, 0, 5.175)
+},
+Vector2i(5, 1): {
+"brush_resource": ExtResource("5_mssda"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 240.0,
+"variation_index": 0,
+"world_position": Vector3(10.955221, 0, 1.725)
+},
+Vector2i(6, 0): {
+"brush_resource": ExtResource("5_mssda"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 240.0,
+"variation_index": 0,
+"world_position": Vector3(11.951151, 0, 0)
 }
 }
 hex_size = 1.15
