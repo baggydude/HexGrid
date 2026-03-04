@@ -1,6 +1,6 @@
 @tool
 class_name HexGridEditorToolbar
-extends Control
+extends VBoxContainer
 
 ## Bottom panel editor for hex grid painting with tile grid preview
 
@@ -33,21 +33,16 @@ var _preview_viewports: Array[SubViewport] = []
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(0, 200)
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_build_ui()
 
 
 func _build_ui() -> void:
-	# Main vertical layout — must anchor to fill the bottom panel
-	var main_vbox := VBoxContainer.new()
-	main_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	main_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	add_child(main_vbox)
-	main_vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-
-	# Top controls bar
+	# Top controls bar — added directly to self (VBoxContainer)
 	var controls_bar := HBoxContainer.new()
 	controls_bar.add_theme_constant_override("separation", 16)
-	main_vbox.add_child(controls_bar)
+	add_child(controls_bar)
 
 	# Paint/Erase buttons
 	var tool_box := HBoxContainer.new()
@@ -138,7 +133,7 @@ func _build_ui() -> void:
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	main_vbox.add_child(scroll)
+	add_child(scroll)
 
 	_tile_grid = GridContainer.new()
 	_tile_grid.columns = 8
