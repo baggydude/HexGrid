@@ -191,12 +191,15 @@ func _rebuild_tile_grid() -> void:
 	# Check _tile_grid is in the tree
 	print("[HexToolbar] _tile_grid in tree: ", _tile_grid.is_inside_tree(), " _tile_grid parent: ", _tile_grid.get_parent())
 
-	# Fix scroll container size — _build_ui doesn't re-run on hot-reload,
-	# so we must ensure the scroll parent has proper sizing here
+	# Fix layout — _build_ui doesn't re-run on hot-reload
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var scroll_parent := _tile_grid.get_parent()
 	if scroll_parent is ScrollContainer:
 		scroll_parent.custom_minimum_size = Vector2(0, 160)
+		scroll_parent.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		scroll_parent.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_tile_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	# Clear existing grid
 	for child in _tile_grid.get_children():
