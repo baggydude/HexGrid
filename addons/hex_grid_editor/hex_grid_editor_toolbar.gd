@@ -183,8 +183,16 @@ func get_selected_tile_scene() -> PackedScene:
 func _rebuild_tile_grid() -> void:
 	print("[HexToolbar] _rebuild_tile_grid called, _tile_grid valid: ", is_instance_valid(_tile_grid))
 	print("[HexToolbar] self visible: ", visible, " self size: ", size, " parent: ", get_parent())
+	if not is_instance_valid(_tile_grid):
+		print("[HexToolbar] ERROR: _tile_grid is not valid!")
+		return
+
+	# Check _tile_grid is in the tree
+	print("[HexToolbar] _tile_grid in tree: ", _tile_grid.is_inside_tree(), " _tile_grid parent: ", _tile_grid.get_parent())
+
 	# Clear existing grid
 	for child in _tile_grid.get_children():
+		_tile_grid.remove_child(child)
 		child.queue_free()
 	_tile_buttons.clear()
 
@@ -197,6 +205,7 @@ func _rebuild_tile_grid() -> void:
 	# Sort paths alphabetically
 	var paths := _tile_scenes.keys()
 	paths.sort()
+	print("[HexToolbar] building ", paths.size(), " tile buttons")
 
 	for path in paths:
 		var file_name: String = path.get_file().get_basename()
@@ -230,6 +239,12 @@ func _rebuild_tile_grid() -> void:
 		name_label.add_theme_font_size_override("font_size", 10)
 		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		vbox.add_child(name_label)
+
+	print("[HexToolbar] grid child count after build: ", _tile_grid.get_child_count())
+	print("[HexToolbar] grid size: ", _tile_grid.size, " grid min size: ", _tile_grid.get_combined_minimum_size())
+	var scroll := _tile_grid.get_parent()
+	if scroll:
+		print("[HexToolbar] scroll size: ", scroll.size, " scroll min size: ", scroll.get_combined_minimum_size())
 
 
 # --- Tool methods ---
