@@ -303,7 +303,7 @@ func _create_scene_preview(scene_path: String, preview_size: int) -> TextureRect
 	# Camera — consistent isometric-ish angle for all tiles
 	var camera := Camera3D.new()
 	camera.fov = 30.0
-	var cam_pos := Vector3(2.2, 2.8, 2.2)
+	var cam_pos := Vector3(3.2, 3.8, 3.2)
 	var cam_target := Vector3(0, -0.2, 0)
 	camera.transform = Transform3D.IDENTITY.looking_at(cam_target - cam_pos, Vector3.UP)
 	camera.transform.origin = cam_pos
@@ -316,7 +316,7 @@ func _create_scene_preview(scene_path: String, preview_size: int) -> TextureRect
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color.WHITE
 	env.ambient_light_energy = 0.4
-	env.tonemap_mode = Environment.TONE_MAP_FILMIC
+	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	var world_env := WorldEnvironment.new()
 	world_env.environment = env
 	viewport.add_child(world_env)
