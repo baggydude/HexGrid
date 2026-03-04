@@ -74,11 +74,14 @@ surface_material_override/0 = ExtResource("9_u2fms")
 [node name="BuildingTowerCatapultBlue" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0041851997, 0, 0.24461913)
 mesh = ExtResource("12_kc4mi")
+surface_material_override/0 = ExtResource("9_u2fms")
 
 [node name="BuildingTowerCatapultBlueCatapultTurretBlue" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0041851997, 0, 0.24461913)
 mesh = ExtResource("13_ow22h")
+surface_material_override/0 = ExtResource("9_u2fms")
 
 [node name="BuildingTowerCatapultBlueCatapultTurretBlueCatapultArmBlue" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0041851997, 0, 0.24461913)
 mesh = ExtResource("14_lvu1t")
+surface_material_override/0 = ExtResource("9_u2fms")

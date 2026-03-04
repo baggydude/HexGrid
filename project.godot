@@ -12,7 +12,6 @@ config_version=5
 
 config/name="Hex Grid Tool"
 config/description="A 3D hex grid editor with painting, snapping, and rotation support"
-run/main_scene="res://demo_scene.tscn"
 config/features=PackedStringArray("4.5", "Forward Plus")
 
 [dotnet]

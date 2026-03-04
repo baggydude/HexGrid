@@ -33,10 +33,7 @@ void vertex() {
 
 	// Leaves animation
 	new_position += noise_texture * vec4(1.0, 0.0, 0.0, 0.0) * (UV.x * 2.0 - 1.0) - noise_texture * vec4(0.0, 1.0, 0.0, 0.0) * (UV.y * 2.0 - 1.0);
-
 	new_position *= MODELVIEW_MATRIX;
-
-
 	VERTEX += new_position.xyz;
 }
 
