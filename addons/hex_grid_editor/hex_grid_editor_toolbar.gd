@@ -292,19 +292,21 @@ func _create_scene_preview(scene_path: String, preview_size: int) -> TextureRect
 	if not packed_scene:
 		return tex_rect
 
-	# Create SubViewport for rendering the scene
+	# Create SubViewport — don't render yet, wait until it's in the tree
 	var viewport := SubViewport.new()
 	viewport.size = Vector2i(preview_size * 2, preview_size * 2)
-	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	viewport.transparent_bg = true
 	viewport.own_world_3d = true
 	viewport.msaa_3d = Viewport.MSAA_4X
 
-	# Camera looking at the tile from an isometric-ish angle
+	# Camera — set transform directly to avoid look_at before in-tree
 	var camera := Camera3D.new()
-	camera.position = Vector3(1.8, 2.2, 1.8)
-	camera.look_at(Vector3(0, -0.3, 0))
 	camera.fov = 35.0
+	var cam_pos := Vector3(1.8, 2.2, 1.8)
+	var cam_target := Vector3(0, -0.3, 0)
+	camera.transform = Transform3D.IDENTITY.looking_at(cam_target - cam_pos, Vector3.UP)
+	camera.transform.origin = cam_pos
 	viewport.add_child(camera)
 
 	# Lighting
@@ -314,7 +316,6 @@ func _create_scene_preview(scene_path: String, preview_size: int) -> TextureRect
 	light.shadow_enabled = false
 	viewport.add_child(light)
 
-	# Ambient fill light from below/opposite side
 	var fill_light := DirectionalLight3D.new()
 	fill_light.rotation_degrees = Vector3(30, 150, 0)
 	fill_light.light_energy = 0.3
@@ -325,11 +326,11 @@ func _create_scene_preview(scene_path: String, preview_size: int) -> TextureRect
 	var instance := packed_scene.instantiate()
 	viewport.add_child(instance)
 
-	# Add viewport to self so it's in the tree and can render
+	# Add viewport to tree, then trigger a single render next frame
 	add_child(viewport)
 	_preview_viewports.append(viewport)
+	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
-	# Connect the texture after a frame so the viewport renders
 	tex_rect.texture = viewport.get_texture()
 
 	return tex_rect
@@ -351,7 +352,24 @@ func _on_filter_changed(new_text: String) -> void:
 
 func _on_size_changed(new_size: float) -> void:
 	_preview_size = int(new_size)
-	_rebuild_tile_grid()
+	if not is_instance_valid(_tile_grid):
+		return
+
+	# Update button and preview sizes without rebuilding viewports
+	var btn_width := _preview_size + 8
+	for path in _tile_buttons:
+		var btn: Button = _tile_buttons[path]
+		btn.custom_minimum_size = Vector2(btn_width, _preview_size + 24)
+		var vbox := btn.get_child(0) as VBoxContainer
+		if vbox and vbox.get_child_count() > 0:
+			var tex_rect := vbox.get_child(0) as TextureRect
+			if tex_rect:
+				tex_rect.custom_minimum_size = Vector2(_preview_size, _preview_size)
+
+	# Recalculate columns
+	var separation := _tile_grid.get_theme_constant("h_separation")
+	var available_width := size.x if size.x > 0 else 800.0
+	_tile_grid.columns = maxi(1, int(available_width / (btn_width + separation)))
 
 
 # --- Tool methods ---
