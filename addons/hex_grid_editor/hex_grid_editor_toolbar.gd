@@ -32,15 +32,17 @@ var _preview_viewports: Array[SubViewport] = []
 
 
 func _ready() -> void:
+	custom_minimum_size = Vector2(0, 200)
 	_build_ui()
 
 
 func _build_ui() -> void:
-	# Main vertical layout
+	# Main vertical layout — must anchor to fill the bottom panel
 	var main_vbox := VBoxContainer.new()
 	main_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	main_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_child(main_vbox)
+	main_vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	# Top controls bar
 	var controls_bar := HBoxContainer.new()
@@ -209,11 +211,11 @@ func _rebuild_tile_grid() -> void:
 		_tile_grid.add_child(tile_btn)
 		_tile_buttons[path] = tile_btn
 
-		# VBox inside button for preview + label
+		# VBox inside button for preview + label — must anchor to fill the button
 		var vbox := VBoxContainer.new()
 		vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		tile_btn.add_child(vbox)
+		vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 		# Create SubViewport for this tile's preview
 		var viewport := SubViewport.new()
