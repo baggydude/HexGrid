@@ -130,20 +130,21 @@ func _build_ui() -> void:
 	height_inc.pressed.connect(adjust_height.bind(HEIGHT_STEP))
 	height_box.add_child(height_inc)
 
-	# Tile grid area (scrollable)
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.custom_minimum_size = Vector2(0, 160)
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	add_child(scroll)
+	# DEBUG: red box to test if anything renders below controls
+	var debug_rect := ColorRect.new()
+	debug_rect.color = Color.RED
+	debug_rect.custom_minimum_size = Vector2(200, 40)
+	add_child(debug_rect)
 
+	# Tile grid area — no scroll wrapper for now, to isolate rendering issue
 	_tile_grid = GridContainer.new()
 	_tile_grid.columns = 8
 	_tile_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_tile_grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_tile_grid.custom_minimum_size = Vector2(0, 160)
 	_tile_grid.add_theme_constant_override("h_separation", 4)
 	_tile_grid.add_theme_constant_override("v_separation", 4)
-	scroll.add_child(_tile_grid)
+	add_child(_tile_grid)
 
 
 ## Set the available tile scenes and build the preview grid
