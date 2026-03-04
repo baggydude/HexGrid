@@ -15,12 +15,14 @@ var _preview_instance: Node3D = null
 
 
 func _enter_tree() -> void:
+	print("[HexPlugin] _enter_tree")
 	# Create toolbar (bottom panel)
 	_toolbar = HexGridEditorToolbar.new()
 	_toolbar.tile_selected.connect(_on_tile_selected)
 	_toolbar.tool_changed.connect(_on_tool_changed)
 	_bottom_panel_button = add_control_to_bottom_panel(_toolbar, "Hex Editor")
 	_bottom_panel_button.visible = false
+	print("[HexPlugin] toolbar added to bottom panel, button: ", _bottom_panel_button)
 
 	# No material override — ghost preview shows tiles as-is
 
@@ -39,8 +41,10 @@ func _handles(object: Object) -> bool:
 
 
 func _edit(object: Object) -> void:
+	print("[HexPlugin] _edit called, object: ", object)
 	if object is HexGrid3D:
 		_edited_grid = object
+		print("[HexPlugin] editing HexGrid3D, tile_palette size: ", _edited_grid.tile_palette.size())
 		_toolbar.set_tile_palette(_edited_grid.tile_palette)
 		_rebuild_ghost_preview()
 	else:
@@ -48,14 +52,16 @@ func _edit(object: Object) -> void:
 		_cleanup_preview()
 
 
-func _make_visible(visible: bool) -> void:
+func _make_visible(visible_flag: bool) -> void:
+	print("[HexPlugin] _make_visible: ", visible_flag)
 	if _bottom_panel_button:
-		_bottom_panel_button.visible = visible
+		_bottom_panel_button.visible = visible_flag
 
-	if visible and _edited_grid:
+	if visible_flag and _edited_grid:
 		make_bottom_panel_item_visible(_toolbar)
+		print("[HexPlugin] made toolbar visible, toolbar size: ", _toolbar.size)
 		_rebuild_ghost_preview()
-	elif not visible:
+	elif not visible_flag:
 		_cleanup_preview()
 
 

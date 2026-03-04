@@ -32,10 +32,12 @@ var _preview_viewports: Array[SubViewport] = []
 
 
 func _ready() -> void:
+	print("[HexToolbar] _ready called")
 	custom_minimum_size = Vector2(0, 200)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_build_ui()
+	print("[HexToolbar] _build_ui done, child count: ", get_child_count())
 
 
 func _build_ui() -> void:
@@ -145,6 +147,7 @@ func _build_ui() -> void:
 
 ## Set the available tile scenes and build the preview grid
 func set_tile_palette(palette: Dictionary) -> void:
+	print("[HexToolbar] set_tile_palette called with ", palette.size(), " tiles")
 	_tile_scenes = palette
 	_rebuild_tile_grid()
 
@@ -178,6 +181,8 @@ func get_selected_tile_scene() -> PackedScene:
 
 
 func _rebuild_tile_grid() -> void:
+	print("[HexToolbar] _rebuild_tile_grid called, _tile_grid valid: ", is_instance_valid(_tile_grid))
+	print("[HexToolbar] self visible: ", visible, " self size: ", size, " parent: ", get_parent())
 	# Clear existing grid
 	for child in _tile_grid.get_children():
 		child.queue_free()
