@@ -155,6 +155,7 @@ func _build_ui() -> void:
 	_size_slider.value = PREVIEW_SIZE_DEFAULT
 	_size_slider.step = 8
 	_size_slider.custom_minimum_size = Vector2(100, 0)
+	_size_slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_size_slider.value_changed.connect(_on_size_changed)
 	size_box.add_child(_size_slider)
 
@@ -264,12 +265,10 @@ func _rebuild_tile_grid() -> void:
 		tile_btn.add_child(vbox)
 		vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
-		# Placeholder box instead of viewport preview
-		var color_rect := ColorRect.new()
-		color_rect.custom_minimum_size = Vector2(_preview_size, _preview_size)
-		color_rect.color = Color(0.85, 0.85, 0.85)
-		color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		vbox.add_child(color_rect)
+		# Scene preview via SubViewport
+		var preview_tex := _create_scene_preview(path, _preview_size)
+		preview_tex.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		vbox.add_child(preview_tex)
 
 		var name_label := Label.new()
 		name_label.text = file_name
@@ -281,6 +280,59 @@ func _rebuild_tile_grid() -> void:
 	# Restore selection state
 	if _tile_buttons.has(_selected_tile_path):
 		_tile_buttons[_selected_tile_path].button_pressed = true
+
+
+func _create_scene_preview(scene_path: String, preview_size: int) -> TextureRect:
+	var tex_rect := TextureRect.new()
+	tex_rect.custom_minimum_size = Vector2(preview_size, preview_size)
+	tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+
+	var packed_scene: PackedScene = _tile_scenes.get(scene_path)
+	if not packed_scene:
+		return tex_rect
+
+	# Create SubViewport for rendering the scene
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(preview_size * 2, preview_size * 2)
+	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	viewport.transparent_bg = true
+	viewport.own_world_3d = true
+	viewport.msaa_3d = Viewport.MSAA_4X
+
+	# Camera looking at the tile from an isometric-ish angle
+	var camera := Camera3D.new()
+	camera.position = Vector3(1.8, 2.2, 1.8)
+	camera.look_at(Vector3(0, -0.3, 0))
+	camera.fov = 35.0
+	viewport.add_child(camera)
+
+	# Lighting
+	var light := DirectionalLight3D.new()
+	light.rotation_degrees = Vector3(-45, -30, 0)
+	light.light_energy = 1.0
+	light.shadow_enabled = false
+	viewport.add_child(light)
+
+	# Ambient fill light from below/opposite side
+	var fill_light := DirectionalLight3D.new()
+	fill_light.rotation_degrees = Vector3(30, 150, 0)
+	fill_light.light_energy = 0.3
+	fill_light.shadow_enabled = false
+	viewport.add_child(fill_light)
+
+	# Instantiate the tile scene
+	var instance := packed_scene.instantiate()
+	viewport.add_child(instance)
+
+	# Add viewport to self so it's in the tree and can render
+	add_child(viewport)
+	_preview_viewports.append(viewport)
+
+	# Connect the texture after a frame so the viewport renders
+	tex_rect.texture = viewport.get_texture()
+
+	return tex_rect
 
 
 func _on_resized() -> void:
