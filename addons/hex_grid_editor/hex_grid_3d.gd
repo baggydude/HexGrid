@@ -2,12 +2,12 @@
 class_name HexGrid3D
 extends Node3D
 
-## 3D Hex Grid node with editor support for painting hex brushes (scene-based)
+## 3D Hex Grid node with editor support for painting hex tiles (scene-based)
 
 signal cell_changed(axial_coord: Vector2i)
 signal grid_cleared
 
-const DEFAULT_BRUSH_PATH := "res://addons/hex_grid_editor/brushes/"
+const DEFAULT_TILE_PATH := "res://addons/hex_grid_editor/tiles/"
 
 ## Grid configuration
 @export_group("Grid Settings")
@@ -68,14 +68,14 @@ const DEFAULT_BRUSH_PATH := "res://addons/hex_grid_editor/brushes/"
 		if grid_data:
 			_sync_from_data()
 
-## Path to folder containing HexBrushResource .tres files
-@export var brush_resource_folder: String = DEFAULT_BRUSH_PATH:
+## Path to folder containing tile .tscn scene files
+@export var tile_scene_folder: String = DEFAULT_TILE_PATH:
 	set(value):
-		brush_resource_folder = value
-		_scan_brush_folder()
+		tile_scene_folder = value
+		_scan_tile_folder()
 
-## Brush palette (auto-populated from brush_resource_folder)
-var brush_palette: Array[HexBrushResource] = []
+## Tile palette: scene_path -> PackedScene (auto-populated from tile_scene_folder)
+var tile_palette: Dictionary = {}
 
 ## Internal references
 var _guide_mesh_instance: MeshInstance3D
@@ -86,7 +86,7 @@ var _cell_instances: Dictionary = {}  # Vector2i -> Node3D (instantiated scene)
 func _ready() -> void:
 	_setup_containers()
 	_update_guide_grid()
-	_scan_brush_folder()
+	_scan_tile_folder()
 	if grid_data:
 		_sync_from_data()
 
@@ -107,20 +107,20 @@ func _setup_containers() -> void:
 		add_child(_guide_mesh_instance)
 
 
-func _scan_brush_folder() -> void:
-	brush_palette.clear()
-	var dir := DirAccess.open(brush_resource_folder)
+func _scan_tile_folder() -> void:
+	tile_palette.clear()
+	var dir := DirAccess.open(tile_scene_folder)
 	if not dir:
 		return
 	dir.list_dir_begin()
 	var file_name := dir.get_next()
 	while file_name != "":
-		if not dir.current_is_dir() and (file_name.ends_with(".tres") or file_name.ends_with(".res")):
-			var res := ResourceLoader.load(brush_resource_folder.path_join(file_name))
-			if res is HexBrushResource:
-				brush_palette.append(res)
+		if not dir.current_is_dir() and file_name.ends_with(".tscn"):
+			var path := tile_scene_folder.path_join(file_name)
+			var scene := ResourceLoader.load(path) as PackedScene
+			if scene:
+				tile_palette[path] = scene
 		file_name = dir.get_next()
-	brush_palette.sort_custom(func(a: HexBrushResource, b: HexBrushResource) -> bool: return a.name < b.name)
 
 
 func _update_guide_visibility() -> void:
@@ -178,13 +178,14 @@ func _add_hex_outline(st: SurfaceTool, center: Vector3) -> void:
 		st.add_vertex(corners[(i + 1) % 6])
 
 
-## Place a brush scene at the given axial coordinate
-func place_brush(axial_coord: Vector2i, brush: HexBrushResource, variation_index: int = 0, rotation_degrees: float = 0.0, height_scale: float = 1.0) -> void:
-	if not brush:
-		return
-	if brush.variations.is_empty():
-		return
-	variation_index = clampi(variation_index, 0, brush.variations.size() - 1)
+## Place a tile scene at the given axial coordinate
+func place_tile(axial_coord: Vector2i, scene_path: String, rotation_degrees: float = 0.0, height_scale: float = 1.0) -> void:
+	var scene: PackedScene = tile_palette.get(scene_path)
+	if not scene:
+		scene = ResourceLoader.load(scene_path) as PackedScene
+		if not scene:
+			return
+		tile_palette[scene_path] = scene
 
 	# Check bounds
 	var offset := HexMath.axial_to_offset(axial_coord, pointy_top)
@@ -203,10 +204,10 @@ func place_brush(axial_coord: Vector2i, brush: HexBrushResource, variation_index
 	var world_pos := HexMath.axial_to_world(axial_coord, hex_size, pointy_top)
 
 	# Update data
-	grid_data.set_cell(axial_coord, brush, variation_index, rotation_degrees, world_pos, pointy_top, height_scale)
+	grid_data.set_cell(axial_coord, scene_path, rotation_degrees, world_pos, pointy_top, height_scale)
 
 	# Update visual
-	_create_or_update_cell_instance(axial_coord, brush, variation_index, rotation_degrees, world_pos, pointy_top, height_scale)
+	_create_or_update_cell_instance(axial_coord, scene, scene_path, rotation_degrees, world_pos, pointy_top, height_scale)
 
 	cell_changed.emit(axial_coord)
 
@@ -276,7 +277,7 @@ func is_in_bounds(axial_coord: Vector2i) -> bool:
 	return HexMath.is_in_bounds(offset, grid_width, grid_height)
 
 
-func _create_or_update_cell_instance(axial_coord: Vector2i, brush: HexBrushResource, variation_index: int, rotation_degrees: float, world_pos: Vector3, placed_pointy_top: bool, height_scale: float = 1.0) -> void:
+func _create_or_update_cell_instance(axial_coord: Vector2i, scene: PackedScene, scene_path: String, rotation_degrees: float, world_pos: Vector3, placed_pointy_top: bool, height_scale: float = 1.0) -> void:
 	_setup_containers()
 
 	# Remove existing instance if present (scenes must be fully replaced)
@@ -284,32 +285,26 @@ func _create_or_update_cell_instance(axial_coord: Vector2i, brush: HexBrushResou
 		_cell_instances[axial_coord].queue_free()
 		_cell_instances.erase(axial_coord)
 
-	# Instantiate the scene variation
-	var scene: PackedScene = brush.variations[variation_index]
-	if not scene:
-		return
-
 	var instance: Node3D = scene.instantiate()
 	_cell_container.add_child(instance)
+	if Engine.is_editor_hint() and get_tree():
+		_set_owners(instance, get_tree().edited_scene_root)
 	_cell_instances[axial_coord] = instance
 
 	# Apply rotation on Y axis
 	instance.rotation_degrees.y = rotation_degrees
 
-	# Place scene at hex center on the grid plane
+	# Place scene at hex center, offset Y by height_scale
 	instance.position = Vector3(world_pos.x, height_scale, world_pos.z)
 
 	# Only scale the Base MeshInstance3D child's Y for height
-	# Base mesh origin is at top, body extends in -Y direction
-	# height_scale stretches it further downward, creating a pillar effect
 	var base_node := instance.find_child("Base", true, false) as MeshInstance3D
 	if base_node:
 		base_node.scale.y = height_scale
 
 	# Store metadata on the instance for later retrieval
 	instance.set_meta("axial_coord", axial_coord)
-	instance.set_meta("brush_resource", brush)
-	instance.set_meta("variation_index", variation_index)
+	instance.set_meta("scene_path", scene_path)
 	instance.set_meta("rotation_degrees", rotation_degrees)
 	instance.set_meta("world_position", world_pos)
 	instance.set_meta("placed_pointy_top", placed_pointy_top)
@@ -334,47 +329,32 @@ func _sync_from_data() -> void:
 	# Rebuild cells using their stored positions
 	for axial_coord in grid_data.cells:
 		var cell_data: Dictionary = grid_data.cells[axial_coord]
-		var brush: HexBrushResource = cell_data.get("brush_resource")
-		var variation_index: int = cell_data.get("variation_index", 0)
+		var scene_path: String = cell_data.get("scene_path", "")
 		var rotation: float = cell_data.get("rotation_degrees", 0.0)
 		var world_pos: Vector3 = cell_data.get("world_position", Vector3.ZERO)
 		var placed_pointy: bool = cell_data.get("placed_pointy_top", pointy_top)
 		var height_scale: float = cell_data.get("height_scale", 1.0)
 
+		if scene_path.is_empty():
+			continue
+
 		# If no stored position (legacy data), calculate it
 		if world_pos == Vector3.ZERO:
 			world_pos = HexMath.axial_to_world(axial_coord, hex_size, placed_pointy)
 
-		if brush and not brush.variations.is_empty():
-			variation_index = clampi(variation_index, 0, brush.variations.size() - 1)
-			_create_or_update_cell_instance(axial_coord, brush, variation_index, rotation, world_pos, placed_pointy, height_scale)
+		var scene := ResourceLoader.load(scene_path) as PackedScene
+		if scene:
+			_create_or_update_cell_instance(axial_coord, scene, scene_path, rotation, world_pos, placed_pointy, height_scale)
 
 
-func _rebuild_all_cells() -> void:
-	if not grid_data:
-		return
-
-	# Update existing instances without re-instantiating
-	for axial_coord in _cell_instances:
-		var instance: Node3D = _cell_instances[axial_coord]
-		var world_pos: Vector3 = instance.get_meta("world_position")
-		var height_scale: float = instance.get_meta("height_scale") if instance.has_meta("height_scale") else 1.0
-		var rotation: float = instance.get_meta("rotation_degrees") if instance.has_meta("rotation_degrees") else 0.0
-
-		# Apply rotation
-		instance.rotation_degrees.y = rotation
-
-		# Place at grid plane
-		instance.position = Vector3(world_pos.x, 0, world_pos.z)
-
-		# Only scale Base's Y for height
-		var base_node := instance.find_child("Base", true, false) as MeshInstance3D
-		if base_node:
-			base_node.scale.y = height_scale
+static func _set_owners(node: Node, new_owner: Node) -> void:
+	node.owner = new_owner
+	for child in node.get_children():
+		_set_owners(child, new_owner)
 
 
 func _get_configuration_warnings() -> PackedStringArray:
 	var warnings: PackedStringArray = []
-	if brush_palette.is_empty():
-		warnings.append("No brush resources found. Add HexBrushResource .tres files to: " + brush_resource_folder)
+	if tile_palette.is_empty():
+		warnings.append("No tile scenes found. Add .tscn files to: " + tile_scene_folder)
 	return warnings

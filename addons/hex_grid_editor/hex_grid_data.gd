@@ -6,12 +6,11 @@ extends Resource
 
 ## Dictionary mapping Vector2i (axial coords) to cell data
 ## Each entry: {
-##   "brush_resource": HexBrushResource,
-##   "variation_index": int,
+##   "scene_path": String,          # Path to tile .tscn file
 ##   "rotation_degrees": float,
-##   "world_position": Vector3,  # Stored position for persistence
-##   "placed_pointy_top": bool,  # Orientation when placed
-##   "height_scale": float       # Height multiplier (1.0 = normal, 2.0 = twice as tall)
+##   "world_position": Vector3,     # Stored position for persistence
+##   "placed_pointy_top": bool,     # Orientation when placed
+##   "height_scale": float          # Height multiplier (1.0 = normal)
 ## }
 @export var cells: Dictionary = {}
 
@@ -21,10 +20,9 @@ extends Resource
 @export var hex_size: float = 1.0
 @export var pointy_top: bool = true
 
-func set_cell(axial_coord: Vector2i, brush: HexBrushResource, variation_index: int, rotation_deg: float, world_pos: Vector3, was_pointy_top: bool, height_scale: float = 1.0) -> void:
+func set_cell(axial_coord: Vector2i, scene_path: String, rotation_deg: float, world_pos: Vector3, was_pointy_top: bool, height_scale: float = 1.0) -> void:
 	cells[axial_coord] = {
-		"brush_resource": brush,
-		"variation_index": variation_index,
+		"scene_path": scene_path,
 		"rotation_degrees": rotation_deg,
 		"world_position": world_pos,
 		"placed_pointy_top": was_pointy_top,
