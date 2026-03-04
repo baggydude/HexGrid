@@ -199,7 +199,6 @@ func _rebuild_tile_grid() -> void:
 	paths.sort()
 
 	for path in paths:
-		var scene: PackedScene = _tile_scenes[path]
 		var file_name: String = path.get_file().get_basename()
 
 		# Container for each tile preview
@@ -217,50 +216,12 @@ func _rebuild_tile_grid() -> void:
 		tile_btn.add_child(vbox)
 		vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
-		# Create SubViewport for this tile's preview
-		var viewport := SubViewport.new()
-		viewport.size = Vector2i(PREVIEW_SIZE, PREVIEW_SIZE)
-		viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
-		viewport.transparent_bg = false
-		viewport.own_world_3d = true
-		add_child(viewport)
-		_preview_viewports.append(viewport)
-
-		# Camera
-		var camera := Camera3D.new()
-		camera.position = Vector3(1.5, 2.0, 1.5)
-		camera.look_at(Vector3.ZERO)
-		viewport.add_child(camera)
-		camera.make_current()
-
-		# Light
-		var light := DirectionalLight3D.new()
-		light.rotation_degrees = Vector3(-45, -45, 0)
-		viewport.add_child(light)
-
-		# Environment
-		var env := Environment.new()
-		env.background_mode = Environment.BG_COLOR
-		env.background_color = Color(0.15, 0.15, 0.15)
-		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-		env.ambient_light_color = Color.WHITE
-		env.ambient_light_energy = 0.5
-		var world_env := WorldEnvironment.new()
-		world_env.environment = env
-		viewport.add_child(world_env)
-
-		# Instantiate tile scene into the viewport
-		var instance := scene.instantiate()
-		viewport.add_child(instance)
-
-		# TextureRect to display the rendered preview
-		var tex_rect := TextureRect.new()
-		tex_rect.custom_minimum_size = Vector2(PREVIEW_SIZE, PREVIEW_SIZE)
-		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		tex_rect.texture = viewport.get_texture()
-		tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		vbox.add_child(tex_rect)
+		# Placeholder white box instead of viewport preview
+		var color_rect := ColorRect.new()
+		color_rect.custom_minimum_size = Vector2(PREVIEW_SIZE, PREVIEW_SIZE)
+		color_rect.color = Color(0.85, 0.85, 0.85)
+		color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		vbox.add_child(color_rect)
 
 		# Label with tile name
 		var name_label := Label.new()
@@ -269,15 +230,6 @@ func _rebuild_tile_grid() -> void:
 		name_label.add_theme_font_size_override("font_size", 10)
 		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		vbox.add_child(name_label)
-
-	# Defer viewport rendering so content is ready before the single frame renders
-	_request_preview_renders.call_deferred()
-
-
-func _request_preview_renders() -> void:
-	for vp in _preview_viewports:
-		if is_instance_valid(vp):
-			vp.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 
 # --- Tool methods ---
