@@ -50,18 +50,17 @@ func _edit(object: Object) -> void:
 func _on_grid_deleted() -> void:
 	_edited_grid = null
 	_cleanup_preview()
-	_make_visible(false)
+	if _bottom_panel_button:
+		_bottom_panel_button.visible = false
 	hide_bottom_panel()
 
 
 func _make_visible(visible_flag: bool) -> void:
-	if _bottom_panel_button:
-		_bottom_panel_button.visible = visible_flag
-
 	if visible_flag and _edited_grid:
+		if _bottom_panel_button:
+			_bottom_panel_button.visible = true
 		make_bottom_panel_item_visible(_toolbar)
-	elif not visible_flag:
-		_cleanup_preview()
+	# Don't hide the tab when clicking another node — only hide on node deletion
 
 
 func _setup_preview() -> void:
