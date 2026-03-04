@@ -32,12 +32,11 @@ var _preview_viewports: Array[SubViewport] = []
 
 
 func _ready() -> void:
-	print("[HexToolbar] _ready called")
 	custom_minimum_size = Vector2(0, 200)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_build_ui()
-	print("[HexToolbar] _build_ui done, child count: ", get_child_count())
+	resized.connect(_on_resized)
 
 
 func _build_ui() -> void:
@@ -182,24 +181,8 @@ func get_selected_tile_scene() -> PackedScene:
 
 
 func _rebuild_tile_grid() -> void:
-	print("[HexToolbar] _rebuild_tile_grid called, _tile_grid valid: ", is_instance_valid(_tile_grid))
-	print("[HexToolbar] self visible: ", visible, " self size: ", size, " parent: ", get_parent())
 	if not is_instance_valid(_tile_grid):
-		print("[HexToolbar] ERROR: _tile_grid is not valid!")
 		return
-
-	# Check _tile_grid is in the tree
-	print("[HexToolbar] _tile_grid in tree: ", _tile_grid.is_inside_tree(), " _tile_grid parent: ", _tile_grid.get_parent())
-
-	# Fix layout — _build_ui doesn't re-run on hot-reload
-	size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var scroll_parent := _tile_grid.get_parent()
-	if scroll_parent is ScrollContainer:
-		scroll_parent.custom_minimum_size = Vector2(0, 160)
-		scroll_parent.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		scroll_parent.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_tile_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	# Clear existing grid
 	for child in _tile_grid.get_children():
@@ -213,37 +196,39 @@ func _rebuild_tile_grid() -> void:
 			vp.queue_free()
 	_preview_viewports.clear()
 
+	# Calculate columns based on available width
+	var btn_width := PREVIEW_SIZE + 8
+	var separation := _tile_grid.get_theme_constant("h_separation")
+	var available_width := size.x if size.x > 0 else 800.0
+	_tile_grid.columns = maxi(1, int(available_width / (btn_width + separation)))
+
 	# Sort paths alphabetically
 	var paths := _tile_scenes.keys()
 	paths.sort()
-	print("[HexToolbar] building ", paths.size(), " tile buttons")
 
 	for path in paths:
 		var file_name: String = path.get_file().get_basename()
 
-		# Container for each tile preview
 		var tile_btn := Button.new()
 		tile_btn.toggle_mode = true
-		tile_btn.custom_minimum_size = Vector2(PREVIEW_SIZE + 8, PREVIEW_SIZE + 24)
+		tile_btn.custom_minimum_size = Vector2(btn_width, PREVIEW_SIZE + 24)
 		tile_btn.tooltip_text = file_name
 		tile_btn.pressed.connect(select_tile.bind(path))
 		_tile_grid.add_child(tile_btn)
 		_tile_buttons[path] = tile_btn
 
-		# VBox inside button for preview + label — must anchor to fill the button
 		var vbox := VBoxContainer.new()
 		vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		tile_btn.add_child(vbox)
 		vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
-		# Placeholder white box instead of viewport preview
+		# Placeholder box instead of viewport preview
 		var color_rect := ColorRect.new()
 		color_rect.custom_minimum_size = Vector2(PREVIEW_SIZE, PREVIEW_SIZE)
 		color_rect.color = Color(0.85, 0.85, 0.85)
 		color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		vbox.add_child(color_rect)
 
-		# Label with tile name
 		var name_label := Label.new()
 		name_label.text = file_name
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -251,11 +236,14 @@ func _rebuild_tile_grid() -> void:
 		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		vbox.add_child(name_label)
 
-	print("[HexToolbar] grid child count after build: ", _tile_grid.get_child_count())
-	print("[HexToolbar] grid size: ", _tile_grid.size, " grid min size: ", _tile_grid.get_combined_minimum_size())
-	var scroll := _tile_grid.get_parent()
-	if scroll:
-		print("[HexToolbar] scroll size: ", scroll.size, " scroll min size: ", scroll.get_combined_minimum_size())
+
+func _on_resized() -> void:
+	if _tile_scenes.size() > 0 and is_instance_valid(_tile_grid):
+		var btn_width := PREVIEW_SIZE + 8
+		var separation := _tile_grid.get_theme_constant("h_separation")
+		var new_columns := maxi(1, int(size.x / (btn_width + separation)))
+		if new_columns != _tile_grid.columns:
+			_tile_grid.columns = new_columns
 
 
 # --- Tool methods ---
