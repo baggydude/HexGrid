@@ -249,7 +249,7 @@ func _rebuild_tile_grid() -> void:
 		var file_name: String = path.get_file().get_basename()
 
 		# Apply filter
-		if not _filter_text.is_empty() and _filter_text.to_lower() not in file_name.to_lower():
+		if not _filter_text.is_empty() and file_name.to_lower().find(_filter_text.to_lower()) == -1:
 			continue
 
 		var tile_btn := Button.new()
