@@ -46,7 +46,8 @@ func _edit(object: Object) -> void:
 		_edited_grid = object
 		print("[HexPlugin] editing HexGrid3D, tile_palette size: ", _edited_grid.tile_palette.size())
 		_toolbar.set_tile_palette(_edited_grid.tile_palette)
-		_rebuild_ghost_preview()
+		# Defer ghost preview to avoid triggering editor re-selection
+		_rebuild_ghost_preview.call_deferred()
 	else:
 		_edited_grid = null
 		_cleanup_preview()
@@ -60,7 +61,6 @@ func _make_visible(visible_flag: bool) -> void:
 	if visible_flag and _edited_grid:
 		make_bottom_panel_item_visible(_toolbar)
 		print("[HexPlugin] made toolbar visible, toolbar size: ", _toolbar.size)
-		_rebuild_ghost_preview()
 	elif not visible_flag:
 		_cleanup_preview()
 
