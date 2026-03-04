@@ -218,7 +218,7 @@ func _rebuild_tile_grid() -> void:
 		# Create SubViewport for this tile's preview
 		var viewport := SubViewport.new()
 		viewport.size = Vector2i(PREVIEW_SIZE, PREVIEW_SIZE)
-		viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+		viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 		viewport.transparent_bg = false
 		viewport.own_world_3d = true
 		add_child(viewport)
@@ -267,6 +267,15 @@ func _rebuild_tile_grid() -> void:
 		name_label.add_theme_font_size_override("font_size", 10)
 		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		vbox.add_child(name_label)
+
+	# Defer viewport rendering so content is ready before the single frame renders
+	_request_preview_renders.call_deferred()
+
+
+func _request_preview_renders() -> void:
+	for vp in _preview_viewports:
+		if is_instance_valid(vp):
+			vp.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 
 # --- Tool methods ---
