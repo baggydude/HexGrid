@@ -1,0 +1,76 @@
+[gd_scene load_steps=18 format=3 uid="uid://dkyigknusu8m6"]
+
+[ext_resource type="Script" uid="uid://bk5dk5bdeipmk" path="res://addons/proton_scatter/src/scatter.gd" id="1_oi2gd"]
+[ext_resource type="Script" uid="uid://b2mwrn2mwvfa8" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="2_lp1wv"]
+[ext_resource type="Script" uid="uid://dqu58a8dpsbli" path="res://addons/proton_scatter/src/modifiers/base_modifier.gd" id="3_2m6l7"]
+[ext_resource type="Script" uid="uid://bq1r6jmdmak2m" path="res://addons/proton_scatter/src/modifiers/create_inside_random.gd" id="4_vs43r"]
+[ext_resource type="Script" uid="uid://bm3ixcfuilrne" path="res://addons/proton_scatter/src/scatter_item.gd" id="5_chiv7"]
+[ext_resource type="Script" uid="uid://gkyxv7lk4vpd" path="res://addons/proton_scatter/src/modifiers/project_on_geometry.gd" id="5_lp1wv"]
+[ext_resource type="Script" uid="uid://dfrj2v7tp74i4" path="res://addons/proton_scatter/src/scatter_shape.gd" id="6_cssr8"]
+[ext_resource type="Script" uid="uid://dw7scetgo3eg5" path="res://addons/proton_scatter/src/shapes/path_shape.gd" id="7_4c1v5"]
+[ext_resource type="ArrayMesh" uid="uid://xc2ilsqwhkdo" path="res://addons/hex_grid_editor/meshes/tiles/base/hex_grass_sloped_low.obj" id="8_oi2gd"]
+[ext_resource type="Material" uid="uid://x38xyx35cr5w" path="res://addons/hex_grid_editor/materials/tile.tres" id="9_i85tk"]
+[ext_resource type="ArrayMesh" uid="uid://d0tcavefqlh3q" path="res://addons/hex_grid_editor/meshes/tiles/base/hex_grass_bottom.obj" id="10_yfq2p"]
+
+[sub_resource type="Resource" id="Resource_gnfoe"]
+script = ExtResource("4_vs43r")
+amount = 700
+restrict_height = true
+reference_frame = 1
+
+[sub_resource type="Resource" id="Resource_2m6l7"]
+script = ExtResource("5_lp1wv")
+
+[sub_resource type="Resource" id="Resource_yg8fc"]
+script = ExtResource("2_lp1wv")
+stack = Array[ExtResource("3_2m6l7")]([SubResource("Resource_gnfoe"), SubResource("Resource_2m6l7")])
+
+[sub_resource type="Curve3D" id="Curve3D_gj0vq"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.9604246, 2.9802322e-08, -0.5482121, 0, 0, 0, 0, 0, 0, -0.94926476, -5.2332878e-05, 0.5642215, 0, 0, 0, 0, 0, 0, 0.0038125839, -5.2332878e-05, 1.0826955, 0, 0, 0, 0, 0, 0, 0.9378278, -5.2332878e-05, 0.55278456, 0, 0, 0, 0, 0, 0, 0.96832633, -5.2332878e-05, -0.54516006, 0, 0, 0, 0, 0, 0, 0.0038125187, -5.2332878e-05, -1.1017569, 0, 0, 0, 0, 0, 0, -0.9596478, -2.9802322e-08, -0.5479232),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 7
+
+[sub_resource type="Resource" id="Resource_pfn4t"]
+script = ExtResource("7_4c1v5")
+curve = SubResource("Curve3D_gj0vq")
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_lp1wv"]
+data = PackedVector3Array(1, -1, 0.57739997, 1, 0.4488, 0.57739997, 1, -1, -0.57739997, 1, -1, -0.57739997, 1, 0.4488, 0.57739997, 1, 0.4488, -0.57739997, 0, -1, 1.1546999, 0, 0.44869998, 1.1546999, 1, -1, 0.57739997, 1, -1, 0.57739997, 0, 0.44869998, 1.1546999, 1, 0.4488, 0.57739997, -1, -1, 0.57739997, -1, -0.0514, 0.57739997, 0, -1, 1.1546999, 0, -1, 1.1546999, -1, -0.0514, 0.57739997, 0, 0.44869998, 1.1546999, -1, -1, -0.57739997, -1, -0.0514, -0.57739997, -1, -1, 0.57739997, -1, -1, 0.57739997, -1, -0.0514, -0.57739997, -1, -0.0514, 0.57739997, -0.9553, 0.0224, -0.5462, 0, 0.5, -1.0977, -0.9553, 0.0224, 0.5462, -0.9553, 0.0224, 0.5462, 0, 0.5, -1.0977, 0, 0.5, 1.0977, 0, 0.5, -1.0977, 0.95, 0.5, -0.5492, 0, 0.5, 1.0977, 0, 0.5, 1.0977, 0.95, 0.5, -0.5492, 0.95, 0.5, 0.5492, 0, -1, -1.1546999, 0, 0.44869998, -1.1546999, -1, -1, -0.57739997, -1, -1, -0.57739997, 0, 0.44869998, -1.1546999, -1, -0.0514, -0.57739997, 1, -1, -0.57739997, 1, 0.4488, -0.57739997, 0, -1, -1.1546999, 0, -1, -1.1546999, 1, 0.4488, -0.57739997, 0, 0.44869998, -1.1546999, 0, 0.44869998, -1.1546999, 1, 0.4488, -0.57739997, 0, 0.5, -1.0977, 0, 0.5, -1.0977, 1, 0.4488, -0.57739997, 0.95, 0.5, -0.5492, 1, 0.4488, -0.57739997, 1, 0.4488, 0.57739997, 0.95, 0.5, -0.5492, 0.95, 0.5, -0.5492, 1, 0.4488, 0.57739997, 0.95, 0.5, 0.5492, 1, 0.4488, 0.57739997, 0, 0.44869998, 1.1546999, 0.95, 0.5, 0.5492, 0.95, 0.5, 0.5492, 0, 0.44869998, 1.1546999, 0, 0.5, 1.0977, 0, 0.44869998, 1.1546999, -1, -0.0514, 0.57739997, 0, 0.5, 1.0977, 0, 0.5, 1.0977, -1, -0.0514, 0.57739997, -0.9553, 0.0224, 0.5462, -1, -0.0514, 0.57739997, -1, -0.0514, -0.57739997, -0.9553, 0.0224, 0.5462, -0.9553, 0.0224, 0.5462, -1, -0.0514, -0.57739997, -0.9553, 0.0224, -0.5462, -1, -0.0514, -0.57739997, 0, 0.44869998, -1.1546999, -0.9553, 0.0224, -0.5462, -0.9553, 0.0224, -0.5462, 0, 0.44869998, -1.1546999, 0, 0.5, -1.0977, 0, -1, -1.1546999, 0, -1, 0, 1, -1, -0.57739997, 1, -1, -0.57739997, 0, -1, 0, 1, -1, 0.57739997, -1, -1, -0.57739997, 0, -1, 0, 0, -1, -1.1546999, 1, -1, 0.57739997, 0, -1, 0, 0, -1, 1.1546999, -1, -1, 0.57739997, 0, -1, 0, -1, -1, -0.57739997, 0, -1, 1.1546999, 0, -1, 0, -1, -1, 0.57739997)
+
+[node name="Tile" type="Node3D"]
+
+[node name="ProtonScatter" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42725575, 0)
+script = ExtResource("1_oi2gd")
+modifier_stack = SubResource("Resource_yg8fc")
+Performance/use_chunks = true
+Performance/chunk_dimensions = Vector3(15, 15, 15)
+metadata/_custom_type_script = "uid://bk5dk5bdeipmk"
+
+[node name="ScatterItem" type="Node3D" parent="ProtonScatter"]
+visible = false
+script = ExtResource("5_chiv7")
+override_cast_shadow = 0
+path = "uid://7vlbx64bxpc1"
+
+[node name="ScatterShape" type="Node3D" parent="ProtonScatter"]
+transform = Transform3D(1, 0, -2.98023e-08, 0, 1, 0, 2.98023e-08, 0, 1, 0, 0.16965485, 0)
+visible = false
+script = ExtResource("6_cssr8")
+shape = SubResource("Resource_pfn4t")
+
+[node name="HexGrass" type="MeshInstance3D" parent="."]
+mesh = ExtResource("8_oi2gd")
+surface_material_override/0 = ExtResource("9_i85tk")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="HexGrass"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HexGrass/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_lp1wv")
+
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.061032027, 0)
+mesh = ExtResource("10_yfq2p")
+surface_material_override/0 = ExtResource("9_i85tk")

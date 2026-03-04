@@ -1,0 +1,128 @@
+[gd_scene load_steps=23 format=3 uid="uid://dpybfsi4bwktd"]
+
+[ext_resource type="Script" uid="uid://bk5dk5bdeipmk" path="res://addons/proton_scatter/src/scatter.gd" id="1_e5a1m"]
+[ext_resource type="Script" uid="uid://b2mwrn2mwvfa8" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="2_j7oa8"]
+[ext_resource type="Script" uid="uid://dqu58a8dpsbli" path="res://addons/proton_scatter/src/modifiers/base_modifier.gd" id="3_50ju5"]
+[ext_resource type="Script" uid="uid://bq1r6jmdmak2m" path="res://addons/proton_scatter/src/modifiers/create_inside_random.gd" id="4_p5cop"]
+[ext_resource type="Script" uid="uid://bm3ixcfuilrne" path="res://addons/proton_scatter/src/scatter_item.gd" id="5_6j8rn"]
+[ext_resource type="Script" uid="uid://dfrj2v7tp74i4" path="res://addons/proton_scatter/src/scatter_shape.gd" id="6_omddu"]
+[ext_resource type="Script" uid="uid://dw7scetgo3eg5" path="res://addons/proton_scatter/src/shapes/path_shape.gd" id="7_npo4n"]
+[ext_resource type="ArrayMesh" uid="uid://dsfruy2ebaj8b" path="res://addons/hex_grid_editor/meshes/tiles/base/hex_grass.obj" id="8_n8et5"]
+[ext_resource type="Material" uid="uid://x38xyx35cr5w" path="res://addons/hex_grid_editor/materials/tile.tres" id="9_waiek"]
+[ext_resource type="ArrayMesh" uid="uid://d0tcavefqlh3q" path="res://addons/hex_grid_editor/meshes/tiles/base/hex_grass_bottom.obj" id="10_4x84l"]
+[ext_resource type="PackedScene" uid="uid://c5warcva67ww8" path="res://addons/hex_grid_editor/meshes/fantasy/Props/Fireplace_01.fbx" id="11_6j8rn"]
+[ext_resource type="PackedScene" uid="uid://d4fb2h7d8yguu" path="res://addons/hex_grid_editor/meshes/fantasy/Props/Tent_01.fbx" id="12_omddu"]
+[ext_resource type="PackedScene" uid="uid://cl0crcxllr8qn" path="res://addons/hex_grid_editor/meshes/fantasy/Props/Tent_02.fbx" id="13_npo4n"]
+[ext_resource type="PackedScene" uid="uid://dsfpejihswjwk" path="res://addons/hex_grid_editor/meshes/fantasy/Vegetation/Log_03.fbx" id="14_n8et5"]
+[ext_resource type="ArrayMesh" uid="uid://cvo2sv7d3h8x3" path="res://addons/hex_grid_editor/meshes/placeables/decoration/nature/tree_single_A_cut.obj" id="15_npo4n"]
+[ext_resource type="PackedScene" uid="uid://botwfgf3a0yvv" path="res://addons/hex_grid_editor/props/tree_1.tscn" id="16_n8et5"]
+
+[sub_resource type="Resource" id="Resource_gnfoe"]
+script = ExtResource("4_p5cop")
+amount = 700
+restrict_height = true
+reference_frame = 1
+
+[sub_resource type="Resource" id="Resource_yg8fc"]
+script = ExtResource("2_j7oa8")
+stack = Array[ExtResource("3_50ju5")]([SubResource("Resource_gnfoe")])
+
+[sub_resource type="Curve3D" id="Curve3D_npo4n"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.90759623, -5.9604645e-08, -0.56635016, 0, 0, 0, 0, 0, 0, -0.93893766, -5.9604645e-08, 0.52903014, 0, 0, 0, 0, 0, 0, 0.0038125839, -5.2332878e-05, 1.0826955, 0, 0, 0, 0, 0, 0, 0.9378278, -5.2332878e-05, 0.55278456, 0, 0, 0, 0, 0, 0, 0.96832633, -5.2332878e-05, -0.54516006, 0, 0, 0, 0, 0, 0, 0.0038125187, -5.2332878e-05, -1.1017569, 0, 0, 0, 0, 0, 0, -0.9071917, -5.9604645e-08, -0.5705498),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 7
+
+[sub_resource type="Resource" id="Resource_pfn4t"]
+script = ExtResource("7_npo4n")
+curve = SubResource("Curve3D_npo4n")
+
+[sub_resource type="Curve3D" id="Curve3D_n8et5"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0.13083887, -5.3703785e-05, -0.8668072, 0, 0, 0, 0, 0, 0, -0.07943773, -5.3703785e-05, -0.4555994, 0, 0, 0, 0, 0, 0, -0.11214733, -5.3703785e-05, -0.0677559, 0, 0, 0, 0, 0, 0, -0.4112079, -5.3703785e-05, -0.1378481, 0, 0, 0, 0, 0, 0, -0.7429776, -5.3703785e-05, 0.100465365, 0, 0, 0, 0, 0, 0, -0.77101445, -5.3703785e-05, 0.5303644, 0, 0, 0, 0, 0, 0, -0.47787488, -5.9604645e-08, 0.7438842, 0, 0, 0, 0, 0, 0, 0.074107915, -5.9604645e-08, 0.74474007, 0, 0, 0, 0, 0, 0, 0.18747374, -5.9604645e-08, 0.19944942, 0, 0, 0, 0, 0, 0, 0.54671955, -5.3703785e-05, 0.17055789, 0, 0, 0, 0, 0, 0, 0.9111986, -5.3703785e-05, -0.20326753, 0, 0, 0, 0, 0, 0, 0.6869035, -5.3703785e-05, -0.49298194, 0, 0, 0, 0, 0, 0, 0.3878441, -5.3703785e-05, -0.34812462, 0, 0, 0, 0, 0, 0, 0.48597288, -5.3703785e-05, -0.71727717, 0, 0, 0, 0, 0, 0, 0.1401844, -5.3703785e-05, -0.87615293),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 15
+
+[sub_resource type="Resource" id="Resource_n8et5"]
+script = ExtResource("7_npo4n")
+curve = SubResource("Curve3D_n8et5")
+metadata/_custom_type_script = "uid://dw7scetgo3eg5"
+
+[node name="Tile" type="Node3D"]
+
+[node name="ProtonScatter" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.18, 0)
+script = ExtResource("1_e5a1m")
+modifier_stack = SubResource("Resource_yg8fc")
+Performance/use_chunks = true
+Performance/chunk_dimensions = Vector3(15, 15, 15)
+metadata/_custom_type_script = "uid://bk5dk5bdeipmk"
+
+[node name="ScatterItem" type="Node3D" parent="ProtonScatter"]
+visible = false
+script = ExtResource("5_6j8rn")
+override_cast_shadow = 0
+path = "uid://7vlbx64bxpc1"
+
+[node name="ScatterShape" type="Node3D" parent="ProtonScatter"]
+transform = Transform3D(1, 0, -2.98023e-08, 0, 1, 0, 2.98023e-08, 0, 1, 0, 0.16965485, 0)
+visible = false
+script = ExtResource("6_omddu")
+shape = SubResource("Resource_pfn4t")
+
+[node name="ScatterShape2" type="Node3D" parent="ProtonScatter"]
+visible = false
+script = ExtResource("6_omddu")
+negative = true
+shape = SubResource("Resource_n8et5")
+metadata/_custom_type_script = "uid://dfrj2v7tp74i4"
+
+[node name="HexGrass" type="MeshInstance3D" parent="."]
+mesh = ExtResource("8_n8et5")
+surface_material_override/0 = ExtResource("9_waiek")
+
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.061032027, 0)
+mesh = ExtResource("10_4x84l")
+surface_material_override/0 = ExtResource("9_waiek")
+
+[node name="Node3D" type="Node3D" parent="."]
+
+[node name="Fireplace_01" parent="Node3D" instance=ExtResource("11_6j8rn")]
+transform = Transform3D(0.55, 0, 0, 0, 0.55, 0, 0, 0, 0.55, -0.325002, 0.019176364, 0.35829926)
+
+[node name="Tent_01" parent="Node3D" instance=ExtResource("12_omddu")]
+transform = Transform3D(0.31362146, 0, -0.38941184, 0, 0.5, 0, 0.38941184, 0, 0.31362146, 0.5993732, 0, -0.19306576)
+
+[node name="Tent_02" parent="Node3D" instance=ExtResource("13_npo4n")]
+transform = Transform3D(0.45040596, 0, -0.21710475, 0, 0.5, 0, 0.21710475, 0, 0.45040596, 0.20309031, 0, -0.58204186)
+
+[node name="Log_03" parent="Node3D" instance=ExtResource("14_n8et5")]
+transform = Transform3D(-0.04793261, 0, -0.36932763, 0, 0.4, 0, 0.26552075, 0, -0.06667212, -0.6799911, 0.07111767, 0.33467758)
+
+[node name="Log_04" parent="Node3D" instance=ExtResource("14_n8et5")]
+transform = Transform3D(-0.2682507, -1.2710506e-09, 0.040323496, 0.017847892, -0.31520438, 0.22971852, 0.022844253, 0.24626458, 0.2940263, -0.29981816, 0.07111767, 0.703274)
+
+[node name="Log_05" parent="Node3D" instance=ExtResource("14_n8et5")]
+transform = Transform3D(-0.2625943, 0, 0.08622868, 0, 0.39999998, 0, -0.06199241, 0, -0.365257, -0.2562207, 0.07111767, 0.02497077)
+
+[node name="Log_06" parent="Node3D" instance=ExtResource("14_n8et5")]
+transform = Transform3D(0.020070337, 0.15246044, -0.34584236, 0.008274443, -0.36980525, -0.14258122, -0.2689379, 0, -0.030196387, 0.017311513, 0.07111767, 0.4194901)
+
+[node name="TreeSingleACut" type="MeshInstance3D" parent="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 0.5112614, 0, 0, 0, 1, 0.70496774, 0.019075036, 0.32920885)
+mesh = ExtResource("15_npo4n")
+skeleton = NodePath("../..")
+
+[node name="TreeSingleACut2" type="MeshInstance3D" parent="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 0.5112614, 0, 0, 0, 1, 0.49763757, 2.3841858e-07, 0.5378752)
+mesh = ExtResource("15_npo4n")
+skeleton = NodePath("../..")
+
+[node name="tree" parent="Node3D" instance=ExtResource("16_n8et5")]
+transform = Transform3D(0.14, 0, 0, 0, 0.14, 0, 0, 0, 0.14, -0.22191505, 0, -0.6245754)
+
+[node name="tree2" parent="Node3D" instance=ExtResource("16_n8et5")]
+transform = Transform3D(-0.10350482, 0, -0.06071863, 0, 0.12, 0, 0.06071863, 0, -0.10350482, -0.6592343, 0, -0.38928008)

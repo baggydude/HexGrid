@@ -1,10 +1,10 @@
 shader_type spatial;
 render_mode blend_mix, depth_draw_opaque, cull_disabled;
 
-uniform int cel_cuts : hint_range(1, 8, 1) = 3;
-uniform float cloud_scale = 0.1;
-uniform vec2 cloud_speed = vec2(0.03);
-uniform sampler2D cloud_texture : source_color, filter_linear_mipmap, repeat_enable;
+global uniform int cel_cuts : hint_range(1, 8, 1) = 8;
+global uniform float cloud_scale = 0.1;
+global uniform vec2 cloud_speed = vec2(0.03);
+global uniform sampler2D cloud_texture : source_color, filter_linear_mipmap, repeat_enable;
 
 uniform vec4 color_albedo : source_color = vec4(1.0);
 uniform sampler2D texture_albedo : source_color, filter_linear_mipmap, repeat_enable;

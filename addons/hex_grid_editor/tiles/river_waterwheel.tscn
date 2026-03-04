@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://dgl50tj5kpcke"]
+[gd_scene load_steps=22 format=3 uid="uid://dgl50tj5kpcke"]
 
 [ext_resource type="Script" uid="uid://bk5dk5bdeipmk" path="res://addons/proton_scatter/src/scatter.gd" id="1_fqbyg"]
 [ext_resource type="Script" uid="uid://b2mwrn2mwvfa8" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="2_i5cso"]
@@ -46,6 +46,28 @@ point_count = 5
 script = ExtResource("7_c0kvs")
 curve = SubResource("Curve3D_1fb5y")
 
+[sub_resource type="Animation" id="Animation_i5cso"]
+resource_name = "Waterwheel"
+length = 3.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("WaterWheelPivot:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 0, 6.2831855)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_7hhwn"]
+_data = {
+&"Waterwheel": SubResource("Animation_i5cso")
+}
+
 [node name="Tile" type="Node3D"]
 
 [node name="Grass" type="Node3D" parent="."]
@@ -82,7 +104,7 @@ mesh = ExtResource("8_dlun7")
 surface_material_override/0 = ExtResource("9_8ybop")
 
 [node name="Water" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.99, 0, 0, 0, 0.3, 0, 0, 0, 0.99, 0, -0.09143075, 0)
+transform = Transform3D(1, 0, 0, 0, 0.3, 0, 0, 0, 1, 0, -0.09143075, 0)
 mesh = ExtResource("10_itr26")
 surface_material_override/0 = ExtResource("11_wbgwn")
 
@@ -91,10 +113,21 @@ transform = Transform3D(1, 0, 0, 0, 0.53, 0, 0, 0, 1, 0, -0.4731719, 0)
 mesh = ExtResource("10_itr26")
 surface_material_override/0 = ExtResource("9_8ybop")
 
-[node name="BuildingWatermillBlue" type="MeshInstance3D" parent="."]
+[node name="BuildingWaterWheel" type="MeshInstance3D" parent="."]
 mesh = ExtResource("12_i5cso")
 surface_material_override/0 = ExtResource("9_8ybop")
 
-[node name="BuildingWatermillBlueBuildingWatermillWheelBlue" type="MeshInstance3D" parent="."]
+[node name="WaterWheelPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.29016227, -0.052347094)
+
+[node name="WaterWheel" type="MeshInstance3D" parent="WaterWheelPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00024205446, -0.24783376, 0.045304894)
 mesh = ExtResource("13_6w5ac")
+skeleton = NodePath("../..")
 surface_material_override/0 = ExtResource("9_8ybop")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_7hhwn")
+}
+autoplay = "Waterwheel"

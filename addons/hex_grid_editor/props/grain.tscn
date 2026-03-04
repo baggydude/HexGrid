@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://c4a5hmj4d0eri"]
+
+[ext_resource type="Material" uid="uid://cua4ex1g7hcxn" path="res://addons/hex_grid_editor/materials/grain.tres" id="1_5ovcv"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_hpn1s"]
+material = ExtResource("1_5ovcv")
+size = Vector2(0.1, 0.3)
+
+[node name="Grain" type="MeshInstance3D"]
+mesh = SubResource("QuadMesh_hpn1s")
+skeleton = NodePath("../GrassHex/HexGrass")

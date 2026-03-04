@@ -1,7 +1,9 @@
-[gd_resource type="ShaderMaterial" load_steps=5 format=3 uid="uid://cau1awja4s3ou"]
+[gd_resource type="ShaderMaterial" load_steps=6 format=3 uid="uid://cau1awja4s3ou"]
 
 [ext_resource type="Shader" uid="uid://dng6ok3ppbi6e" path="res://addons/hex_grid_editor/shaders/tree_leaves.gdshader" id="1_ikyfp"]
 [ext_resource type="Texture2D" uid="uid://boc4y5ixmffqv" path="res://addons/hex_grid_editor/textures/leaf_alpha.png" id="2_15c4i"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kp6xt"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_1yxxb"]
 
@@ -11,6 +13,7 @@ seamless = true
 
 [resource]
 render_priority = 0
+next_pass = SubResource("ShaderMaterial_kp6xt")
 shader = ExtResource("1_ikyfp")
 shader_parameter/wind_scale = 0.6
 shader_parameter/wind_speed = 0.6

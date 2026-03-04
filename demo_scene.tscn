@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://jfwrehmqm6mi"]
+[gd_scene load_steps=29 format=3 uid="uid://jfwrehmqm6mi"]
 
 [ext_resource type="Script" uid="uid://cn2vjso03ayr8" path="res://addons/hex_grid_editor/hex_grid_3d.gd" id="1_hex_grid"]
 [ext_resource type="Resource" uid="uid://dny7djx68exur" path="res://addons/hex_grid_editor/brushes/Road.tres" id="3_1hm1i"]
@@ -6,8 +6,14 @@
 [ext_resource type="Resource" uid="uid://bplr0rtxtbvks" path="res://addons/hex_grid_editor/brushes/Forest.tres" id="4_om45m"]
 [ext_resource type="Resource" uid="uid://cy642dblhnv6b" path="res://addons/hex_grid_editor/brushes/River.tres" id="5_mssda"]
 [ext_resource type="Resource" uid="uid://di4rqcvcj6ccg" path="res://addons/hex_grid_editor/brushes/Grass.tres" id="5_om45m"]
+[ext_resource type="Resource" uid="uid://jqncyb0or3fy" path="res://addons/hex_grid_editor/brushes/Coast.tres" id="6_h7mfa"]
 [ext_resource type="Texture2D" uid="uid://b4d3kk0q8ev3b" path="res://addons/hex_grid_editor/assets/humans/MiniHorseMan.png" id="6_om45m"]
 [ext_resource type="Shader" uid="uid://mcwtdws31fkg" path="res://addons/hex_grid_editor/shaders/occluded.gdshader" id="7_4qc3i"]
+[ext_resource type="Resource" uid="uid://cy8wom6lomh2j" path="res://addons/hex_grid_editor/brushes/Sea.tres" id="7_ragla"]
+[ext_resource type="Script" uid="uid://dxljbr42uflwi" path="res://compositor_effects/clouds/clouds.gd" id="7_sxiuf"]
+[ext_resource type="VoxelGIData" uid="uid://bnvhq7vs4u5dq" path="res://hexGridVoxel.VoxelGI_data.res" id="10_yg6rb"]
+[ext_resource type="Script" uid="uid://dt5alepa1w7rh" path="res://addons/procedural_quad_godray/procedural_quad_godray.gd" id="11_1hljp"]
+[ext_resource type="Material" uid="uid://c5u6rn14qd875" path="res://addons/procedural_quad_godray/godrays_material.tres" id="12_h7mfa"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1hm1i"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -17,15 +23,74 @@ ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
 sky_material = SubResource("ProceduralSkyMaterial_1hm1i")
 
 [sub_resource type="Environment" id="Environment_4qc3i"]
-background_mode = 2
+background_mode = 1
 sky = SubResource("Sky_om45m")
+ambient_light_source = 3
 tonemap_mode = 2
 ssao_enabled = true
 glow_enabled = true
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0035
 
 [sub_resource type="Resource" id="Resource_ayuu8"]
 script = ExtResource("3_sxiuf")
 cells = {
+Vector2i(-4, 8): {
+"brush_resource": ExtResource("7_ragla"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 120.0,
+"variation_index": 1,
+"world_position": Vector3(0, 0, 13.8)
+},
+Vector2i(-3, 6): {
+"brush_resource": ExtResource("7_ragla"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 0.0,
+"variation_index": 0,
+"world_position": Vector3(0, 0, 10.35)
+},
+Vector2i(-3, 7): {
+"brush_resource": ExtResource("7_ragla"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 0.0,
+"variation_index": 0,
+"world_position": Vector3(0.99592924, 0, 12.075)
+},
+Vector2i(-2, 4): {
+"brush_resource": ExtResource("6_h7mfa"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 300.0,
+"variation_index": 0,
+"world_position": Vector3(0, 0, 6.9)
+},
+Vector2i(-2, 5): {
+"brush_resource": ExtResource("6_h7mfa"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 300.0,
+"variation_index": 1,
+"world_position": Vector3(0.99592924, 0, 8.625)
+},
+Vector2i(-2, 6): {
+"brush_resource": ExtResource("6_h7mfa"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 300.0,
+"variation_index": 2,
+"world_position": Vector3(1.9918585, 0, 10.35)
+},
+Vector2i(-2, 7): {
+"brush_resource": ExtResource("7_ragla"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 0.0,
+"variation_index": 0,
+"world_position": Vector3(2.9877877, 0, 12.075)
+},
 Vector2i(-1, 2): {
 "brush_resource": ExtResource("3_1hm1i"),
 "height_scale": 1.0,
@@ -41,6 +106,14 @@ Vector2i(-1, 3): {
 "rotation_degrees": 300.0,
 "variation_index": 1,
 "world_position": Vector3(0.99592924, 0, 5.175)
+},
+Vector2i(-1, 6): {
+"brush_resource": ExtResource("6_h7mfa"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 0.0,
+"variation_index": 3,
+"world_position": Vector3(3.983717, 0, 10.35)
 },
 Vector2i(0, 0): {
 "brush_resource": ExtResource("5_om45m"),
@@ -106,6 +179,30 @@ Vector2i(1, 3): {
 "variation_index": 0,
 "world_position": Vector3(4.979646, 0, 5.175)
 },
+Vector2i(1, 5): {
+"brush_resource": ExtResource("3_1hm1i"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 240.0,
+"variation_index": 0,
+"world_position": Vector3(6.9715047, 0, 8.625)
+},
+Vector2i(1, 6): {
+"brush_resource": ExtResource("5_om45m"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 120.0,
+"variation_index": 0,
+"world_position": Vector3(7.967434, 0, 10.35)
+},
+Vector2i(1, 7): {
+"brush_resource": ExtResource("5_om45m"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 120.0,
+"variation_index": 0,
+"world_position": Vector3(8.963363, 0, 12.075)
+},
 Vector2i(2, 0): {
 "brush_resource": ExtResource("4_om45m"),
 "height_scale": 1.0,
@@ -162,6 +259,22 @@ Vector2i(2, 6): {
 "variation_index": 1,
 "world_position": Vector3(9.959292, 0, 10.35)
 },
+Vector2i(2, 7): {
+"brush_resource": ExtResource("5_om45m"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 120.0,
+"variation_index": 0,
+"world_position": Vector3(10.955221, 0, 12.075)
+},
+Vector2i(2, 8): {
+"brush_resource": ExtResource("5_om45m"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 120.0,
+"variation_index": 0,
+"world_position": Vector3(11.951151, 0, 13.8)
+},
 Vector2i(3, 0): {
 "brush_resource": ExtResource("5_om45m"),
 "height_scale": 1.25,
@@ -174,8 +287,8 @@ Vector2i(3, 1): {
 "brush_resource": ExtResource("5_om45m"),
 "height_scale": 1.0,
 "placed_pointy_top": true,
-"rotation_degrees": 180.0,
-"variation_index": 0,
+"rotation_degrees": 0.0,
+"variation_index": 2,
 "world_position": Vector3(6.9715047, 0, 1.725)
 },
 Vector2i(3, 2): {
@@ -201,6 +314,14 @@ Vector2i(3, 4): {
 "rotation_degrees": 60.0,
 "variation_index": 2,
 "world_position": Vector3(9.959292, 0, 6.9)
+},
+Vector2i(3, 5): {
+"brush_resource": ExtResource("5_om45m"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 120.0,
+"variation_index": 0,
+"world_position": Vector3(10.955221, 0, 8.625)
 },
 Vector2i(3, 6): {
 "brush_resource": ExtResource("5_mssda"),
@@ -250,6 +371,14 @@ Vector2i(4, 3): {
 "variation_index": 1,
 "world_position": Vector3(10.955221, 0, 5.175)
 },
+Vector2i(4, 4): {
+"brush_resource": ExtResource("5_om45m"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 120.0,
+"variation_index": 0,
+"world_position": Vector3(11.951151, 0, 6.9)
+},
 Vector2i(5, 1): {
 "brush_resource": ExtResource("5_mssda"),
 "height_scale": 1.0,
@@ -258,6 +387,14 @@ Vector2i(5, 1): {
 "variation_index": 0,
 "world_position": Vector3(10.955221, 0, 1.725)
 },
+Vector2i(5, 2): {
+"brush_resource": ExtResource("5_om45m"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 120.0,
+"variation_index": 0,
+"world_position": Vector3(11.951151, 0, 3.45)
+},
 Vector2i(6, 0): {
 "brush_resource": ExtResource("5_mssda"),
 "height_scale": 1.0,
@@ -265,9 +402,42 @@ Vector2i(6, 0): {
 "rotation_degrees": 240.0,
 "variation_index": 0,
 "world_position": Vector3(11.951151, 0, 0)
+},
+Vector2i(6, 1): {
+"brush_resource": ExtResource("5_om45m"),
+"height_scale": 1.0,
+"placed_pointy_top": true,
+"rotation_degrees": 120.0,
+"variation_index": 0,
+"world_position": Vector3(12.94708, 0, 1.725)
 }
 }
 hex_size = 1.15
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_sxiuf"]
+noise_type = 3
+frequency = 0.005
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_yg6rb"]
+width = 1024
+height = 1024
+generate_mipmaps = false
+noise = SubResource("FastNoiseLite_sxiuf")
+seamless = true
+
+[sub_resource type="CompositorEffect" id="CompositorEffect_yg6rb"]
+resource_local_to_scene = false
+resource_name = ""
+enabled = false
+effect_callback_type = 4
+needs_motion_vectors = false
+needs_normal_roughness = false
+script = ExtResource("7_sxiuf")
+noise_texture = SubResource("NoiseTexture2D_yg6rb")
+metadata/_custom_type_script = "uid://dxljbr42uflwi"
+
+[sub_resource type="Compositor" id="Compositor_6qj3o"]
+compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_yg6rb")])
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_4qc3i"]
 render_priority = 0
@@ -325,8 +495,9 @@ hex_size = 1.15
 grid_data = SubResource("Resource_ayuu8")
 metadata/_custom_type_script = "uid://cn2vjso03ayr8"
 
-[node name="Camera3D" type="Camera3D" parent="Scene"]
+[node name="Orth" type="Camera3D" parent="Scene"]
 transform = Transform3D(1, 0, 0, 0, 0.7071068, 0.7071068, 0, -0.7071068, 0.7071068, 9.466746, 9.571186, 16.435902)
+visible = false
 projection = 1
 current = true
 fov = 82.0
@@ -334,9 +505,26 @@ size = 15.0
 near = 0.002
 far = 250.0
 
+[node name="Perspective" type="Node3D" parent="Scene"]
+
+[node name="Camera3D2" type="Camera3D" parent="Scene/Perspective"]
+transform = Transform3D(1, 0, 0, 0, 0.7071068, 0.7071068, 0, -0.7071068, 0.7071068, 9.467, 31.03, 37.081)
+compositor = SubResource("Compositor_6qj3o")
+v_offset = -1.685
+current = true
+fov = 20.0
+size = 15.0
+
+[node name="VoxelGI" type="VoxelGI" parent="Scene/Perspective"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.35453, 4.634033, 8.025024)
+size = Vector3(21.987183, 10.731934, 18.68335)
+data = ExtResource("10_yg6rb")
+
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Scene"]
-transform = Transform3D(0.74027693, 0.57973915, 0.3404303, 4.8340887e-09, -0.506365, 0.8623193, 0.6723022, -0.6383551, -0.37485027, 0, 6.5008006, 0)
+transform = Transform3D(0.7877182, 0.5797393, 0.20833334, 0.14799091, -0.50636506, 0.8495254, 0.5979959, -0.63835514, -0.4846689, 0, 6.5008006, 0)
 shadow_enabled = true
+shadow_bias = 0.01
+shadow_blur = 0.2
 
 [node name="Units" type="Node3D" parent="Scene"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.93726826, 1.3025109, 1.698576)
@@ -451,3 +639,14 @@ alpha_cut = 3
 texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_6qj3o")
 frame_progress = 0.78663343
+
+[node name="ProceduralQuadGodray" type="Node3D" parent="Scene"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.020197, 0, 8.769482)
+visible = false
+script = ExtResource("11_1hljp")
+grid_size = Vector2i(2, 2)
+quad_spacing = 8.9
+layer_count = 5
+auto_face_camera = false
+godray_material = ExtResource("12_h7mfa")
+metadata/_custom_type_script = "uid://dt5alepa1w7rh"

@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=4 uid="uid://bulw663y33ay7"]
+[gd_scene load_steps=7 format=4 uid="uid://bulw663y33ay7"]
 
 [ext_resource type="Texture2D" uid="uid://cersfkfnc2qlr" path="res://addons/hex_grid_editor/meshes/nature/PolygonNature.png" id="1_nangg"]
+[ext_resource type="Shader" uid="uid://b85ighybplmuk" path="res://addons/hex_grid_editor/shaders/terrain.gdshader" id="2_2kgfi"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rgvn1"]
 resource_name = "lambert1"
@@ -41,9 +42,16 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_idsp4")
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_h7w5v"]
+render_priority = 0
+shader = ExtResource("2_2kgfi")
+shader_parameter/color_albedo = Color(0.65773535, 0.6427162, 0.5386857, 1)
+shader_parameter/noise_strength = 1.0
+
 [node name="StoneWall" type="Node3D"]
 
 [node name="SM_Prop_StoneWall_04" type="MeshInstance3D" parent="."]
 transform = Transform3D(-4.3711392e-08, 0, 1.0000001, 0, 1, 0, -1.0000001, 0, -4.3711392e-08, 0, 0, 0)
 mesh = SubResource("ArrayMesh_i0g77")
 skeleton = NodePath("")
+surface_material_override/0 = SubResource("ShaderMaterial_h7w5v")

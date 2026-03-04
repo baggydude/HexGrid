@@ -51,6 +51,7 @@ override_cast_shadow = 0
 path = "uid://7vlbx64bxpc1"
 
 [node name="ScatterItem2" type="Node3D" parent="ProtonScatter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.034941018, 0)
 visible = false
 script = ExtResource("5_cvmly")
 proportion = 1

@@ -1,21 +1,21 @@
 [gd_scene load_steps=5 format=3 uid="uid://7vlbx64bxpc1"]
 
 [ext_resource type="Shader" uid="uid://r2uawkruhoe" path="res://addons/hex_grid_editor/shaders/grass.gdshader" id="1_ki4ub"]
-[ext_resource type="Texture2D" uid="uid://crajiq83431w4" path="res://addons/hex_grid_editor/textures/grass.png" id="2_f85nc"]
+[ext_resource type="Texture2D" uid="uid://cf1dfq4gw6hr5" path="res://addons/hex_grid_editor/textures/grassleaf.png" id="2_ki4ub"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_f85nc"]
 render_priority = 0
 shader = ExtResource("1_ki4ub")
-shader_parameter/albedo_texture = ExtResource("2_f85nc")
+shader_parameter/albedo_texture = ExtResource("2_ki4ub")
 shader_parameter/ground_color = Color(0.5254902, 0.7176471, 0.23921569, 1)
+shader_parameter/variant_color_dark = Color(0.40710557, 0.55343884, 0.1802884, 1)
+shader_parameter/variant_color_light = Color(0.6019719, 0.8190652, 0.2789969, 1)
+shader_parameter/variant_threshold_dark = 0.990000047025
+shader_parameter/variant_threshold_light = 0.995
 shader_parameter/cel_cuts = 8
-shader_parameter/cloud_scale = 0.1
-shader_parameter/cloud_speed = Vector2(0.03, 0.03)
 shader_parameter/groups = 6
 shader_parameter/fps = 5.0
 shader_parameter/noise_strength = 1.0
-shader_parameter/emissive_threshold = 0.995
-shader_parameter/unlit_threshold = 0.995
 
 [sub_resource type="QuadMesh" id="QuadMesh_hpn1s"]
 material = SubResource("ShaderMaterial_f85nc")

@@ -4,16 +4,19 @@ render_mode blend_mix, depth_draw_opaque, cull_disabled;
 uniform sampler2D albedo_texture : source_color, filter_nearest;
 uniform vec4 ground_color : source_color = vec4(1.0);
 
-uniform int cel_cuts : hint_range(1, 8, 1) = 3;
-uniform float cloud_scale = 0.1;
-uniform vec2 cloud_speed = vec2(0.03);
-uniform sampler2D cloud_texture : source_color, filter_linear_mipmap, repeat_enable;
+uniform vec4 variant_color_dark : source_color = vec4(1.0);
+uniform vec4 variant_color_light : source_color = vec4(1.0);
+uniform float variant_threshold_dark : hint_range(0.0, 1.0) = 0.995;
+uniform float variant_threshold_light : hint_range(0.0, 1.0) = 0.995;
+
+global uniform int cel_cuts : hint_range(1, 8, 1) = 8;
+global uniform float cloud_scale = 0.1;
+global uniform vec2 cloud_speed = vec2(0.03);
+global uniform sampler2D cloud_texture : source_color, filter_linear_mipmap, repeat_enable;
 
 uniform int groups = 6;
 uniform float fps = 5.0f;
 uniform float noise_strength = 1.0;
-uniform float emissive_threshold = 0.995;
-uniform float unlit_threshold = 0.995;
 
 varying vec3 _base_pos;
 varying mat4 _world_matrix;
@@ -23,17 +26,13 @@ varying float _random_pos;
 void vertex() {
 	// Billboard
 	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(INV_VIEW_MATRIX[0],INV_VIEW_MATRIX[1],INV_VIEW_MATRIX[2],MODEL_MATRIX[3]);
-
 	//Get random pos
 	_random_pos = fract(sin(dot(NODE_POSITION_WORLD.xz.xy, vec2(12.9898,78.233))) * 43758.5453123);
-
 	// Calculate base position for lighting
 	_base_pos = NODE_POSITION_WORLD + vec3(0.0, 0.07, 0.0);
 	NORMAL = vec3(0.0, 1.0, 0.0);
-
 	// Set World matrix
 	_world_matrix = INV_VIEW_MATRIX;
-
 	// Wind calculation
 	float g = floor(_random_pos * float(groups)) / float(groups);
 	float t = floor((TIME + g * 10.0) * fps) / fps;
@@ -43,12 +42,11 @@ void vertex() {
 void fragment() {
 	_vertex = VERTEX;
 	LIGHT_VERTEX = (VIEW_MATRIX * vec4(_base_pos, 1.0)).xyz;
-
-	if (_random_pos > emissive_threshold) {
-		EMISSION = ground_color.rgb;
-	}
-
-	ALBEDO = ground_color.rgb * COLOR.rgb;;
+	
+	float is_dark = step(variant_threshold_dark, _random_pos) * (1.0 - step(variant_threshold_light, _random_pos));
+	float is_light = step(variant_threshold_light, _random_pos);
+	vec3 base = mix(ground_color.rgb, variant_color_dark.rgb, is_dark);
+	ALBEDO = mix(base, variant_color_light.rgb, is_light) * COLOR.rgb;
 	ALPHA = texture(albedo_texture, UV).a;
 	METALLIC = 0.0;
 	ROUGHNESS = 1.0;
@@ -63,8 +61,7 @@ void light() {
 	if (LIGHT_IS_DIRECTIONAL) {
 		vec3 ray_dir = -LIGHT;
 		ray_dir = mat3(_world_matrix) * ray_dir;
-		vec3 ray_start = (INV_VIEW_MATRIX * vec4(_vertex, 1.0f)).xyz;
-
+		vec3 ray_start = _base_pos;
 		vec3 n = vec3(0.0, 1.0, 0.0);
 		vec3 PO = vec3(0.0, 1.0, 0.0);
 		vec3 v = PO - ray_start;
@@ -86,7 +83,5 @@ void light() {
 	vec3 diffuse = ALBEDO.rgb * LIGHT_COLOR / PI;
 	diffuse *= diffuse_stepped;
 
-	if (_random_pos >= 1.0 - unlit_threshold) {
-		DIFFUSE_LIGHT += diffuse;
-	}
+	DIFFUSE_LIGHT += diffuse;
 }

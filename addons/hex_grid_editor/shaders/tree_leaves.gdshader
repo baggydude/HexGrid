@@ -1,7 +1,6 @@
 shader_type spatial;
 render_mode specular_disabled, cull_back;
 
-
 uniform float wind_scale;
 uniform float wind_speed;
 uniform float wind_strength;
@@ -62,5 +61,4 @@ void light() {
 	rim = round(rim * light_steps) / light_steps;
 	rim = rim * rim;
 	DIFFUSE_LIGHT += rim * ATTENUATION * LIGHT_COLOR / PI;
-
 }

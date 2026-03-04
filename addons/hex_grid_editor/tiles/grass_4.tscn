@@ -1,0 +1,129 @@
+[gd_scene load_steps=21 format=3 uid="uid://c5dxxpp72iroe"]
+
+[ext_resource type="Script" uid="uid://bk5dk5bdeipmk" path="res://addons/proton_scatter/src/scatter.gd" id="1_8ocef"]
+[ext_resource type="Script" uid="uid://b2mwrn2mwvfa8" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="2_tf5k7"]
+[ext_resource type="Script" uid="uid://dqu58a8dpsbli" path="res://addons/proton_scatter/src/modifiers/base_modifier.gd" id="3_ct51e"]
+[ext_resource type="Script" uid="uid://bq1r6jmdmak2m" path="res://addons/proton_scatter/src/modifiers/create_inside_random.gd" id="4_rfuw6"]
+[ext_resource type="Script" uid="uid://bm3ixcfuilrne" path="res://addons/proton_scatter/src/scatter_item.gd" id="5_707gi"]
+[ext_resource type="Script" uid="uid://dfrj2v7tp74i4" path="res://addons/proton_scatter/src/scatter_shape.gd" id="6_40o2o"]
+[ext_resource type="Script" uid="uid://dw7scetgo3eg5" path="res://addons/proton_scatter/src/shapes/path_shape.gd" id="7_q1wu5"]
+[ext_resource type="ArrayMesh" uid="uid://dsfruy2ebaj8b" path="res://addons/hex_grid_editor/meshes/tiles/base/hex_grass.obj" id="8_ciqws"]
+[ext_resource type="Material" uid="uid://x38xyx35cr5w" path="res://addons/hex_grid_editor/materials/tile.tres" id="9_a4b2x"]
+[ext_resource type="ArrayMesh" uid="uid://d0tcavefqlh3q" path="res://addons/hex_grid_editor/meshes/tiles/base/hex_grass_bottom.obj" id="10_nfo2w"]
+[ext_resource type="ArrayMesh" uid="uid://cy6b8ub1wqdmj" path="res://addons/hex_grid_editor/meshes/placeables/decoration/nature/hills_C.obj" id="11_ct51e"]
+[ext_resource type="PackedScene" uid="uid://botwfgf3a0yvv" path="res://addons/hex_grid_editor/props/tree_1.tscn" id="12_rfuw6"]
+
+[sub_resource type="Resource" id="Resource_707gi"]
+script = ExtResource("4_rfuw6")
+amount = 700
+restrict_height = true
+reference_frame = 1
+
+[sub_resource type="Resource" id="Resource_40o2o"]
+script = ExtResource("2_tf5k7")
+stack = Array[ExtResource("3_ct51e")]([SubResource("Resource_707gi")])
+
+[sub_resource type="Curve3D" id="Curve3D_gj0vq"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.9604246, 2.9802322e-08, -0.5482121, 0, 0, 0, 0, 0, 0, -0.94926476, -5.2332878e-05, 0.5642215, 0, 0, 0, 0, 0, 0, 0.0038125839, -5.2332878e-05, 1.0826955, 0, 0, 0, 0, 0, 0, 0.9378278, -5.2332878e-05, 0.55278456, 0, 0, 0, 0, 0, 0, 0.96832633, -5.2332878e-05, -0.54516006, 0, 0, 0, 0, 0, 0, 0.0038125187, -5.2332878e-05, -1.1017569, 0, 0, 0, 0, 0, 0, -0.9596478, -2.9802322e-08, -0.5479232),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 7
+
+[sub_resource type="Resource" id="Resource_pfn4t"]
+script = ExtResource("7_q1wu5")
+curve = SubResource("Curve3D_gj0vq")
+
+[sub_resource type="Resource" id="Resource_q1wu5"]
+script = ExtResource("4_rfuw6")
+amount = 700
+restrict_height = true
+reference_frame = 1
+
+[sub_resource type="Resource" id="Resource_ciqws"]
+script = ExtResource("2_tf5k7")
+stack = Array[ExtResource("3_ct51e")]([SubResource("Resource_q1wu5")])
+
+[sub_resource type="Curve3D" id="Curve3D_a4b2x"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0.015101373, 5.9604645e-08, 0.093443945, 0, 0, 0, 0, 0, 0, 0.05475211, 5.9604645e-08, 0.48458526, 0, 0, 0, 0, 0, 0, 0.17771864, 5.9604645e-08, 0.58129144, 0, 0, 0, 0, 0, 0, 0.6331093, 5.9604645e-08, 0.27505314, 0, 0, 0, 0, 0, 0, 0.5884575, 5.9604645e-08, -0.064368725, 0, 0, 0, 0, 0, 0, 0.2969113, 5.9604645e-08, -0.16234043),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0)
+}
+point_count = 6
+
+[sub_resource type="Resource" id="Resource_nfo2w"]
+script = ExtResource("7_q1wu5")
+closed = false
+thickness = 0.205
+curve = SubResource("Curve3D_a4b2x")
+
+[node name="Tile" type="Node3D"]
+
+[node name="ProtonScatter" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.18, 0)
+script = ExtResource("1_8ocef")
+modifier_stack = SubResource("Resource_40o2o")
+Performance/use_chunks = true
+Performance/chunk_dimensions = Vector3(15, 15, 15)
+metadata/_custom_type_script = "uid://bk5dk5bdeipmk"
+
+[node name="ScatterItem" type="Node3D" parent="ProtonScatter"]
+visible = false
+script = ExtResource("5_707gi")
+override_cast_shadow = 0
+path = "uid://7vlbx64bxpc1"
+
+[node name="ScatterShape" type="Node3D" parent="ProtonScatter"]
+transform = Transform3D(1, 0, -2.98023e-08, 0, 1, 0, 2.98023e-08, 0, 1, 0, 0.16461521, 0)
+visible = false
+script = ExtResource("6_40o2o")
+shape = SubResource("Resource_pfn4t")
+
+[node name="ProtonScatter2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.18, 0)
+script = ExtResource("1_8ocef")
+modifier_stack = SubResource("Resource_ciqws")
+Performance/use_chunks = true
+Performance/chunk_dimensions = Vector3(15, 15, 15)
+metadata/_custom_type_script = "uid://bk5dk5bdeipmk"
+
+[node name="ScatterItem" type="Node3D" parent="ProtonScatter2"]
+visible = false
+script = ExtResource("5_707gi")
+override_cast_shadow = 0
+path = "uid://7vlbx64bxpc1"
+
+[node name="ProtonScatterShape" type="Node3D" parent="ProtonScatter2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.58318436, 0)
+visible = false
+script = ExtResource("6_40o2o")
+shape = SubResource("Resource_nfo2w")
+metadata/_custom_type_script = "uid://dfrj2v7tp74i4"
+
+[node name="HexGrass" type="MeshInstance3D" parent="."]
+mesh = ExtResource("8_ciqws")
+surface_material_override/0 = ExtResource("9_a4b2x")
+
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.061032027, 0)
+mesh = ExtResource("10_nfo2w")
+surface_material_override/0 = ExtResource("9_a4b2x")
+
+[node name="HillsC" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.031650335, 0, -0.12871742)
+mesh = ExtResource("11_ct51e")
+surface_material_override/0 = ExtResource("9_a4b2x")
+
+[node name="Trees" type="Node3D" parent="."]
+
+[node name="tree2" parent="Trees" instance=ExtResource("12_rfuw6")]
+transform = Transform3D(-0.07095378, 0, 0.09677582, 0, 0.12, 0, -0.09677582, 0, -0.07095378, 0.59466296, 0.47083747, 0.21102309)
+
+[node name="tree3" parent="Trees" instance=ExtResource("12_rfuw6")]
+transform = Transform3D(0.08306276, 0, 0.06423065, 0, 0.10499999, 0, -0.06423065, 0, 0.08306276, 0.60916626, 0.4444419, -0.12544775)
+
+[node name="tree" parent="Trees" instance=ExtResource("12_rfuw6")]
+transform = Transform3D(-0.1299949, 0, 0.0011503313, 0, 0.13, 0, -0.0011503313, 0, -0.1299949, 0.2797344, 0.02144897, -0.70251)
+
+[node name="tree4" parent="Trees" instance=ExtResource("12_rfuw6")]
+transform = Transform3D(0.034591578, 0, 0.11490615, 0, 0.12, 0, -0.11490615, 0, 0.034591578, -0.24591562, 0.02144897, -0.59093404)

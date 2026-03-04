@@ -75,5 +75,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.020404577, 1.1920929e-07, 
 mesh = SubResource("ArrayMesh_4ww7u")
 
 [node name="Leaves3" type="MeshInstance3D" parent="."]
-transform = Transform3D(-0.43815154, 0, 0.8989011, 0, 1, 0, -0.8989011, 0, -0.43815154, 0, 6.221845, 0)
+transform = Transform3D(-0.2869892, 0, 0.5887802, 0, 0.6550001, 0, -0.5887802, 0, -0.2869892, 0, 6.403289, 0.111218795)
 mesh = SubResource("ArrayMesh_ucs53")

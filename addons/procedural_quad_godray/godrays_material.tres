@@ -1,0 +1,43 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3 uid="uid://c5u6rn14qd875"]
+
+[ext_resource type="Shader" uid="uid://j5xlygyuf3yq" path="res://addons/procedural_quad_godray/godrays_shader.gdshader" id="1_m3h0l"]
+
+[sub_resource type="Gradient" id="Gradient_w0g8q"]
+interpolation_mode = 2
+interpolation_color_space = 2
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 30
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_qt4t3"]
+gradient = SubResource("Gradient_w0g8q")
+
+[resource]
+render_priority = 127
+shader = ExtResource("1_m3h0l")
+shader_parameter/light_color = Color(1, 0.8, 0.4, 1)
+shader_parameter/emission_color = Color(1, 0.8, 0.4, 1)
+shader_parameter/emission_strength = 9.0
+shader_parameter/base_alpha = 0.05
+shader_parameter/use_edge_fade = false
+shader_parameter/gradient_texture = SubResource("GradientTexture1D_qt4t3")
+shader_parameter/use_gradient_mask = true
+shader_parameter/debug_distance_mode = false
+shader_parameter/debug_near_distance = 50.0
+shader_parameter/debug_far_distance = 300.0
+shader_parameter/use_distance_fade = true
+shader_parameter/distance_fade_start = 500.0
+shader_parameter/distance_fade_end = 0.0
+shader_parameter/depth_fade_distance = 10.0
+shader_parameter/use_depth_fade = true
+shader_parameter/use_depth_blur = false
+shader_parameter/depth_blur_size = 1.0
+shader_parameter/depth_blur_samples = 3
+shader_parameter/use_hard_shadows = true
+shader_parameter/shadow_threshold = 1.0
+shader_parameter/use_view_angle_fade = true
+shader_parameter/fade_angle_start = 30.0
+shader_parameter/fade_angle_end = 5.0
+shader_parameter/godray_direction = Vector3(-0.20833339, -0.84952533, 0.48466897)
+shader_parameter/debug_view_angle = false

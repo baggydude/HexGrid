@@ -1,14 +1,11 @@
 [gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://x38xyx35cr5w"]
 
 [ext_resource type="Shader" uid="uid://b85ighybplmuk" path="res://addons/hex_grid_editor/shaders/terrain.gdshader" id="1_64fs8"]
-[ext_resource type="Texture2D" uid="uid://dm8uy6bpc2p13" path="res://addons/hex_grid_editor/meshes/tiles/base/hexagons_medieval.png" id="2_6uweh"]
+[ext_resource type="Texture2D" uid="uid://bjag8yt4uqhwp" path="res://addons/hex_grid_editor/textures/hexagons_medieval.png" id="2_64fs8"]
 
 [resource]
 render_priority = 0
 shader = ExtResource("1_64fs8")
-shader_parameter/cel_cuts = 3
-shader_parameter/cloud_scale = 0.1
-shader_parameter/cloud_speed = Vector2(0.03, 0.03)
 shader_parameter/color_albedo = Color(1, 1, 1, 1)
-shader_parameter/texture_albedo = ExtResource("2_6uweh")
+shader_parameter/texture_albedo = ExtResource("2_64fs8")
 shader_parameter/noise_strength = 1.0

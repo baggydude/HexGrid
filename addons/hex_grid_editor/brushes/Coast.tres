@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="HexBrushResource" load_steps=7 format=3 uid="uid://jqncyb0or3fy"]
+
+[ext_resource type="Script" uid="uid://uvbj58u3g13l" path="res://addons/hex_grid_editor/hex_brush_resource.gd" id="1_dgqpd"]
+[ext_resource type="PackedScene" uid="uid://c3gio1ebqkgmn" path="res://addons/hex_grid_editor/tiles/beach_1.tscn" id="2_he151"]
+[ext_resource type="PackedScene" uid="uid://ceq3a8yb8g5yb" path="res://addons/hex_grid_editor/tiles/beach_2.tscn" id="3_j0m4r"]
+[ext_resource type="PackedScene" uid="uid://dbl57pooyhkxf" path="res://addons/hex_grid_editor/tiles/beach_3.tscn" id="4_r6mhy"]
+[ext_resource type="PackedScene" uid="uid://4oafxdbywxm1" path="res://addons/hex_grid_editor/tiles/beach_4.tscn" id="5_rry0g"]
+[ext_resource type="PackedScene" uid="uid://ci7aewrqb3mjt" path="res://addons/hex_grid_editor/tiles/beach_5.tscn" id="6_xwh38"]
+
+[resource]
+script = ExtResource("1_dgqpd")
+name = "Coast"
+variations = Array[PackedScene]([ExtResource("2_he151"), ExtResource("3_j0m4r"), ExtResource("4_r6mhy"), ExtResource("5_rry0g"), ExtResource("6_xwh38")])
+metadata/_custom_type_script = "uid://uvbj58u3g13l"

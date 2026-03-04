@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3 uid="uid://dwhcb2jxnqedu"]
+
+[ext_resource type="ArrayMesh" uid="uid://d0tcavefqlh3q" path="res://addons/hex_grid_editor/meshes/tiles/base/hex_grass_bottom.obj" id="1_3q2wi"]
+[ext_resource type="Material" uid="uid://dgd7ayegdp8kd" path="res://addons/hex_grid_editor/materials/river1.tres" id="2_l0twt"]
+[ext_resource type="Material" uid="uid://x38xyx35cr5w" path="res://addons/hex_grid_editor/materials/tile.tres" id="3_qswga"]
+[ext_resource type="ArrayMesh" uid="uid://dyqgbt4s1536u" path="res://addons/hex_grid_editor/meshes/placeables/decoration/nature/mountain_C.obj" id="4_3q2wi"]
+
+[node name="Tile" type="Node3D"]
+
+[node name="Water" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.3, 0, 0, 0, 1, 0, -0.12943098, 0)
+mesh = ExtResource("1_3q2wi")
+surface_material_override/0 = ExtResource("2_l0twt")
+
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.53, 0, 0, 0, 1, 0, -0.4731719, 0)
+mesh = ExtResource("1_3q2wi")
+surface_material_override/0 = ExtResource("3_qswga")
+
+[node name="MountainC" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.4884516, 0)
+mesh = ExtResource("4_3q2wi")
+surface_material_override/0 = ExtResource("3_qswga")

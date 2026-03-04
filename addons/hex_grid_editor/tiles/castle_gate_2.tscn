@@ -1,0 +1,97 @@
+[gd_scene load_steps=20 format=3 uid="uid://t8nkwinik5r0"]
+
+[ext_resource type="Script" uid="uid://bk5dk5bdeipmk" path="res://addons/proton_scatter/src/scatter.gd" id="1_trrhq"]
+[ext_resource type="Script" uid="uid://b2mwrn2mwvfa8" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="2_qesda"]
+[ext_resource type="Script" uid="uid://dqu58a8dpsbli" path="res://addons/proton_scatter/src/modifiers/base_modifier.gd" id="3_rsjlf"]
+[ext_resource type="Script" uid="uid://bq1r6jmdmak2m" path="res://addons/proton_scatter/src/modifiers/create_inside_random.gd" id="4_w04ht"]
+[ext_resource type="Script" uid="uid://bm3ixcfuilrne" path="res://addons/proton_scatter/src/scatter_item.gd" id="5_qgcw5"]
+[ext_resource type="Script" uid="uid://dfrj2v7tp74i4" path="res://addons/proton_scatter/src/scatter_shape.gd" id="6_iphbj"]
+[ext_resource type="Script" uid="uid://dw7scetgo3eg5" path="res://addons/proton_scatter/src/shapes/path_shape.gd" id="7_l5adw"]
+[ext_resource type="ArrayMesh" uid="uid://dsfruy2ebaj8b" path="res://addons/hex_grid_editor/meshes/tiles/base/hex_grass.obj" id="8_e4jxj"]
+[ext_resource type="Material" uid="uid://x38xyx35cr5w" path="res://addons/hex_grid_editor/materials/tile.tres" id="9_11m5m"]
+[ext_resource type="ArrayMesh" uid="uid://d0tcavefqlh3q" path="res://addons/hex_grid_editor/meshes/tiles/base/hex_grass_bottom.obj" id="10_jln3e"]
+[ext_resource type="ArrayMesh" uid="uid://c3csqs06iaw26" path="res://addons/hex_grid_editor/meshes/placeables/buildings/neutral/wall_corner_A_gate.obj" id="11_trrhq"]
+[ext_resource type="ArrayMesh" uid="uid://c7k3baaf0210c" path="res://addons/hex_grid_editor/meshes/placeables/buildings/neutral/wall_corner_A_gate_door_left.obj" id="12_qesda"]
+[ext_resource type="ArrayMesh" uid="uid://dsvv7kd4w88sw" path="res://addons/hex_grid_editor/meshes/placeables/buildings/neutral/wall_corner_A_gate_door_right.obj" id="13_rsjlf"]
+
+[sub_resource type="Resource" id="Resource_gnfoe"]
+script = ExtResource("4_w04ht")
+amount = 700
+restrict_height = true
+reference_frame = 1
+
+[sub_resource type="Resource" id="Resource_yg8fc"]
+script = ExtResource("2_qesda")
+stack = Array[ExtResource("3_rsjlf")]([SubResource("Resource_gnfoe")])
+
+[sub_resource type="Curve3D" id="Curve3D_gj0vq"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.9604246, 2.9802322e-08, -0.5482121, 0, 0, 0, 0, 0, 0, -0.94926476, -5.2332878e-05, 0.5642215, 0, 0, 0, 0, 0, 0, 0.0038125839, -5.2332878e-05, 1.0826955, 0, 0, 0, 0, 0, 0, 0.9378278, -5.2332878e-05, 0.55278456, 0, 0, 0, 0, 0, 0, 0.96832633, -5.2332878e-05, -0.54516006, 0, 0, 0, 0, 0, 0, 0.0038125187, -5.2332878e-05, -1.1017569, 0, 0, 0, 0, 0, 0, -0.9596478, -2.9802322e-08, -0.5479232),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 7
+
+[sub_resource type="Resource" id="Resource_pfn4t"]
+script = ExtResource("7_l5adw")
+curve = SubResource("Curve3D_gj0vq")
+
+[sub_resource type="Curve3D" id="Curve3D_w04ht"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.9863578, -5.3703785e-05, 0.2306996, 0, 0, 0, 0, 0, 0, -0.60970557, -5.3703785e-05, 0.32957065, 0, 0, 0, 0, 0, 0, -0.24246979, -5.3703785e-05, 0.22599128, 0, 0, 0, 0, 0, 0, 0.50612617, -5.3703785e-05, -0.22599128, 0, 0, 0, 0, 0, 0, 0.65207887, -5.3703785e-05, -0.46610698, 0, 0, 0, 0, 0, 0, 0.71799326, -5.3703785e-05, -0.72505534, 0, 0, 0, 0, 0, 0, 0.035311222, -5.3703785e-05, -0.77684504, 0, 0, 0, 0, 0, 0, -0.18597198, -5.3703785e-05, -0.59793526, 0, 0, 0, 0, 0, 0, -0.42137957, -5.3703785e-05, -0.45669067, 0, 0, 0, 0, 0, 0, -0.68503606, -5.3703785e-05, -0.37194395, 0, 0, 0, 0, 0, 0, -0.9110273, -5.3703785e-05, -0.36252764, 0, 0, 0, 0, 0, 0, -1.0051904, -5.3703785e-05, -0.3578195),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 12
+
+[sub_resource type="Resource" id="Resource_qgcw5"]
+script = ExtResource("7_l5adw")
+curve = SubResource("Curve3D_w04ht")
+metadata/_custom_type_script = "uid://dw7scetgo3eg5"
+
+[node name="Tile" type="Node3D"]
+
+[node name="ProtonScatter" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.18, 0)
+script = ExtResource("1_trrhq")
+modifier_stack = SubResource("Resource_yg8fc")
+Performance/use_chunks = true
+Performance/chunk_dimensions = Vector3(15, 15, 15)
+metadata/_custom_type_script = "uid://bk5dk5bdeipmk"
+
+[node name="ScatterItem" type="Node3D" parent="ProtonScatter"]
+visible = false
+script = ExtResource("5_qgcw5")
+override_cast_shadow = 0
+path = "uid://7vlbx64bxpc1"
+
+[node name="ScatterShape" type="Node3D" parent="ProtonScatter"]
+transform = Transform3D(1, 0, -2.98023e-08, 0, 1, 0, 2.98023e-08, 0, 1, 0, 0.16965485, 0)
+visible = false
+script = ExtResource("6_iphbj")
+shape = SubResource("Resource_pfn4t")
+
+[node name="ProtonScatterShape" type="Node3D" parent="ProtonScatter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1970275, 0)
+script = ExtResource("6_iphbj")
+negative = true
+shape = SubResource("Resource_qgcw5")
+metadata/_custom_type_script = "uid://dfrj2v7tp74i4"
+
+[node name="HexGrass" type="MeshInstance3D" parent="."]
+mesh = ExtResource("8_e4jxj")
+surface_material_override/0 = ExtResource("9_11m5m")
+
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.061032027, 0)
+mesh = ExtResource("10_jln3e")
+surface_material_override/0 = ExtResource("9_11m5m")
+
+[node name="Walls" type="Node3D" parent="."]
+
+[node name="WallCornerAGate" type="MeshInstance3D" parent="."]
+mesh = ExtResource("11_trrhq")
+
+[node name="WallCornerAGateDoorLeft" type="MeshInstance3D" parent="."]
+mesh = ExtResource("12_qesda")
+
+[node name="WallCornerAGateDoorRight" type="MeshInstance3D" parent="."]
+mesh = ExtResource("13_rsjlf")

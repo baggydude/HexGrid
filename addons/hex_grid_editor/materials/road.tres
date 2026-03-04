@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cmsxhoi3qq5im"]
+
+[ext_resource type="Shader" uid="uid://b85ighybplmuk" path="res://addons/hex_grid_editor/shaders/terrain.gdshader" id="1_0cn86"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_0cn86")
+shader_parameter/color_albedo = Color(0.6945132, 0.662681, 0.50300825, 1)
+shader_parameter/noise_strength = 1.0

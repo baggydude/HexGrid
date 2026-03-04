@@ -1,0 +1,17 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://cua4ex1g7hcxn"]
+
+[ext_resource type="Shader" uid="uid://jhrs1tuua852" path="res://addons/hex_grid_editor/shaders/grain.gdshader" id="1_kr3g1"]
+[ext_resource type="Texture2D" uid="uid://dfv7j3vb2jx34" path="res://addons/hex_grid_editor/textures/grain.png" id="2_kr3g1"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_kr3g1")
+shader_parameter/albedo_texture = ExtResource("2_kr3g1")
+shader_parameter/ground_color = Color(0.82, 0.75932, 0.21319999, 1)
+shader_parameter/variant_color_dark = Color(0.7190754, 0.66658884, 0.17493144, 1)
+shader_parameter/variant_color_light = Color(0.9121905, 0.8545843, 0.3322918, 1)
+shader_parameter/variant_threshold_dark = 0.990000047025
+shader_parameter/variant_threshold_light = 0.995
+shader_parameter/groups = 6
+shader_parameter/fps = 5.0
+shader_parameter/noise_strength = 1.0
