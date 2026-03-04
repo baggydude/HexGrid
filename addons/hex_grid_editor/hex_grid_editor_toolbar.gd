@@ -300,30 +300,45 @@ func _create_scene_preview(scene_path: String, preview_size: int) -> TextureRect
 	viewport.own_world_3d = true
 	viewport.msaa_3d = Viewport.MSAA_4X
 
-	# Camera — set transform directly to avoid look_at before in-tree
+	# Camera — consistent isometric-ish angle for all tiles
 	var camera := Camera3D.new()
-	camera.fov = 35.0
-	var cam_pos := Vector3(1.8, 2.2, 1.8)
-	var cam_target := Vector3(0, -0.3, 0)
+	camera.fov = 30.0
+	var cam_pos := Vector3(2.2, 2.8, 2.2)
+	var cam_target := Vector3(0, -0.2, 0)
 	camera.transform = Transform3D.IDENTITY.looking_at(cam_target - cam_pos, Vector3.UP)
 	camera.transform.origin = cam_pos
 	viewport.add_child(camera)
 
-	# Lighting
+	# Environment with ambient light
+	var env := Environment.new()
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color(0.2, 0.2, 0.25)
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color.WHITE
+	env.ambient_light_energy = 0.4
+	env.tonemap_mode = Environment.TONE_MAP_FILMIC
+	var world_env := WorldEnvironment.new()
+	world_env.environment = env
+	viewport.add_child(world_env)
+
+	# Key light
 	var light := DirectionalLight3D.new()
-	light.rotation_degrees = Vector3(-45, -30, 0)
-	light.light_energy = 1.0
+	light.rotation_degrees = Vector3(-50, -30, 0)
+	light.light_energy = 0.8
 	light.shadow_enabled = false
 	viewport.add_child(light)
 
+	# Fill light
 	var fill_light := DirectionalLight3D.new()
-	fill_light.rotation_degrees = Vector3(30, 150, 0)
+	fill_light.rotation_degrees = Vector3(20, 150, 0)
 	fill_light.light_energy = 0.3
 	fill_light.shadow_enabled = false
 	viewport.add_child(fill_light)
 
-	# Instantiate the tile scene
+	# Instantiate the tile scene at identity transform for consistent preview
 	var instance := packed_scene.instantiate()
+	if instance is Node3D:
+		instance.transform = Transform3D.IDENTITY
 	viewport.add_child(instance)
 
 	# Add viewport to tree, then trigger a single render next frame
