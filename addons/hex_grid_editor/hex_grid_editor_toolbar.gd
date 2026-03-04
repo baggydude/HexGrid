@@ -20,15 +20,21 @@ var _current_height: float = 1.0
 const HEIGHT_MIN: float = 1.0
 const HEIGHT_MAX: float = 10.0
 const HEIGHT_STEP: float = 0.25
-const PREVIEW_SIZE: int = 80
+const PREVIEW_SIZE_MIN: int = 48
+const PREVIEW_SIZE_MAX: int = 160
+const PREVIEW_SIZE_DEFAULT: int = 80
 
 # UI elements
 var _tool_buttons: Dictionary = {}
 var _rotation_label: Label
 var _height_label: Label
+var _filter_edit: LineEdit
+var _size_slider: HSlider
 var _tile_grid: GridContainer
 var _tile_buttons: Dictionary = {}  # scene_path -> Button
 var _preview_viewports: Array[SubViewport] = []
+var _preview_size: int = PREVIEW_SIZE_DEFAULT
+var _filter_text: String = ""
 
 
 func _ready() -> void:
@@ -129,6 +135,39 @@ func _build_ui() -> void:
 	height_inc.pressed.connect(adjust_height.bind(HEIGHT_STEP))
 	height_box.add_child(height_inc)
 
+	# Spacer to push filter/size controls to the right
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	controls_bar.add_child(spacer)
+
+	# Preview size slider
+	var size_box := HBoxContainer.new()
+	size_box.add_theme_constant_override("separation", 4)
+	controls_bar.add_child(size_box)
+
+	var size_label := Label.new()
+	size_label.text = "Size:"
+	size_box.add_child(size_label)
+
+	_size_slider = HSlider.new()
+	_size_slider.min_value = PREVIEW_SIZE_MIN
+	_size_slider.max_value = PREVIEW_SIZE_MAX
+	_size_slider.value = PREVIEW_SIZE_DEFAULT
+	_size_slider.step = 8
+	_size_slider.custom_minimum_size = Vector2(100, 0)
+	_size_slider.value_changed.connect(_on_size_changed)
+	size_box.add_child(_size_slider)
+
+	controls_bar.add_child(VSeparator.new())
+
+	# Filter text box
+	_filter_edit = LineEdit.new()
+	_filter_edit.placeholder_text = "Filter..."
+	_filter_edit.custom_minimum_size = Vector2(150, 0)
+	_filter_edit.clear_button_enabled = true
+	_filter_edit.text_changed.connect(_on_filter_changed)
+	controls_bar.add_child(_filter_edit)
+
 	# Tile grid area (scrollable)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -147,7 +186,6 @@ func _build_ui() -> void:
 
 ## Set the available tile scenes and build the preview grid
 func set_tile_palette(palette: Dictionary) -> void:
-	print("[HexToolbar] set_tile_palette called with ", palette.size(), " tiles")
 	_tile_scenes = palette
 	_rebuild_tile_grid()
 
@@ -196,8 +234,8 @@ func _rebuild_tile_grid() -> void:
 			vp.queue_free()
 	_preview_viewports.clear()
 
-	# Calculate columns based on available width
-	var btn_width := PREVIEW_SIZE + 8
+	# Calculate columns based on available width and current preview size
+	var btn_width := _preview_size + 8
 	var separation := _tile_grid.get_theme_constant("h_separation")
 	var available_width := size.x if size.x > 0 else 800.0
 	_tile_grid.columns = maxi(1, int(available_width / (btn_width + separation)))
@@ -209,9 +247,13 @@ func _rebuild_tile_grid() -> void:
 	for path in paths:
 		var file_name: String = path.get_file().get_basename()
 
+		# Apply filter
+		if not _filter_text.is_empty() and _filter_text.to_lower() not in file_name.to_lower():
+			continue
+
 		var tile_btn := Button.new()
 		tile_btn.toggle_mode = true
-		tile_btn.custom_minimum_size = Vector2(btn_width, PREVIEW_SIZE + 24)
+		tile_btn.custom_minimum_size = Vector2(btn_width, _preview_size + 24)
 		tile_btn.tooltip_text = file_name
 		tile_btn.pressed.connect(select_tile.bind(path))
 		_tile_grid.add_child(tile_btn)
@@ -224,7 +266,7 @@ func _rebuild_tile_grid() -> void:
 
 		# Placeholder box instead of viewport preview
 		var color_rect := ColorRect.new()
-		color_rect.custom_minimum_size = Vector2(PREVIEW_SIZE, PREVIEW_SIZE)
+		color_rect.custom_minimum_size = Vector2(_preview_size, _preview_size)
 		color_rect.color = Color(0.85, 0.85, 0.85)
 		color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		vbox.add_child(color_rect)
@@ -236,14 +278,28 @@ func _rebuild_tile_grid() -> void:
 		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		vbox.add_child(name_label)
 
+	# Restore selection state
+	if _tile_buttons.has(_selected_tile_path):
+		_tile_buttons[_selected_tile_path].button_pressed = true
+
 
 func _on_resized() -> void:
 	if _tile_scenes.size() > 0 and is_instance_valid(_tile_grid):
-		var btn_width := PREVIEW_SIZE + 8
+		var btn_width := _preview_size + 8
 		var separation := _tile_grid.get_theme_constant("h_separation")
 		var new_columns := maxi(1, int(size.x / (btn_width + separation)))
 		if new_columns != _tile_grid.columns:
 			_tile_grid.columns = new_columns
+
+
+func _on_filter_changed(new_text: String) -> void:
+	_filter_text = new_text
+	_rebuild_tile_grid()
+
+
+func _on_size_changed(new_size: float) -> void:
+	_preview_size = int(new_size)
+	_rebuild_tile_grid()
 
 
 # --- Tool methods ---
