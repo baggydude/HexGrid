@@ -40,8 +40,9 @@ func _edit(object: Object) -> void:
 		_edited_grid = object
 		if not _edited_grid.tree_exiting.is_connected(_on_grid_deleted):
 			_edited_grid.tree_exiting.connect(_on_grid_deleted)
-		_toolbar.set_tile_palette(_edited_grid.tile_palette)
-		_rebuild_ghost_preview.call_deferred()
+		if _toolbar and is_instance_valid(_toolbar):
+			_toolbar.set_tile_palette(_edited_grid.tile_palette)
+			_rebuild_ghost_preview.call_deferred()
 	else:
 		_edited_grid = null
 		_cleanup_preview()
