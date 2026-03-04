@@ -130,21 +130,20 @@ func _build_ui() -> void:
 	height_inc.pressed.connect(adjust_height.bind(HEIGHT_STEP))
 	height_box.add_child(height_inc)
 
-	# DEBUG: red box to test if anything renders below controls
-	var debug_rect := ColorRect.new()
-	debug_rect.color = Color.RED
-	debug_rect.custom_minimum_size = Vector2(200, 40)
-	add_child(debug_rect)
+	# Tile grid area (scrollable)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.custom_minimum_size = Vector2(0, 160)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	add_child(scroll)
 
-	# Tile grid area — no scroll wrapper for now, to isolate rendering issue
 	_tile_grid = GridContainer.new()
 	_tile_grid.columns = 8
 	_tile_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_tile_grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_tile_grid.custom_minimum_size = Vector2(0, 160)
 	_tile_grid.add_theme_constant_override("h_separation", 4)
 	_tile_grid.add_theme_constant_override("v_separation", 4)
-	add_child(_tile_grid)
+	scroll.add_child(_tile_grid)
 
 
 ## Set the available tile scenes and build the preview grid
@@ -191,6 +190,13 @@ func _rebuild_tile_grid() -> void:
 
 	# Check _tile_grid is in the tree
 	print("[HexToolbar] _tile_grid in tree: ", _tile_grid.is_inside_tree(), " _tile_grid parent: ", _tile_grid.get_parent())
+
+	# Fix scroll container size — _build_ui doesn't re-run on hot-reload,
+	# so we must ensure the scroll parent has proper sizing here
+	var scroll_parent := _tile_grid.get_parent()
+	if scroll_parent is ScrollContainer:
+		scroll_parent.custom_minimum_size = Vector2(0, 160)
+		scroll_parent.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
 	# Clear existing grid
 	for child in _tile_grid.get_children():
