@@ -61,6 +61,25 @@ const DEFAULT_TILE_PATH := "res://addons/hex_grid_editor/tiles/"
 		guide_grid_height = value
 		_update_guide_grid()
 
+## Border settings
+@export_group("Border Settings")
+@export var show_border: bool = false:
+	set(value):
+		show_border = value
+		_update_border_visibility()
+		if show_border:
+			_update_border_mesh()
+
+@export_range(0.1, 50.0, 0.01, "suffix:m") var border_height: float = 0.5:
+	set(value):
+		border_height = max(0.1, value)
+		_update_border_mesh()
+
+@export var border_material: Material:
+	set(value):
+		border_material = value
+		_update_border_material()
+
 ## Grid data resource (serialized)
 @export var grid_data: HexGridData:
 	set(value):
@@ -79,6 +98,7 @@ var tile_palette: Dictionary = {}
 
 ## Internal references
 var _guide_mesh_instance: MeshInstance3D
+var _border_mesh_instance: MeshInstance3D
 var _cell_container: Node3D
 var _cell_instances: Dictionary = {}  # Vector2i -> Node3D (instantiated scene)
 
@@ -105,6 +125,13 @@ func _setup_containers() -> void:
 		_guide_mesh_instance = MeshInstance3D.new()
 		_guide_mesh_instance.name = "GuideGrid"
 		add_child(_guide_mesh_instance)
+
+	# Border mesh
+	_border_mesh_instance = get_node_or_null("BorderMesh")
+	if not _border_mesh_instance:
+		_border_mesh_instance = MeshInstance3D.new()
+		_border_mesh_instance.name = "BorderMesh"
+		add_child(_border_mesh_instance)
 
 
 func _scan_tile_folder() -> void:
@@ -158,6 +185,7 @@ func _update_guide_grid() -> void:
 	_guide_mesh_instance.mesh = mesh
 	_update_guide_material()
 	_update_guide_visibility()
+	_update_border_mesh()
 
 
 func _add_hex_outline(st: SurfaceTool, center: Vector3) -> void:
@@ -176,6 +204,131 @@ func _add_hex_outline(st: SurfaceTool, center: Vector3) -> void:
 	for i in range(6):
 		st.add_vertex(corners[i])
 		st.add_vertex(corners[(i + 1) % 6])
+
+
+func _update_border_visibility() -> void:
+	if _border_mesh_instance:
+		_border_mesh_instance.visible = show_border
+
+
+func _update_border_material() -> void:
+	if _border_mesh_instance:
+		_border_mesh_instance.material_override = border_material
+
+
+func _update_border_mesh() -> void:
+	if not is_inside_tree():
+		return
+
+	_setup_containers()
+
+	if not show_border:
+		_border_mesh_instance.mesh = null
+		_border_mesh_instance.visible = false
+		return
+
+	var border_positions := _generate_border_positions()
+	if border_positions.is_empty():
+		_border_mesh_instance.mesh = null
+		return
+
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+
+	for axial in border_positions:
+		var center := HexMath.axial_to_world(axial, hex_size, pointy_top)
+		_add_hex_prism(st, center, border_height)
+
+	st.generate_normals()
+	_border_mesh_instance.mesh = st.commit()
+	_update_border_material()
+	_border_mesh_instance.visible = true
+
+
+func _generate_border_positions() -> Array[Vector2i]:
+	# Build set of all grid positions
+	var grid_set: Dictionary = {}
+	for row in range(grid_height):
+		for col in range(grid_width):
+			var axial := HexMath.offset_to_axial(Vector2i(col, row), pointy_top)
+			grid_set[axial] = true
+
+	# Calculate world-space bounding box of the grid
+	var min_x := INF
+	var max_x := -INF
+	var min_z := INF
+	var max_z := -INF
+	for axial in grid_set:
+		var pos := HexMath.axial_to_world(axial, hex_size, pointy_top)
+		min_x = min(min_x, pos.x)
+		max_x = max(max_x, pos.x)
+		min_z = min(min_z, pos.z)
+		max_z = max(max_z, pos.z)
+
+	# Expand bbox by 1.5 hex widths to capture border ring
+	var hex_width := hex_size * sqrt(3.0) if pointy_top else hex_size * 2.0
+	var hex_height_dim := hex_size * 2.0 if pointy_top else hex_size * sqrt(3.0)
+	var expand_x := hex_width * 1.5
+	var expand_z := hex_height_dim * 1.5
+	min_x -= expand_x
+	max_x += expand_x
+	min_z -= expand_z
+	max_z += expand_z
+
+	# Iterate a larger offset grid to find border positions within expanded bbox
+	var border: Array[Vector2i] = []
+	for row in range(-2, grid_height + 3):
+		for col in range(-2, grid_width + 3):
+			var axial := HexMath.offset_to_axial(Vector2i(col, row), pointy_top)
+			if grid_set.has(axial):
+				continue
+			var pos := HexMath.axial_to_world(axial, hex_size, pointy_top)
+			if pos.x >= min_x and pos.x <= max_x and pos.z >= min_z and pos.z <= max_z:
+				border.append(axial)
+
+	return border
+
+
+func _add_hex_prism(st: SurfaceTool, center: Vector3, height: float) -> void:
+	var angle_offset := -PI / 2.0 if pointy_top else 0.0
+	var top_corners: Array[Vector3] = []
+	var bottom_corners: Array[Vector3] = []
+
+	for i in range(6):
+		var angle := angle_offset + i * PI / 3.0
+		var dx := hex_size * cos(angle)
+		var dz := hex_size * sin(angle)
+		top_corners.append(Vector3(center.x + dx, height, center.z + dz))
+		bottom_corners.append(Vector3(center.x + dx, 0.0, center.z + dz))
+
+	var top_center := Vector3(center.x, height, center.z)
+	var bottom_center := Vector3(center.x, 0.0, center.z)
+
+	# Top face (6 triangles, facing up)
+	for i in range(6):
+		var next := (i + 1) % 6
+		st.add_vertex(top_center)
+		st.add_vertex(top_corners[i])
+		st.add_vertex(top_corners[next])
+
+	# Bottom face (6 triangles, facing down - reversed winding)
+	for i in range(6):
+		var next := (i + 1) % 6
+		st.add_vertex(bottom_center)
+		st.add_vertex(bottom_corners[next])
+		st.add_vertex(bottom_corners[i])
+
+	# Side walls (6 quads = 12 triangles)
+	for i in range(6):
+		var next := (i + 1) % 6
+		# Triangle 1
+		st.add_vertex(top_corners[i])
+		st.add_vertex(bottom_corners[i])
+		st.add_vertex(bottom_corners[next])
+		# Triangle 2
+		st.add_vertex(top_corners[i])
+		st.add_vertex(bottom_corners[next])
+		st.add_vertex(top_corners[next])
 
 
 ## Place a tile scene at the given axial coordinate
