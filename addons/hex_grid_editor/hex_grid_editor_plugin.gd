@@ -51,6 +51,7 @@ func _on_grid_deleted() -> void:
 	_edited_grid = null
 	_cleanup_preview()
 	_make_visible(false)
+	hide_bottom_panel()
 
 
 func _make_visible(visible_flag: bool) -> void:
