@@ -163,13 +163,93 @@ public partial class HexGrid3D : Node3D
     // ── Public tile palette (scene_path → PackedScene) ───────────────────────
     public Dictionary TilePalette { get; } = new();
 
+    // ── Cell Highlights ──────────────────────────────────────────────────────
+    [ExportGroup("Cell Highlights")]
+
+    private Godot.Collections.Array<Vector2I> _moveableCells = new();
+    [Export]
+    public Godot.Collections.Array<Vector2I> MoveableCells
+    {
+        get => _moveableCells;
+        set { _moveableCells = value ?? new(); UpdateCellOverlays(); }
+    }
+
+    private Color _moveableGlowColor = new Color(0f, 0.8f, 1f, 0.7f);
+    [Export]
+    public Color MoveableGlowColor
+    {
+        get => _moveableGlowColor;
+        set { _moveableGlowColor = value; UpdateMoveableOverlayColors(); }
+    }
+
+    private float _moveableGlowIntensity = 2.0f;
+    [Export(PropertyHint.Range, "0.0,10.0,0.1")]
+    public float MoveableGlowIntensity
+    {
+        get => _moveableGlowIntensity;
+        set { _moveableGlowIntensity = value; UpdateMoveableOverlayColors(); }
+    }
+
+    private Godot.Collections.Array<Vector2I> _threatenedCells = new();
+    [Export]
+    public Godot.Collections.Array<Vector2I> ThreatenedCells
+    {
+        get => _threatenedCells;
+        set { _threatenedCells = value ?? new(); UpdateCellOverlays(); }
+    }
+
+    private Color _threatenedGlowColor = new Color(1f, 0.15f, 0f, 0.7f);
+    [Export]
+    public Color ThreatenedGlowColor
+    {
+        get => _threatenedGlowColor;
+        set { _threatenedGlowColor = value; UpdateThreatenedOverlayColors(); }
+    }
+
+    private float _threatenedGlowIntensity = 2.0f;
+    [Export(PropertyHint.Range, "0.0,10.0,0.1")]
+    public float ThreatenedGlowIntensity
+    {
+        get => _threatenedGlowIntensity;
+        set { _threatenedGlowIntensity = value; UpdateThreatenedOverlayColors(); }
+    }
+
+    private float _highlightHeight = 0.05f;
+    [Export(PropertyHint.Range, "0.0,2.0,0.001,suffix:m")]
+    public float HighlightHeight
+    {
+        get => _highlightHeight;
+        set { _highlightHeight = value; UpdateCellOverlays(); }
+    }
+
+    private float _pulseSpeed = 1.5f;
+    [Export(PropertyHint.Range, "0.0,10.0,0.1")]
+    public float PulseSpeed
+    {
+        get => _pulseSpeed;
+        set { _pulseSpeed = value; UpdateAllOverlayShaderParams(); }
+    }
+
+    private float _pulseAmount = 0.3f;
+    [Export(PropertyHint.Range, "0.0,1.0,0.05")]
+    public float PulseAmount
+    {
+        get => _pulseAmount;
+        set { _pulseAmount = value; UpdateAllOverlayShaderParams(); }
+    }
+
     // ── Internal nodes & state ───────────────────────────────────────────────
     private MeshInstance3D _guideMeshInstance;
     private MeshInstance3D _borderMeshInstance;
     private Node3D _cellContainer;
+    private Node3D _highlightContainer;
 
     // Tracks instantiated tile scenes per axial coord
     private readonly System.Collections.Generic.Dictionary<Vector2I, Node3D> _cellInstances = new();
+
+    // Tracks highlight overlay meshes per axial coord
+    private readonly System.Collections.Generic.Dictionary<Vector2I, MeshInstance3D> _moveableOverlays = new();
+    private readonly System.Collections.Generic.Dictionary<Vector2I, MeshInstance3D> _threatenedOverlays = new();
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
     public override void _Ready()
@@ -178,6 +258,7 @@ public partial class HexGrid3D : Node3D
         UpdateGuideGrid();
         ScanTileFolder();
         if (_gridData != null) SyncFromData();
+        UpdateCellOverlays();
     }
 
     private void SetupContainers()
@@ -201,6 +282,13 @@ public partial class HexGrid3D : Node3D
         {
             _borderMeshInstance = new MeshInstance3D { Name = "BorderMesh" };
             AddChild(_borderMeshInstance);
+        }
+
+        _highlightContainer = GetNodeOrNull<Node3D>("HighlightContainer");
+        if (_highlightContainer == null)
+        {
+            _highlightContainer = new Node3D { Name = "HighlightContainer" };
+            AddChild(_highlightContainer);
         }
     }
 
@@ -975,6 +1063,188 @@ public partial class HexGrid3D : Node3D
         node.Owner = newOwner;
         foreach (Node child in node.GetChildren())
             SetOwners(child, newOwner);
+    }
+
+    // ── Cell Highlight API ────────────────────────────────────────────────────
+
+    /// <summary>Add a cell to the moveable highlights. Does nothing if already present.</summary>
+    public void AddMoveableCell(Vector2I axial)
+    {
+        if (_moveableCells.Contains(axial)) return;
+        _moveableCells.Add(axial);
+        CreateOverlay(axial, _moveableGlowColor, _moveableGlowIntensity, _moveableOverlays);
+    }
+
+    /// <summary>Remove a cell from the moveable highlights.</summary>
+    public void RemoveMoveableCell(Vector2I axial)
+    {
+        _moveableCells.Remove(axial);
+        RemoveOverlay(axial, _moveableOverlays);
+    }
+
+    /// <summary>Replace all moveable highlight cells at once.</summary>
+    public void SetMoveableCells(Godot.Collections.Array<Vector2I> cells)
+    {
+        _moveableCells = cells ?? new();
+        UpdateCellOverlays();
+    }
+
+    /// <summary>Clear all moveable highlight cells.</summary>
+    public void ClearMoveableCells()
+    {
+        _moveableCells.Clear();
+        foreach (var overlay in _moveableOverlays.Values) overlay.QueueFree();
+        _moveableOverlays.Clear();
+    }
+
+    /// <summary>Add a cell to the threatened highlights. Does nothing if already present.</summary>
+    public void AddThreatenedCell(Vector2I axial)
+    {
+        if (_threatenedCells.Contains(axial)) return;
+        _threatenedCells.Add(axial);
+        CreateOverlay(axial, _threatenedGlowColor, _threatenedGlowIntensity, _threatenedOverlays);
+    }
+
+    /// <summary>Remove a cell from the threatened highlights.</summary>
+    public void RemoveThreatenedCell(Vector2I axial)
+    {
+        _threatenedCells.Remove(axial);
+        RemoveOverlay(axial, _threatenedOverlays);
+    }
+
+    /// <summary>Replace all threatened highlight cells at once.</summary>
+    public void SetThreatenedCells(Godot.Collections.Array<Vector2I> cells)
+    {
+        _threatenedCells = cells ?? new();
+        UpdateCellOverlays();
+    }
+
+    /// <summary>Clear all threatened highlight cells.</summary>
+    public void ClearThreatenedCells()
+    {
+        _threatenedCells.Clear();
+        foreach (var overlay in _threatenedOverlays.Values) overlay.QueueFree();
+        _threatenedOverlays.Clear();
+    }
+
+    // ── Overlay internals ─────────────────────────────────────────────────────
+    private void UpdateCellOverlays()
+    {
+        if (!IsInsideTree()) return;
+        SetupContainers();
+
+        foreach (var overlay in _moveableOverlays.Values) overlay.QueueFree();
+        _moveableOverlays.Clear();
+        foreach (var overlay in _threatenedOverlays.Values) overlay.QueueFree();
+        _threatenedOverlays.Clear();
+
+        foreach (var axial in _moveableCells)
+            CreateOverlay(axial, _moveableGlowColor, _moveableGlowIntensity, _moveableOverlays);
+
+        foreach (var axial in _threatenedCells)
+            CreateOverlay(axial, _threatenedGlowColor, _threatenedGlowIntensity, _threatenedOverlays);
+    }
+
+    private void CreateOverlay(Vector2I axial, Color color, float intensity,
+        System.Collections.Generic.Dictionary<Vector2I, MeshInstance3D> registry)
+    {
+        if (_highlightContainer == null) return;
+
+        var shader = ResourceLoader.Load<Shader>(
+            "res://addons/hex_grid_editor/shaders/cell_highlight.gdshader");
+        if (shader == null) return;
+
+        var mat = new ShaderMaterial();
+        mat.Shader = shader;
+        mat.SetShaderParameter("glow_color",      color);
+        mat.SetShaderParameter("glow_intensity",  intensity);
+        mat.SetShaderParameter("pulse_speed",     _pulseSpeed);
+        mat.SetShaderParameter("pulse_amount",    _pulseAmount);
+
+        var center = HexMath.AxialToWorld(axial, _hexSize, _pointyTop);
+        center.Y = _highlightHeight;
+
+        var st = new SurfaceTool();
+        st.Begin(Mesh.PrimitiveType.Triangles);
+
+        float angleOffset = _pointyTop ? -Mathf.Pi / 2f : 0f;
+        var corners = new Vector3[6];
+        for (int i = 0; i < 6; i++)
+        {
+            float angle = angleOffset + i * Mathf.Pi / 3f;
+            corners[i] = new Vector3(
+                center.X + _hexSize * Mathf.Cos(angle),
+                center.Y,
+                center.Z + _hexSize * Mathf.Sin(angle));
+        }
+        var n = Vector3.Up;
+        for (int i = 0; i < 6; i++)
+        {
+            st.SetNormal(n); st.AddVertex(center);
+            st.SetNormal(n); st.AddVertex(corners[i]);
+            st.SetNormal(n); st.AddVertex(corners[(i + 1) % 6]);
+        }
+
+        var meshInstance = new MeshInstance3D();
+        meshInstance.Mesh = st.Commit();
+        meshInstance.MaterialOverride = mat;
+        _highlightContainer.AddChild(meshInstance);
+
+        registry[axial] = meshInstance;
+    }
+
+    private static void RemoveOverlay(Vector2I axial,
+        System.Collections.Generic.Dictionary<Vector2I, MeshInstance3D> registry)
+    {
+        if (registry.TryGetValue(axial, out var overlay))
+        {
+            overlay.QueueFree();
+            registry.Remove(axial);
+        }
+    }
+
+    private void UpdateMoveableOverlayColors()
+    {
+        foreach (var overlay in _moveableOverlays.Values)
+        {
+            if (overlay.MaterialOverride is ShaderMaterial mat)
+            {
+                mat.SetShaderParameter("glow_color",     _moveableGlowColor);
+                mat.SetShaderParameter("glow_intensity", _moveableGlowIntensity);
+            }
+        }
+    }
+
+    private void UpdateThreatenedOverlayColors()
+    {
+        foreach (var overlay in _threatenedOverlays.Values)
+        {
+            if (overlay.MaterialOverride is ShaderMaterial mat)
+            {
+                mat.SetShaderParameter("glow_color",     _threatenedGlowColor);
+                mat.SetShaderParameter("glow_intensity", _threatenedGlowIntensity);
+            }
+        }
+    }
+
+    private void UpdateAllOverlayShaderParams()
+    {
+        foreach (var overlay in _moveableOverlays.Values)
+        {
+            if (overlay.MaterialOverride is ShaderMaterial mat)
+            {
+                mat.SetShaderParameter("pulse_speed",  _pulseSpeed);
+                mat.SetShaderParameter("pulse_amount", _pulseAmount);
+            }
+        }
+        foreach (var overlay in _threatenedOverlays.Values)
+        {
+            if (overlay.MaterialOverride is ShaderMaterial mat)
+            {
+                mat.SetShaderParameter("pulse_speed",  _pulseSpeed);
+                mat.SetShaderParameter("pulse_amount", _pulseAmount);
+            }
+        }
     }
 
     public override string[] _GetConfigurationWarnings()
