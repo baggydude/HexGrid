@@ -214,8 +214,8 @@ public partial class HexGrid3D : Node3D
         set { _threatenedGlowIntensity = value; UpdateThreatenedOverlayColors(); }
     }
 
-    private float _highlightHeight = 0.05f;
-    [Export(PropertyHint.Range, "0.0,2.0,0.001,suffix:m")]
+    private float _highlightHeight = 1.0f;
+    [Export(PropertyHint.Range, "0.05,10.0,0.01,suffix:m")]
     public float HighlightHeight
     {
         get => _highlightHeight;
@@ -1156,33 +1156,61 @@ public partial class HexGrid3D : Node3D
 
         var mat = new ShaderMaterial();
         mat.Shader = shader;
-        mat.SetShaderParameter("glow_color",      color);
-        mat.SetShaderParameter("glow_intensity",  intensity);
-        mat.SetShaderParameter("pulse_speed",     _pulseSpeed);
-        mat.SetShaderParameter("pulse_amount",    _pulseAmount);
+        mat.SetShaderParameter("glow_color",     color);
+        mat.SetShaderParameter("glow_intensity", intensity);
+        mat.SetShaderParameter("pulse_speed",    _pulseSpeed);
+        mat.SetShaderParameter("pulse_amount",   _pulseAmount);
 
-        var center = HexMath.AxialToWorld(axial, _hexSize, _pointyTop);
-        center.Y = _highlightHeight;
+        var origin = HexMath.AxialToWorld(axial, _hexSize, _pointyTop);
+        const float baseY = 0.02f;           // just above ground to avoid z-fighting
+        float       topY  = _highlightHeight; // column height
+
+        float angleOffset = _pointyTop ? -Mathf.Pi / 2f : 0f;
+        var baseCorners = new Vector3[6];
+        var topCorners  = new Vector3[6];
+        for (int i = 0; i < 6; i++)
+        {
+            float angle = angleOffset + i * Mathf.Pi / 3f;
+            float cx = origin.X + _hexSize * Mathf.Cos(angle);
+            float cz = origin.Z + _hexSize * Mathf.Sin(angle);
+            baseCorners[i] = new Vector3(cx, baseY, cz);
+            topCorners[i]  = new Vector3(cx, topY,  cz);
+        }
+        var centerTop = new Vector3(origin.X, topY, origin.Z);
 
         var st = new SurfaceTool();
         st.Begin(Mesh.PrimitiveType.Triangles);
 
-        float angleOffset = _pointyTop ? -Mathf.Pi / 2f : 0f;
-        var corners = new Vector3[6];
+        // Top cap — hex fan
         for (int i = 0; i < 6; i++)
         {
-            float angle = angleOffset + i * Mathf.Pi / 3f;
-            corners[i] = new Vector3(
-                center.X + _hexSize * Mathf.Cos(angle),
-                center.Y,
-                center.Z + _hexSize * Mathf.Sin(angle));
+            st.SetNormal(Vector3.Up); st.AddVertex(centerTop);
+            st.SetNormal(Vector3.Up); st.AddVertex(topCorners[i]);
+            st.SetNormal(Vector3.Up); st.AddVertex(topCorners[(i + 1) % 6]);
         }
-        var n = Vector3.Up;
+
+        // Side walls — 6 quads, normals pointing outward
         for (int i = 0; i < 6; i++)
         {
-            st.SetNormal(n); st.AddVertex(center);
-            st.SetNormal(n); st.AddVertex(corners[i]);
-            st.SetNormal(n); st.AddVertex(corners[(i + 1) % 6]);
+            int next = (i + 1) % 6;
+
+            // Outward face normal: midpoint of this wall edge, projected away from origin in XZ
+            float midAngle = angleOffset + (i + 0.5f) * Mathf.Pi / 3f;
+            var wallNormal = new Vector3(Mathf.Cos(midAngle), 0f, Mathf.Sin(midAngle));
+
+            var bl = baseCorners[i];
+            var br = baseCorners[next];
+            var tl = topCorners[i];
+            var tr = topCorners[next];
+
+            // Triangle 1
+            st.SetNormal(wallNormal); st.AddVertex(bl);
+            st.SetNormal(wallNormal); st.AddVertex(tl);
+            st.SetNormal(wallNormal); st.AddVertex(tr);
+            // Triangle 2
+            st.SetNormal(wallNormal); st.AddVertex(bl);
+            st.SetNormal(wallNormal); st.AddVertex(tr);
+            st.SetNormal(wallNormal); st.AddVertex(br);
         }
 
         var meshInstance = new MeshInstance3D();
