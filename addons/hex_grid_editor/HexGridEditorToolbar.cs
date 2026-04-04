@@ -428,9 +428,8 @@ public partial class HexGridEditorToolbar : VBoxContainer
     public void SetTool(ToolMode mode)
     {
         _currentTool = mode;
-        // SetPressedNoSignal on the target button; ButtonGroup automatically
-        // deselects the other tool button without emitting any signals.
-        _toolButtons[mode].SetPressedNoSignal(true);
+        foreach (var (m, btn) in _toolButtons)
+            btn.SetPressedNoSignal(m == mode);
         EmitSignal(SignalName.ToolChanged, (int)mode);
     }
 
