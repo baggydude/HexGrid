@@ -14,15 +14,15 @@
 [ext_resource type="ArrayMesh" uid="uid://c7k3baaf0210c" path="res://addons/hex_grid_editor/meshes/placeables/buildings/neutral/wall_corner_A_gate_door_left.obj" id="12_qesda"]
 [ext_resource type="ArrayMesh" uid="uid://dsvv7kd4w88sw" path="res://addons/hex_grid_editor/meshes/placeables/buildings/neutral/wall_corner_A_gate_door_right.obj" id="13_rsjlf"]
 
-[sub_resource type="Resource" id="Resource_gnfoe"]
+[sub_resource type="Resource" id="Resource_trrhq"]
 script = ExtResource("4_w04ht")
 amount = 700
 restrict_height = true
 reference_frame = 1
 
-[sub_resource type="Resource" id="Resource_yg8fc"]
+[sub_resource type="Resource" id="Resource_qesda"]
 script = ExtResource("2_qesda")
-stack = Array[ExtResource("3_rsjlf")]([SubResource("Resource_gnfoe")])
+stack = Array[ExtResource("3_rsjlf")]([SubResource("Resource_trrhq")])
 
 [sub_resource type="Curve3D" id="Curve3D_gj0vq"]
 _data = {
@@ -52,7 +52,7 @@ metadata/_custom_type_script = "uid://dw7scetgo3eg5"
 [node name="ProtonScatter" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.18, 0)
 script = ExtResource("1_trrhq")
-modifier_stack = SubResource("Resource_yg8fc")
+modifier_stack = SubResource("Resource_qesda")
 Performance/use_chunks = true
 Performance/chunk_dimensions = Vector3(15, 15, 15)
 metadata/_custom_type_script = "uid://bk5dk5bdeipmk"
@@ -71,6 +71,7 @@ shape = SubResource("Resource_pfn4t")
 
 [node name="ProtonScatterShape" type="Node3D" parent="ProtonScatter"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1970275, 0)
+visible = false
 script = ExtResource("6_iphbj")
 negative = true
 shape = SubResource("Resource_qgcw5")
@@ -87,11 +88,17 @@ surface_material_override/0 = ExtResource("9_11m5m")
 
 [node name="Walls" type="Node3D" parent="."]
 
-[node name="WallCornerAGate" type="MeshInstance3D" parent="."]
+[node name="WallCornerAGate" type="MeshInstance3D" parent="Walls"]
 mesh = ExtResource("11_trrhq")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("9_11m5m")
 
-[node name="WallCornerAGateDoorLeft" type="MeshInstance3D" parent="."]
+[node name="WallCornerAGateDoorLeft" type="MeshInstance3D" parent="Walls"]
 mesh = ExtResource("12_qesda")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("9_11m5m")
 
-[node name="WallCornerAGateDoorRight" type="MeshInstance3D" parent="."]
+[node name="WallCornerAGateDoorRight" type="MeshInstance3D" parent="Walls"]
 mesh = ExtResource("13_rsjlf")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("9_11m5m")

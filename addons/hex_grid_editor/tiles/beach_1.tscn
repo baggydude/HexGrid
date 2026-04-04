@@ -12,15 +12,15 @@
 [ext_resource type="ArrayMesh" uid="uid://d0tcavefqlh3q" path="res://addons/hex_grid_editor/meshes/tiles/base/hex_grass_bottom.obj" id="10_7ovro"]
 [ext_resource type="Material" uid="uid://dgd7ayegdp8kd" path="res://addons/hex_grid_editor/materials/river1.tres" id="11_abvhg"]
 
-[sub_resource type="Resource" id="Resource_rv14u"]
+[sub_resource type="Resource" id="Resource_aapiw"]
 script = ExtResource("4_1moj3")
 amount = 700
 restrict_height = true
 reference_frame = 1
 
-[sub_resource type="Resource" id="Resource_fa72a"]
+[sub_resource type="Resource" id="Resource_0pnqe"]
 script = ExtResource("2_0pnqe")
-stack = Array[ExtResource("3_ga1kd")]([SubResource("Resource_rv14u")])
+stack = Array[ExtResource("3_ga1kd")]([SubResource("Resource_aapiw")])
 
 [sub_resource type="Curve3D" id="Curve3D_0dxgp"]
 _data = {
@@ -50,7 +50,7 @@ curve = SubResource("Curve3D_1fb5y")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.18, 0)
 script = ExtResource("1_aapiw")
 global_seed = 3
-modifier_stack = SubResource("Resource_fa72a")
+modifier_stack = SubResource("Resource_0pnqe")
 Performance/use_chunks = true
 Performance/chunk_dimensions = Vector3(15, 15, 15)
 metadata/_custom_type_script = "uid://bk5dk5bdeipmk"

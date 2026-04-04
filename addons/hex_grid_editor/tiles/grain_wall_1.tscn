@@ -15,7 +15,7 @@
 
 [sub_resource type="Resource" id="Resource_8q64m"]
 script = ExtResource("4_8q64m")
-amount = 1000
+amount = 1500
 restrict_height = true
 reference_frame = 1
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://dq3724hf5npqt"]
+[gd_scene load_steps=20 format=3 uid="uid://dq3724hf5npqt"]
 
 [ext_resource type="Script" uid="uid://bk5dk5bdeipmk" path="res://addons/proton_scatter/src/scatter.gd" id="1_s2gcf"]
 [ext_resource type="Script" uid="uid://b2mwrn2mwvfa8" path="res://addons/proton_scatter/src/stack/modifier_stack.gd" id="2_0uahi"]
@@ -14,50 +14,18 @@
 [ext_resource type="Material" uid="uid://dgd7ayegdp8kd" path="res://addons/hex_grid_editor/materials/river1.tres" id="11_46g2f"]
 [ext_resource type="ArrayMesh" uid="uid://dfow4t6bt1wk2" path="res://addons/hex_grid_editor/meshes/placeables/decoration/nature/mountain_A_grass.obj" id="12_0uahi"]
 
-[sub_resource type="Resource" id="Resource_rv14u"]
+[sub_resource type="Resource" id="Resource_n2oa2"]
 script = ExtResource("4_8g8lt")
 amount = 700
 restrict_height = true
 reference_frame = 1
-
-[sub_resource type="Resource" id="Resource_fa72a"]
-script = ExtResource("2_0uahi")
-stack = Array[ExtResource("3_n2oa2")]([SubResource("Resource_rv14u")])
-
-[sub_resource type="Curve3D" id="Curve3D_0dxgp"]
-_data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.9604246, 2.9802322e-08, -0.5482121, 0, 0, 0, 0, 0, 0, -0.94926476, -5.2332878e-05, 0.5642215, 0, 0, 0, 0, 0, 0, 0.0038125839, -5.2332878e-05, 1.0826955, 0, 0, 0, 0, 0, 0, 0.9378278, -5.2332878e-05, 0.55278456, 0, 0, 0, 0, 0, 0, 0.96832633, -5.2332878e-05, -0.54516006, 0, 0, 0, 0, 0, 0, 0.0038125187, -5.2332878e-05, -1.1017569, 0, 0, 0, 0, 0, 0, -0.9596478, -2.9802322e-08, -0.5479232),
-"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0)
-}
-point_count = 7
-
-[sub_resource type="Resource" id="Resource_6y53m"]
-script = ExtResource("7_ow2ju")
-curve = SubResource("Curve3D_0dxgp")
-
-[sub_resource type="Curve3D" id="Curve3D_1fb5y"]
-_data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.99184555, 3.5196543e-05, 0.56703985, 0, 0, 0, 0, 0, 0, 0.9956385, 3.5196543e-05, 0.55755764, 0, 0, 0, 0, 0, 0, 0.9899491, 3.5196543e-05, -0.5708328, 0, 0, 0, 0, 0, 0, -1.0051208, 3.5196543e-05, -0.56703985, 0, 0, 0, 0, 0, 0, -0.99753493, 3.5196543e-05, 0.4665278),
-"tilts": PackedFloat32Array(0, 0, 0, 0, 0)
-}
-point_count = 5
-
-[sub_resource type="Resource" id="Resource_vd568"]
-script = ExtResource("7_ow2ju")
-curve = SubResource("Curve3D_1fb5y")
 
 [sub_resource type="Resource" id="Resource_8g8lt"]
-script = ExtResource("4_8g8lt")
-amount = 700
-restrict_height = true
-reference_frame = 1
-
-[sub_resource type="Resource" id="Resource_lpg1j"]
 script = ExtResource("8_n2oa2")
 
-[sub_resource type="Resource" id="Resource_yawpq"]
+[sub_resource type="Resource" id="Resource_lpg1j"]
 script = ExtResource("2_0uahi")
-stack = Array[ExtResource("3_n2oa2")]([SubResource("Resource_8g8lt"), SubResource("Resource_lpg1j")])
+stack = Array[ExtResource("3_n2oa2")]([SubResource("Resource_n2oa2"), SubResource("Resource_8g8lt")])
 
 [sub_resource type="Curve3D" id="Curve3D_ow2ju"]
 _data = {
@@ -75,45 +43,17 @@ data = PackedVector3Array(-0.0676, 1.0186, -0.8447, -0.0676, 0, -0.848, 0.6006, 
 
 [node name="Tile" type="Node3D"]
 
-[node name="Grass" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.18, 0)
-script = ExtResource("1_s2gcf")
-global_seed = 3
-modifier_stack = SubResource("Resource_fa72a")
-Performance/use_chunks = true
-Performance/chunk_dimensions = Vector3(15, 15, 15)
-metadata/_custom_type_script = "uid://bk5dk5bdeipmk"
-
-[node name="ScatterItem" type="Node3D" parent="Grass"]
-visible = false
-script = ExtResource("5_lpg1j")
-override_cast_shadow = 0
-path = "uid://7vlbx64bxpc1"
-
-[node name="ScatterShape" type="Node3D" parent="Grass"]
-transform = Transform3D(1, 0, -2.98023e-08, 0, 1, 0, 2.98023e-08, 0, 1, 0, 0.16965485, 0)
-visible = false
-script = ExtResource("6_yawpq")
-shape = SubResource("Resource_6y53m")
-
-[node name="ProtonScatterShape" type="Node3D" parent="Grass"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.119540006, 0)
-visible = false
-script = ExtResource("6_yawpq")
-negative = true
-shape = SubResource("Resource_vd568")
-metadata/_custom_type_script = "uid://dfrj2v7tp74i4"
-
 [node name="Grass2" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4479814, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.13422728, 1.1317554, 0.09775114)
 script = ExtResource("1_s2gcf")
 global_seed = 3
-modifier_stack = SubResource("Resource_yawpq")
+modifier_stack = SubResource("Resource_lpg1j")
 Performance/use_chunks = true
 Performance/chunk_dimensions = Vector3(15, 15, 15)
 metadata/_custom_type_script = "uid://bk5dk5bdeipmk"
 
 [node name="ScatterItem" type="Node3D" parent="Grass2"]
+visible = false
 script = ExtResource("5_lpg1j")
 override_cast_shadow = 0
 path = "uid://7vlbx64bxpc1"
@@ -123,6 +63,16 @@ transform = Transform3D(1, 0, -2.98023e-08, 0, 1, 0, 2.98023e-08, 0, 1, 0, 0.169
 visible = false
 script = ExtResource("6_yawpq")
 shape = SubResource("Resource_vs5ok")
+
+[node name="MountainAGrass" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.11060572, -0.31622607, 0.089066654)
+mesh = ExtResource("12_0uahi")
+surface_material_override/0 = ExtResource("9_oa7nr")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="MountainAGrass"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MountainAGrass/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_oa7nr")
 
 [node name="HexGrass" type="MeshInstance3D" parent="."]
 mesh = ExtResource("8_vs5ok")
@@ -137,13 +87,3 @@ surface_material_override/0 = ExtResource("11_46g2f")
 transform = Transform3D(1, 0, 0, 0, 0.53, 0, 0, 0, 1, 0, -0.4731719, 0)
 mesh = ExtResource("10_800dj")
 surface_material_override/0 = ExtResource("9_oa7nr")
-
-[node name="MountainAGrass" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.02362156, 0, -0.008684486)
-mesh = ExtResource("12_0uahi")
-surface_material_override/0 = ExtResource("9_oa7nr")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="MountainAGrass"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MountainAGrass/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_oa7nr")

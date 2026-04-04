@@ -12,19 +12,20 @@
 [ext_resource type="Material" uid="uid://x38xyx35cr5w" path="res://addons/hex_grid_editor/materials/tile.tres" id="9_jnmwb"]
 [ext_resource type="ArrayMesh" uid="uid://d0tcavefqlh3q" path="res://addons/hex_grid_editor/meshes/tiles/base/hex_grass_bottom.obj" id="10_hnfft"]
 
-[sub_resource type="Resource" id="Resource_gnfoe"]
+[sub_resource type="Resource" id="Resource_1b430"]
 script = ExtResource("4_s2k3b")
-amount = 1000
+amount = 1500
 restrict_height = true
 reference_frame = 1
 
-[sub_resource type="Resource" id="Resource_1b430"]
+[sub_resource type="Resource" id="Resource_ewdn2"]
 script = ExtResource("5_1b430")
 position = Vector3(0, 0.05, 0)
+reference_frame = 2
 
-[sub_resource type="Resource" id="Resource_yg8fc"]
+[sub_resource type="Resource" id="Resource_s2k3b"]
 script = ExtResource("2_1b430")
-stack = Array[ExtResource("3_ewdn2")]([SubResource("Resource_gnfoe"), SubResource("Resource_1b430")])
+stack = Array[ExtResource("3_ewdn2")]([SubResource("Resource_1b430"), SubResource("Resource_ewdn2")])
 
 [sub_resource type="Curve3D" id="Curve3D_s2k3b"]
 _data = {
@@ -74,7 +75,7 @@ curve = SubResource("Curve3D_jnmwb")
 [node name="ProtonScatter" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.07499352, 0)
 script = ExtResource("1_3xh01")
-modifier_stack = SubResource("Resource_yg8fc")
+modifier_stack = SubResource("Resource_s2k3b")
 Performance/use_chunks = true
 Performance/chunk_dimensions = Vector3(15, 15, 15)
 metadata/_custom_type_script = "uid://bk5dk5bdeipmk"

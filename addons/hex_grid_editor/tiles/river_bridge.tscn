@@ -13,15 +13,15 @@
 [ext_resource type="Material" uid="uid://dgd7ayegdp8kd" path="res://addons/hex_grid_editor/materials/river1.tres" id="11_ri0q3"]
 [ext_resource type="ArrayMesh" uid="uid://bnq605o5kmiga" path="res://addons/hex_grid_editor/meshes/placeables/buildings/neutral/building_bridge_A.obj" id="12_4avpb"]
 
-[sub_resource type="Resource" id="Resource_rv14u"]
+[sub_resource type="Resource" id="Resource_4avpb"]
 script = ExtResource("4_0lq44")
 amount = 700
 restrict_height = true
 reference_frame = 1
 
-[sub_resource type="Resource" id="Resource_fa72a"]
+[sub_resource type="Resource" id="Resource_fwfa1"]
 script = ExtResource("2_4avpb")
-stack = Array[ExtResource("3_fwfa1")]([SubResource("Resource_rv14u")])
+stack = Array[ExtResource("3_fwfa1")]([SubResource("Resource_4avpb")])
 
 [sub_resource type="Curve3D" id="Curve3D_0dxgp"]
 _data = {
@@ -34,16 +34,16 @@ point_count = 7
 script = ExtResource("7_yfqfs")
 curve = SubResource("Curve3D_0dxgp")
 
-[sub_resource type="Curve3D" id="Curve3D_1fb5y"]
+[sub_resource type="Curve3D" id="Curve3D_0lq44"]
 _data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.99184555, 3.5196543e-05, 0.56703985, 0, 0, 0, 0, 0, 0, 0.9956385, 3.5196543e-05, 0.55755764, 0, 0, 0, 0, 0, 0, 0.9899491, 3.5196543e-05, -0.5708328, 0, 0, 0, 0, 0, 0, -1.0051208, 3.5196543e-05, -0.56703985, 0, 0, 0, 0, 0, 0, -0.99753493, 3.5196543e-05, 0.4665278),
-"tilts": PackedFloat32Array(0, 0, 0, 0, 0)
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.33642283, -8.940697e-08, -0.9687636, 0, 0, 0, 0, 0, 0, -0.6986422, -8.940697e-08, -0.7623352, 0, 0, 0, 0, 0, 0, -0.59718883, -8.940697e-08, -0.5328357, 0, 0, 0, 0, 0, 0, -0.9945359, -8.940697e-08, -0.52689415, 0, 0, 0, 0, 0, 0, -0.9997389, -8.940697e-08, 0.52464604, 0, 0, 0, 0, 0, 0, 0.06211084, -8.940697e-08, 0.52468646, 0, 0, 0, 0, 0, 0, 0.3392151, -8.940697e-08, 0.9383871, 0, 0, 0, 0, 0, 0, 0.62376344, -8.940697e-08, 0.7675175, 0, 0, 0, 0, 0, 0, 0.5009283, -8.940697e-08, 0.49399576, 0, 0, 0, 0, 0, 0, 0.99850816, -8.940697e-08, 0.48770928, 0, 0, 0, 0, 0, 0, 0.99200726, -8.940697e-08, -0.53069776, 0, 0, 0, 0, 0, 0, -0.094988406, -8.940697e-08, -0.5266481, 0, 0, 0, 0, 0, 0, -0.3291154, -8.940697e-08, -0.9605299),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 }
-point_count = 5
+point_count = 13
 
 [sub_resource type="Resource" id="Resource_vd568"]
 script = ExtResource("7_yfqfs")
-curve = SubResource("Curve3D_1fb5y")
+curve = SubResource("Curve3D_0lq44")
 
 [node name="Tile" type="Node3D"]
 
@@ -51,7 +51,7 @@ curve = SubResource("Curve3D_1fb5y")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.18, 0)
 script = ExtResource("1_ygwvx")
 global_seed = 3
-modifier_stack = SubResource("Resource_fa72a")
+modifier_stack = SubResource("Resource_fwfa1")
 Performance/use_chunks = true
 Performance/chunk_dimensions = Vector3(15, 15, 15)
 metadata/_custom_type_script = "uid://bk5dk5bdeipmk"
@@ -91,5 +91,6 @@ mesh = ExtResource("10_vrsqu")
 surface_material_override/0 = ExtResource("9_5471a")
 
 [node name="BuildingBridgeA" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.032390416, 0)
 mesh = ExtResource("12_4avpb")
 surface_material_override/0 = ExtResource("9_5471a")
