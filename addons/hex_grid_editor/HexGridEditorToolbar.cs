@@ -87,11 +87,13 @@ public partial class HexGridEditorToolbar : VBoxContainer
         toolBox.AddThemeConstantOverride("separation", 4);
         controlsBar.AddChild(toolBox);
 
-        var paintBtn = MakeToolButton("Paint", "Paint tiles (Left Click)", ToolMode.Paint, true);
+        var toolGroup = new ButtonGroup();
+
+        var paintBtn = MakeToolButton("Paint", "Paint tiles (Left Click)", ToolMode.Paint, toolGroup, true);
         toolBox.AddChild(paintBtn);
         _toolButtons[ToolMode.Paint] = paintBtn;
 
-        var eraseBtn = MakeToolButton("Erase", "Erase tiles (Shift + Left Click)", ToolMode.Erase, false);
+        var eraseBtn = MakeToolButton("Erase", "Erase tiles (Left Click)", ToolMode.Erase, toolGroup, false);
         toolBox.AddChild(eraseBtn);
         _toolButtons[ToolMode.Erase] = eraseBtn;
 
@@ -190,17 +192,20 @@ public partial class HexGridEditorToolbar : VBoxContainer
         scroll.AddChild(_tileGrid);
     }
 
-    private Button MakeToolButton(string text, string tooltip, ToolMode mode, bool pressed)
+    private Button MakeToolButton(string text, string tooltip, ToolMode mode, ButtonGroup group, bool initiallyPressed)
     {
         var btn = new Button
         {
             Text        = text,
             TooltipText = tooltip,
             ToggleMode  = true,
-            ButtonPressed = pressed,
+            ButtonGroup = group,
         };
         btn.CustomMinimumSize = new Vector2(70, 28);
+        // Connect signal first, then set initial state via SetPressedNoSignal so
+        // the signal does not fire during initialisation.
         btn.Pressed += () => OnToolPressed(mode);
+        if (initiallyPressed) btn.SetPressedNoSignal(true);
         return btn;
     }
 
@@ -225,8 +230,9 @@ public partial class HexGridEditorToolbar : VBoxContainer
         if (!_tileScenes.ContainsKey(scenePath)) return;
         _selectedTilePath = scenePath;
 
+        // Use SetPressedNoSignal to avoid triggering Pressed → SelectTile recursion.
         foreach (var (path, btn) in _tileButtons)
-            btn.ButtonPressed = path == scenePath;
+            btn.SetPressedNoSignal(path == scenePath);
 
         EmitSignal(SignalName.TileSelected, scenePath);
     }
@@ -307,7 +313,7 @@ public partial class HexGridEditorToolbar : VBoxContainer
         }
 
         if (_tileButtons.ContainsKey(_selectedTilePath))
-            _tileButtons[_selectedTilePath].ButtonPressed = true;
+            _tileButtons[_selectedTilePath].SetPressedNoSignal(true);
 
         if (_pendingPreviews.Count > 0)
             SetProcess(true);
@@ -422,8 +428,9 @@ public partial class HexGridEditorToolbar : VBoxContainer
     public void SetTool(ToolMode mode)
     {
         _currentTool = mode;
-        foreach (var (m, btn) in _toolButtons)
-            btn.SetPressedNoSignal(m == mode);
+        // SetPressedNoSignal on the target button; ButtonGroup automatically
+        // deselects the other tool button without emitting any signals.
+        _toolButtons[mode].SetPressedNoSignal(true);
         EmitSignal(SignalName.ToolChanged, (int)mode);
     }
 
