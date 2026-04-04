@@ -156,9 +156,9 @@ public partial class HexGridEditorPlugin : EditorPlugin
     public override int _Forward3DGuiInput(Camera3D viewportCamera, InputEvent @event)
     {
         if (_editedGrid == null || _toolbar == null || !IsInstanceValid(_toolbar))
-            return (int)AfterGuiInputEdit.Pass;
+            return 0;
         if (_bottomPanelButton == null || !_bottomPanelButton.Visible)
-            return (int)AfterGuiInputEdit.Pass;
+            return 0;
 
         if (@event is InputEventKey keyEvent && keyEvent.Pressed)
         {
@@ -166,19 +166,19 @@ public partial class HexGridEditorPlugin : EditorPlugin
             {
                 _toolbar.RotateTile(keyEvent.ShiftPressed ? -60f : 60f);
                 UpdatePreviewRotation();
-                return (int)AfterGuiInputEdit.Stop;
+                return 1;
             }
             if (keyEvent.Keycode is Key.Equal or Key.KpAdd)
             {
                 _toolbar.AdjustHeight(HexGridEditorToolbar.HeightStep);
                 UpdatePreviewScale();
-                return (int)AfterGuiInputEdit.Stop;
+                return 1;
             }
             if (keyEvent.Keycode is Key.Minus or Key.KpSubtract)
             {
                 _toolbar.AdjustHeight(-HexGridEditorToolbar.HeightStep);
                 UpdatePreviewScale();
-                return (int)AfterGuiInputEdit.Stop;
+                return 1;
             }
         }
 
@@ -192,7 +192,7 @@ public partial class HexGridEditorPlugin : EditorPlugin
                 if (mouseBtn.AltPressed)
                 {
                     if (HandlePick(viewportCamera, mouseBtn.Position))
-                        return (int)AfterGuiInputEdit.Stop;
+                        return 1;
                 }
                 else if (mouseBtn.ShiftPressed)
                 {
@@ -200,7 +200,7 @@ public partial class HexGridEditorPlugin : EditorPlugin
                 }
 
                 if (HandlePaint(viewportCamera, mouseBtn.Position))
-                    return (int)AfterGuiInputEdit.Stop;
+                    return 1;
             }
             else
             {
@@ -213,10 +213,10 @@ public partial class HexGridEditorPlugin : EditorPlugin
         {
             UpdatePreview(viewportCamera, motionEvent.Position);
             if (_isPainting && HandlePaint(viewportCamera, motionEvent.Position))
-                return (int)AfterGuiInputEdit.Stop;
+                return 1;
         }
 
-        return (int)AfterGuiInputEdit.Pass;
+        return 0;
     }
 
     // ── Raycast ────────────────────────────────────────────────────────────────
@@ -377,11 +377,11 @@ public partial class HexGridEditorPlugin : EditorPlugin
     // ── Toolbar signal callbacks ───────────────────────────────────────────────
     private void OnTileSelected(string _scenePath) => RebuildGhostPreview();
 
-    private void OnToolChanged(int toolMode)
+    private void OnToolChanged(HexGridEditorToolbar.ToolMode toolMode)
     {
         if (_previewInstance != null)
-            _previewInstance.Visible = (HexGridEditorToolbar.ToolMode)toolMode == HexGridEditorToolbar.ToolMode.Paint;
-        if ((HexGridEditorToolbar.ToolMode)toolMode != HexGridEditorToolbar.ToolMode.Paint)
+            _previewInstance.Visible = toolMode == HexGridEditorToolbar.ToolMode.Paint;
+        if (toolMode != HexGridEditorToolbar.ToolMode.Paint)
             CleanupPreviewBase();
     }
 }
