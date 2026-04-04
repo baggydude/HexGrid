@@ -156,20 +156,18 @@ public partial class HexGridEditorPlugin : EditorPlugin
                 _lastPaintedCoord = new Vector2I(-99999, -99999);
 
                 if (mouseBtn.AltPressed)
-                    HandlePick(viewportCamera, mouseBtn.Position);
-                else
-                    HandlePaint(viewportCamera, mouseBtn.Position);
+                {
+                    if (HandlePick(viewportCamera, mouseBtn.Position))
+                        return 1;
+                }
 
-                // Always consume the press so the editor doesn't treat an
-                // unhandled click (e.g. erasing an empty cell) as a node-
-                // deselection and lose the HexGrid3D selection.
-                return 1;
+                if (HandlePaint(viewportCamera, mouseBtn.Position))
+                    return 1;
             }
             else
             {
                 _isPainting = false;
                 _lastPaintedCoord = new Vector2I(-99999, -99999);
-                return 1;
             }
         }
 
