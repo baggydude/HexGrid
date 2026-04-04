@@ -430,93 +430,342 @@ public partial class HexGrid3D : Node3D
             new Vector3(iMaxX, 0f,  iMaxZ),
             new Vector3(iMaxX, 0f,  iMinZ));
 
-        // --- Gap fills: cover spaces left by offset rows/columns ---
-        AddOffsetGapFills(st, h, iMinX, iMaxX, iMinZ, iMaxZ, halfX, halfZ);
+        // --- Gap fills: partial-hex shapes that square off the hex silhouette ---
+        AddPartialHexFills(st, h, iMinX, iMaxX, iMinZ, iMaxZ, halfX, halfZ);
     }
 
     /// <summary>
-    /// Fills the gaps left by the staggered hex offset along the inner border edge.
-    ///
-    /// Pointy-top (odd-r offset): odd rows shift right by halfX, leaving a gap on the
-    /// left side; even rows leave a matching gap on the right side.
-    /// Flat-top (odd-q offset): odd columns shift down by halfZ, leaving a gap on the
-    /// top side; even columns leave a matching gap on the bottom side.
-    ///
-    /// For each gap area we emit:
-    ///   • a top quad  – fills the hole in the horizontal top face
-    ///   • a step wall – vertical face closing the open side of the gap cavity
+    /// Fills the gaps left by the staggered hex silhouette with proper partial-hex geometry:
+    /// parallelogram prisms on the sides (for offset rows/cols) and triangle prisms on the
+    /// top and bottom edges (to fill valleys between hex tips).
     /// </summary>
-    private void AddOffsetGapFills(SurfaceTool st, float height,
-                                    float iMinX, float iMaxX,
-                                    float iMinZ, float iMaxZ,
-                                    float halfX, float halfZ)
+    private void AddPartialHexFills(SurfaceTool st, float h,
+                                     float iMinX, float iMaxX,
+                                     float iMinZ, float iMaxZ,
+                                     float halfX, float halfZ)
     {
         if (_pointyTop)
-        {
-            // Row centres are spaced 1.5 * hexSize apart in Z.
-            float rowStepZ = _hexSize * 1.5f;
-            for (int row = 0; row < _gridHeight; row++)
-            {
-                float zC  = rowStepZ * row;
-                float zLo = Mathf.Max(zC - halfZ, iMinZ);
-                float zHi = Mathf.Min(zC + halfZ, iMaxZ);
+            AddPointyTopPartialHexFills(st, h, iMinX, iMaxX, iMinZ, iMaxZ, halfX, halfZ);
+        else
+            AddFlatTopPartialHexFills(st, h, iMinX, iMaxX, iMinZ, iMaxZ, halfX, halfZ);
+    }
 
-                if ((row & 1) == 1)
-                {
-                    // Odd row – gap on the LEFT  (iMinX … iMinX+halfX)
-                    AddTopQuad(st, iMinX, zLo, iMinX + halfX, zHi, height);
-                    // Step wall at x = iMinX+halfX, faces –X (visible from inside the gap)
-                    AddQuad(st,
-                        new Vector3(iMinX + halfX, height, zLo),
-                        new Vector3(iMinX + halfX, height, zHi),
-                        new Vector3(iMinX + halfX, 0f,     zHi),
-                        new Vector3(iMinX + halfX, 0f,     zLo));
-                }
-                else
-                {
-                    // Even row – gap on the RIGHT  (iMaxX-halfX … iMaxX)
-                    AddTopQuad(st, iMaxX - halfX, zLo, iMaxX, zHi, height);
-                    // Step wall at x = iMaxX-halfX, faces +X (visible from inside the gap)
-                    AddQuad(st,
-                        new Vector3(iMaxX - halfX, height, zHi),
-                        new Vector3(iMaxX - halfX, height, zLo),
-                        new Vector3(iMaxX - halfX, 0f,     zLo),
-                        new Vector3(iMaxX - halfX, 0f,     zHi));
-                }
+    // ── Pointy-top (odd-r offset) fills ──────────────────────────────────────
+
+    private void AddPointyTopPartialHexFills(SurfaceTool st, float h,
+                                              float iMinX, float iMaxX,
+                                              float iMinZ, float iMaxZ,
+                                              float halfX, float halfZ)
+    {
+        float qtrZ    = halfZ * 0.5f;
+        float colStep = halfX * 2f;
+        float rowStep = _hexSize * 1.5f;
+
+        // ── Side fills: parallelogram prisms for each row ─────────────────────
+        for (int row = 0; row < _gridHeight; row++)
+        {
+            float zC = rowStep * row;
+            if ((row & 1) == 1)
+            {
+                // Odd row → left parallelogram (ghost-hex right-half at x=iMinX)
+                var A = new Vector2(iMinX,         zC - halfZ);
+                var B = new Vector2(iMinX + halfX, zC - qtrZ);
+                var C = new Vector2(iMinX + halfX, zC + qtrZ);
+                var D = new Vector2(iMinX,         zC + halfZ);
+                // Top face A→B→C→D is CCW from +Y
+                AddQuad(st, V(A,h), V(B,h), V(C,h), V(D,h));
+                // Walls following the CCW top-face order; skip D→A (inner W wall)
+                AddWallEdge(st, A, B, h);
+                AddWallEdge(st, B, C, h);
+                AddWallEdge(st, C, D, h);
+            }
+            else
+            {
+                // Even row → right parallelogram (ghost-hex left-half at x=iMaxX)
+                var A = new Vector2(iMaxX,         zC - halfZ);
+                var B = new Vector2(iMaxX - halfX, zC - qtrZ);
+                var C = new Vector2(iMaxX - halfX, zC + qtrZ);
+                var D = new Vector2(iMaxX,         zC + halfZ);
+                // Top face D→C→B→A is CCW from +Y (mirrored winding)
+                AddQuad(st, V(D,h), V(C,h), V(B,h), V(A,h));
+                // Walls in reversed order; skip A→D (inner E wall)
+                AddWallEdge(st, D, C, h);
+                AddWallEdge(st, C, B, h);
+                AddWallEdge(st, B, A, h);
+            }
+        }
+
+        // ── Top edge fills: triangles between hex tips (row 0, always even) ──
+        // Left corner triangle
+        {
+            var P0 = new Vector2(iMinX,         iMinZ);
+            var P1 = new Vector2(iMinX + halfX, iMinZ);
+            var P2 = new Vector2(iMinX,         iMinZ + qtrZ);
+            AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+            // Skip P0→P1 (inner N wall), skip P2→P0 (inner W wall)
+            AddWallEdge(st, P1, P2, h);
+        }
+        // Valley triangles between adjacent top tips
+        for (int c = 0; c < _gridWidth - 1; c++)
+        {
+            float cx   = c * colStep;
+            var   P0   = new Vector2(cx,            iMinZ);
+            var   P1   = new Vector2(cx + halfX,    iMinZ + qtrZ);
+            var   P2   = new Vector2(cx + colStep,  iMinZ);
+            // Emit P0,P2,P1 for CCW from +Y (P1/P2 order reversed vs default)
+            AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+            // Skip P0→P2 (inner N wall)
+            AddWallEdge(st, P2, P1, h);
+            AddWallEdge(st, P1, P0, h);
+        }
+        // Right corner triangle
+        {
+            float lastX = (_gridWidth - 1) * colStep;
+            var P0 = new Vector2(lastX,        iMinZ);
+            var P1 = new Vector2(iMaxX,        iMinZ);
+            var P2 = new Vector2(iMaxX - halfX, iMinZ + qtrZ);
+            AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+            // Skip P0→P1 (inner N wall)
+            AddWallEdge(st, P1, P2, h);
+            AddWallEdge(st, P2, P0, h);
+        }
+
+        // ── Bottom edge fills ─────────────────────────────────────────────────
+        int  lastRow    = _gridHeight - 1;
+        bool lastRowOdd = (lastRow & 1) == 1;
+
+        if (!lastRowOdd)
+        {
+            // Even last row: hex tips at x = c * colStep
+            // Left corner
+            {
+                var P0 = new Vector2(iMinX,         iMaxZ);
+                var P1 = new Vector2(iMinX + halfX, iMaxZ);
+                var P2 = new Vector2(iMinX,         iMaxZ - qtrZ);
+                // Emit P0,P2,P1 for CCW from +Y
+                AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+                // Skip P0→P2 (inner W wall), skip P1→P0 (inner S wall)
+                AddWallEdge(st, P2, P1, h);
+            }
+            // Valley triangles
+            for (int c = 0; c < _gridWidth - 1; c++)
+            {
+                float cx = c * colStep;
+                var P0   = new Vector2(cx,           iMaxZ);
+                var P1   = new Vector2(cx + halfX,   iMaxZ - qtrZ);
+                var P2   = new Vector2(cx + colStep, iMaxZ);
+                AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+                // Skip P2→P0 (inner S wall)
+                AddWallEdge(st, P0, P1, h);
+                AddWallEdge(st, P1, P2, h);
+            }
+            // Right corner
+            {
+                float lastX = (_gridWidth - 1) * colStep;
+                var P0 = new Vector2(lastX,         iMaxZ);
+                var P1 = new Vector2(iMaxX,         iMaxZ);
+                var P2 = new Vector2(iMaxX - halfX, iMaxZ - qtrZ);
+                // Emit P0,P2,P1 for CCW from +Y
+                AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+                // Skip P1→P0 (inner S wall)
+                AddWallEdge(st, P0, P2, h);
+                AddWallEdge(st, P2, P1, h);
             }
         }
         else
         {
-            // Column centres are spaced 1.5 * hexSize apart in X.
-            float colStepX = _hexSize * 1.5f;
-            for (int col = 0; col < _gridWidth; col++)
+            // Odd last row: hex tips at x = c * colStep + halfX
+            // Left corner (fills from iMinX to the first tip at x=halfX)
             {
-                float xC  = colStepX * col;
-                float xLo = Mathf.Max(xC - halfX, iMinX);
-                float xHi = Mathf.Min(xC + halfX, iMaxX);
+                var P0 = new Vector2(iMinX,          iMaxZ);
+                var P1 = new Vector2(iMinX + 2*halfX, iMaxZ);   // = halfX, first tip
+                var P2 = new Vector2(iMinX + halfX,   iMaxZ - qtrZ); // col-0 bottom-left corner
+                // Emit P0,P2,P1 for CCW from +Y
+                AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+                // Skip P1→P0 (inner S wall)
+                AddWallEdge(st, P0, P2, h);
+                AddWallEdge(st, P2, P1, h);
+            }
+            // Valley triangles
+            for (int c = 0; c < _gridWidth - 1; c++)
+            {
+                float cx = c * colStep + halfX;       // odd-row tip x for col c
+                var P0   = new Vector2(cx,            iMaxZ);
+                var P1   = new Vector2(cx + halfX,    iMaxZ - qtrZ); // shared corner
+                var P2   = new Vector2(cx + colStep,  iMaxZ);         // next tip
+                AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+                // Skip P2→P0 (inner S wall)
+                AddWallEdge(st, P0, P1, h);
+                AddWallEdge(st, P1, P2, h);
+            }
+            // Right corner (last tip IS at iMaxX-halfX; small triangle to inner-E+S corner)
+            {
+                float lastTipX = (_gridWidth - 1) * colStep + halfX; // = iMaxX - halfX
+                var P0 = new Vector2(lastTipX, iMaxZ);
+                var P1 = new Vector2(iMaxX,    iMaxZ - qtrZ); // bottom-right hex corner
+                var P2 = new Vector2(iMaxX,    iMaxZ);         // inner E+S corner
+                AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+                // Skip P1→P2 (inner E wall), skip P2→P0 (inner S wall)
+                AddWallEdge(st, P0, P1, h);
+            }
+        }
+    }
 
-                if ((col & 1) == 1)
-                {
-                    // Odd col – gap on the TOP  (iMinZ … iMinZ+halfZ)
-                    AddTopQuad(st, xLo, iMinZ, xHi, iMinZ + halfZ, height);
-                    // Step wall at z = iMinZ+halfZ, faces –Z (visible from inside the gap)
-                    AddQuad(st,
-                        new Vector3(xHi, height, iMinZ + halfZ),
-                        new Vector3(xLo, height, iMinZ + halfZ),
-                        new Vector3(xLo, 0f,     iMinZ + halfZ),
-                        new Vector3(xHi, 0f,     iMinZ + halfZ));
-                }
-                else
-                {
-                    // Even col – gap on the BOTTOM  (iMaxZ-halfZ … iMaxZ)
-                    AddTopQuad(st, xLo, iMaxZ - halfZ, xHi, iMaxZ, height);
-                    // Step wall at z = iMaxZ-halfZ, faces +Z (visible from inside the gap)
-                    AddQuad(st,
-                        new Vector3(xLo, height, iMaxZ - halfZ),
-                        new Vector3(xHi, height, iMaxZ - halfZ),
-                        new Vector3(xHi, 0f,     iMaxZ - halfZ),
-                        new Vector3(xLo, 0f,     iMaxZ - halfZ));
-                }
+    // ── Flat-top (odd-q offset) fills ────────────────────────────────────────
+
+    private void AddFlatTopPartialHexFills(SurfaceTool st, float h,
+                                            float iMinX, float iMaxX,
+                                            float iMinZ, float iMaxZ,
+                                            float halfX, float halfZ)
+    {
+        float qtrX    = halfX * 0.5f;
+        float colStep = _hexSize * 1.5f;
+        float rowStep = halfZ * 2f;  // = hexSize * √3
+
+        // ── Top/bottom fills: parallelogram prisms for odd columns ─────────────
+        for (int col = 0; col < _gridWidth; col++)
+        {
+            if ((col & 1) == 0) continue; // only odd columns have a gap
+            float xC = col * colStep;
+
+            // Top parallelogram (between z=iMinZ and the top of odd-col row-0 hex)
+            {
+                var A = new Vector2(xC - halfX, iMinZ);
+                var B = new Vector2(xC - qtrX,  iMinZ + halfZ);
+                var C = new Vector2(xC + qtrX,  iMinZ + halfZ);
+                var D = new Vector2(xC + halfX, iMinZ);
+                // Top face D→C→B→A is CCW from +Y; skip A→D (inner N wall)
+                AddQuad(st, V(D,h), V(C,h), V(B,h), V(A,h));
+                AddWallEdge(st, D, C, h);
+                // Skip C→B (interior face, z=iMinZ+halfZ)
+                AddWallEdge(st, B, A, h);
+            }
+            // Bottom parallelogram (between the bottom of odd-col last-row hex and z=iMaxZ)
+            {
+                var A = new Vector2(xC - halfX, iMaxZ);
+                var B = new Vector2(xC - qtrX,  iMaxZ - halfZ);
+                var C = new Vector2(xC + qtrX,  iMaxZ - halfZ);
+                var D = new Vector2(xC + halfX, iMaxZ);
+                // Top face A→B→C→D is CCW from +Y; skip D→A (inner S wall)
+                AddQuad(st, V(A,h), V(B,h), V(C,h), V(D,h));
+                AddWallEdge(st, A, B, h);
+                // Skip B→C (interior face, z=iMaxZ-halfZ)
+                AddWallEdge(st, C, D, h);
+            }
+        }
+
+        // ── Left edge fills: triangle scallop along col-0 ─────────────────────
+        // Top-left corner
+        {
+            var P0 = new Vector2(iMinX,          iMinZ);
+            var P1 = new Vector2(iMinX + qtrX,   iMinZ);
+            var P2 = new Vector2(iMinX,          iMinZ + halfZ);
+            AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+            // Skip P0→P1 (inner N wall), skip P2→P0 (inner W wall)
+            AddWallEdge(st, P1, P2, h);
+        }
+        // Valley triangles
+        for (int r = 0; r < _gridHeight - 1; r++)
+        {
+            float rz = r * rowStep;
+            var P0   = new Vector2(iMinX,         rz);
+            var P1   = new Vector2(iMinX + qtrX,  rz + halfZ);
+            var P2   = new Vector2(iMinX,         rz + rowStep);
+            AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+            // Skip P2→P0 (inner W wall)
+            AddWallEdge(st, P0, P1, h);
+            AddWallEdge(st, P1, P2, h);
+        }
+        // Bottom-left corner
+        {
+            float lastRZ = (_gridHeight - 1) * rowStep;
+            var P0 = new Vector2(iMinX,          lastRZ);
+            var P1 = new Vector2(iMinX,          iMaxZ);
+            var P2 = new Vector2(iMinX + qtrX,   iMaxZ - halfZ);
+            // Emit P0,P2,P1 for CCW from +Y
+            AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+            // Skip P1→P0 (inner W wall)
+            AddWallEdge(st, P0, P2, h);
+            AddWallEdge(st, P2, P1, h);
+        }
+
+        // ── Right edge fills ──────────────────────────────────────────────────
+        int  lastCol    = _gridWidth - 1;
+        bool lastColOdd = (lastCol & 1) == 1;
+
+        if (!lastColOdd)
+        {
+            // Even last col: right tips at (iMaxX, r*rowStep)
+            // Top-right corner
+            {
+                var P0 = new Vector2(iMaxX,          iMinZ);
+                var P1 = new Vector2(iMaxX - qtrX,   iMinZ);
+                var P2 = new Vector2(iMaxX,          iMinZ + halfZ);
+                // Emit P0,P2,P1 for CCW from +Y
+                AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+                // Skip P0→P2 (inner E wall), skip P1→P0 (inner N wall)
+                AddWallEdge(st, P2, P1, h);
+            }
+            // Valley triangles
+            for (int r = 0; r < _gridHeight - 1; r++)
+            {
+                float rz = r * rowStep;
+                var P0   = new Vector2(iMaxX,         rz);
+                var P1   = new Vector2(iMaxX - qtrX,  rz + halfZ);
+                var P2   = new Vector2(iMaxX,         rz + rowStep);
+                // Emit P0,P2,P1 for CCW from +Y (mirrored vs left-edge valleys)
+                AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+                // Skip P0→P2 (inner E wall)
+                AddWallEdge(st, P2, P1, h);
+                AddWallEdge(st, P1, P0, h);
+            }
+            // Bottom-right corner
+            {
+                float lastRZ = (_gridHeight - 1) * rowStep;
+                var P0 = new Vector2(iMaxX,          lastRZ);
+                var P1 = new Vector2(iMaxX,          iMaxZ);
+                var P2 = new Vector2(iMaxX - qtrX,   iMaxZ - halfZ);
+                AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+                // Skip P0→P1 (inner E wall)
+                AddWallEdge(st, P1, P2, h);
+                AddWallEdge(st, P2, P0, h);
+            }
+        }
+        else
+        {
+            // Odd last col: right tips at (iMaxX, r*rowStep + halfZ)
+            // Top-right corner
+            {
+                float firstTipZ = halfZ; // = iMinZ + halfZ
+                var P0 = new Vector2(iMaxX,          iMinZ);
+                var P1 = new Vector2(iMaxX,          firstTipZ);
+                var P2 = new Vector2(iMaxX - qtrX,   iMinZ);
+                AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+                // Skip P0→P1 (inner E wall), skip P2→P0 (inner N wall)
+                AddWallEdge(st, P1, P2, h);
+            }
+            // Valley triangles
+            for (int r = 0; r < _gridHeight - 1; r++)
+            {
+                float rz = r * rowStep + halfZ; // odd-col tip z
+                var P0   = new Vector2(iMaxX,         rz);
+                var P1   = new Vector2(iMaxX - qtrX,  rz + halfZ);
+                var P2   = new Vector2(iMaxX,         rz + rowStep);
+                // Emit P0,P2,P1 for CCW from +Y
+                AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+                // Skip P0→P2 (inner E wall)
+                AddWallEdge(st, P2, P1, h);
+                AddWallEdge(st, P1, P0, h);
+            }
+            // Bottom-right corner
+            {
+                float lastTipZ = (_gridHeight - 1) * rowStep + halfZ; // = iMaxZ - halfZ
+                var P0 = new Vector2(iMaxX,          lastTipZ);
+                var P1 = new Vector2(iMaxX,          iMaxZ);
+                var P2 = new Vector2(iMaxX - qtrX,   iMaxZ);
+                AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+                // Skip P0→P1 (inner E wall), skip P1→P2 (inner S wall)
+                AddWallEdge(st, P2, P0, h);
             }
         }
     }
@@ -538,6 +787,28 @@ public partial class HexGrid3D : Node3D
         st.AddVertex(a); st.AddVertex(b); st.AddVertex(c);
         st.AddVertex(a); st.AddVertex(c); st.AddVertex(d);
     }
+
+    /// <summary>Emits a single triangle (a, b, c).</summary>
+    private static void AddTri(SurfaceTool st, Vector3 a, Vector3 b, Vector3 c)
+    {
+        st.AddVertex(a); st.AddVertex(b); st.AddVertex(c);
+    }
+
+    /// <summary>
+    /// Emits a vertical wall quad for the edge a→b extruded from y=h down to y=0.
+    /// The normal faces LEFT of the directed edge a→b (Godot winding convention).
+    /// </summary>
+    private static void AddWallEdge(SurfaceTool st, Vector2 a, Vector2 b, float h)
+    {
+        AddQuad(st,
+            new Vector3(a.X, h,  a.Y),
+            new Vector3(b.X, h,  b.Y),
+            new Vector3(b.X, 0f, b.Y),
+            new Vector3(a.X, 0f, a.Y));
+    }
+
+    /// <summary>Lifts a 2-D XZ point to a 3-D position at the given Y height.</summary>
+    private static Vector3 V(Vector2 p, float y) => new Vector3(p.X, y, p.Y);
 
     // ── Public API ────────────────────────────────────────────────────────────
     /// <summary>Place a tile scene at the given axial coordinate.</summary>
