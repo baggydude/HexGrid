@@ -295,18 +295,25 @@ public partial class HexGrid3D : Node3D
     private void UpdateBorderMaterial()
     {
         if (_borderMeshInstance == null) return;
-        if (_borderMaterial != null)
+        if (_borderMaterial is BaseMaterial3D baseMat)
         {
+            // Duplicate so we don't mutate the user's asset, then force double-sided.
+            var copy = (BaseMaterial3D)baseMat.Duplicate();
+            copy.CullMode = BaseMaterial3D.CullModeEnum.Disabled;
+            _borderMeshInstance.MaterialOverride = copy;
+        }
+        else if (_borderMaterial != null)
+        {
+            // ShaderMaterial: user is responsible for cull mode in their shader.
             _borderMeshInstance.MaterialOverride = _borderMaterial;
         }
         else
         {
-            var defaultMat = new StandardMaterial3D
+            _borderMeshInstance.MaterialOverride = new StandardMaterial3D
             {
                 ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
                 CullMode    = BaseMaterial3D.CullModeEnum.Disabled,
             };
-            _borderMeshInstance.MaterialOverride = defaultMat;
         }
     }
 
@@ -325,7 +332,6 @@ public partial class HexGrid3D : Node3D
         var st = new SurfaceTool();
         st.Begin(Mesh.PrimitiveType.Triangles);
         AddRectangularFrame(st, _borderHeight);
-        st.GenerateNormals();
         _borderMeshInstance.Mesh = st.Commit();
         UpdateBorderMaterial();
         _borderMeshInstance.Visible = true;
@@ -391,56 +397,16 @@ public partial class HexGrid3D : Node3D
         AddTopQuad(st, iMaxX, iMaxZ, oMaxX, oMaxZ, h);
 
         // --- Outer walls (normals face outward) ---
-        // N wall faces -Z
-        AddQuad(st,
-            new Vector3(oMaxX, h,   oMinZ),
-            new Vector3(oMinX, h,   oMinZ),
-            new Vector3(oMinX, 0f,  oMinZ),
-            new Vector3(oMaxX, 0f,  oMinZ));
-        // S wall faces +Z
-        AddQuad(st,
-            new Vector3(oMinX, h,   oMaxZ),
-            new Vector3(oMaxX, h,   oMaxZ),
-            new Vector3(oMaxX, 0f,  oMaxZ),
-            new Vector3(oMinX, 0f,  oMaxZ));
-        // W wall faces -X
-        AddQuad(st,
-            new Vector3(oMinX, h,   oMinZ),
-            new Vector3(oMinX, h,   oMaxZ),
-            new Vector3(oMinX, 0f,  oMaxZ),
-            new Vector3(oMinX, 0f,  oMinZ));
-        // E wall faces +X
-        AddQuad(st,
-            new Vector3(oMaxX, h,   oMaxZ),
-            new Vector3(oMaxX, h,   oMinZ),
-            new Vector3(oMaxX, 0f,  oMinZ),
-            new Vector3(oMaxX, 0f,  oMaxZ));
+        AddWallEdge(st, new Vector2(oMaxX, oMinZ), new Vector2(oMinX, oMinZ), h); // N  (-Z)
+        AddWallEdge(st, new Vector2(oMinX, oMaxZ), new Vector2(oMaxX, oMaxZ), h); // S  (+Z)
+        AddWallEdge(st, new Vector2(oMinX, oMinZ), new Vector2(oMinX, oMaxZ), h); // W  (-X)
+        AddWallEdge(st, new Vector2(oMaxX, oMaxZ), new Vector2(oMaxX, oMinZ), h); // E  (+X)
 
         // --- Inner walls (normals face inward toward grid) ---
-        // N inner faces +Z
-        AddQuad(st,
-            new Vector3(iMinX, h,   iMinZ),
-            new Vector3(iMaxX, h,   iMinZ),
-            new Vector3(iMaxX, 0f,  iMinZ),
-            new Vector3(iMinX, 0f,  iMinZ));
-        // S inner faces -Z
-        AddQuad(st,
-            new Vector3(iMaxX, h,   iMaxZ),
-            new Vector3(iMinX, h,   iMaxZ),
-            new Vector3(iMinX, 0f,  iMaxZ),
-            new Vector3(iMaxX, 0f,  iMaxZ));
-        // W inner faces +X
-        AddQuad(st,
-            new Vector3(iMinX, h,   iMaxZ),
-            new Vector3(iMinX, h,   iMinZ),
-            new Vector3(iMinX, 0f,  iMinZ),
-            new Vector3(iMinX, 0f,  iMaxZ));
-        // E inner faces -X
-        AddQuad(st,
-            new Vector3(iMaxX, h,   iMinZ),
-            new Vector3(iMaxX, h,   iMaxZ),
-            new Vector3(iMaxX, 0f,  iMaxZ),
-            new Vector3(iMaxX, 0f,  iMinZ));
+        AddWallEdge(st, new Vector2(iMinX, iMinZ), new Vector2(iMaxX, iMinZ), h); // N  (+Z)
+        AddWallEdge(st, new Vector2(iMaxX, iMaxZ), new Vector2(iMinX, iMaxZ), h); // S  (-Z)
+        AddWallEdge(st, new Vector2(iMinX, iMaxZ), new Vector2(iMinX, iMinZ), h); // W  (+X)
+        AddWallEdge(st, new Vector2(iMaxX, iMinZ), new Vector2(iMaxX, iMaxZ), h); // E  (-X)
 
         // --- Gap fills: partial-hex shapes that square off the hex silhouette ---
         AddPartialHexFills(st, h, iMinX, iMaxX, iMinZ, iMaxZ, halfX, halfZ);
@@ -485,7 +451,7 @@ public partial class HexGrid3D : Node3D
                 var C = new Vector2(iMinX + halfX, zC + qtrZ);
                 var D = new Vector2(iMinX,         zC + halfZ);
                 // Top face A→B→C→D is CCW from +Y
-                AddQuad(st, V(A,h), V(B,h), V(C,h), V(D,h));
+                AddTopFaceQuad(st, V(A,h), V(B,h), V(C,h), V(D,h));
                 // Walls following the CCW top-face order; skip D→A (inner W wall)
                 AddWallEdge(st, A, B, h);
                 AddWallEdge(st, B, C, h);
@@ -499,7 +465,7 @@ public partial class HexGrid3D : Node3D
                 var C = new Vector2(iMaxX - halfX, zC + qtrZ);
                 var D = new Vector2(iMaxX,         zC + halfZ);
                 // Top face D→C→B→A is CCW from +Y (mirrored winding)
-                AddQuad(st, V(D,h), V(C,h), V(B,h), V(A,h));
+                AddTopFaceQuad(st, V(D,h), V(C,h), V(B,h), V(A,h));
                 // Walls in reversed order; skip A→D (inner E wall)
                 AddWallEdge(st, D, C, h);
                 AddWallEdge(st, C, B, h);
@@ -513,7 +479,7 @@ public partial class HexGrid3D : Node3D
             var P0 = new Vector2(iMinX,         iMinZ);
             var P1 = new Vector2(iMinX + halfX, iMinZ);
             var P2 = new Vector2(iMinX,         iMinZ + qtrZ);
-            AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+            AddTopTri(st, V(P0,h), V(P1,h), V(P2,h));
             // Skip P0→P1 (inner N wall), skip P2→P0 (inner W wall)
             AddWallEdge(st, P1, P2, h);
         }
@@ -525,7 +491,7 @@ public partial class HexGrid3D : Node3D
             var   P1   = new Vector2(cx + halfX,    iMinZ + qtrZ);
             var   P2   = new Vector2(cx + colStep,  iMinZ);
             // Emit P0,P2,P1 for CCW from +Y (P1/P2 order reversed vs default)
-            AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+            AddTopTri(st, V(P0,h), V(P2,h), V(P1,h));
             // Skip P0→P2 (inner N wall)
             AddWallEdge(st, P2, P1, h);
             AddWallEdge(st, P1, P0, h);
@@ -536,7 +502,7 @@ public partial class HexGrid3D : Node3D
             var P0 = new Vector2(lastX,        iMinZ);
             var P1 = new Vector2(iMaxX,        iMinZ);
             var P2 = new Vector2(iMaxX - halfX, iMinZ + qtrZ);
-            AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+            AddTopTri(st, V(P0,h), V(P1,h), V(P2,h));
             // Skip P0→P1 (inner N wall)
             AddWallEdge(st, P1, P2, h);
             AddWallEdge(st, P2, P0, h);
@@ -555,7 +521,7 @@ public partial class HexGrid3D : Node3D
                 var P1 = new Vector2(iMinX + halfX, iMaxZ);
                 var P2 = new Vector2(iMinX,         iMaxZ - qtrZ);
                 // Emit P0,P2,P1 for CCW from +Y
-                AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+                AddTopTri(st, V(P0,h), V(P2,h), V(P1,h));
                 // Skip P0→P2 (inner W wall), skip P1→P0 (inner S wall)
                 AddWallEdge(st, P2, P1, h);
             }
@@ -566,7 +532,7 @@ public partial class HexGrid3D : Node3D
                 var P0   = new Vector2(cx,           iMaxZ);
                 var P1   = new Vector2(cx + halfX,   iMaxZ - qtrZ);
                 var P2   = new Vector2(cx + colStep, iMaxZ);
-                AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+                AddTopTri(st, V(P0,h), V(P1,h), V(P2,h));
                 // Skip P2→P0 (inner S wall)
                 AddWallEdge(st, P0, P1, h);
                 AddWallEdge(st, P1, P2, h);
@@ -578,7 +544,7 @@ public partial class HexGrid3D : Node3D
                 var P1 = new Vector2(iMaxX,         iMaxZ);
                 var P2 = new Vector2(iMaxX - halfX, iMaxZ - qtrZ);
                 // Emit P0,P2,P1 for CCW from +Y
-                AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+                AddTopTri(st, V(P0,h), V(P2,h), V(P1,h));
                 // Skip P1→P0 (inner S wall)
                 AddWallEdge(st, P0, P2, h);
                 AddWallEdge(st, P2, P1, h);
@@ -593,7 +559,7 @@ public partial class HexGrid3D : Node3D
                 var P1 = new Vector2(iMinX + 2*halfX, iMaxZ);   // = halfX, first tip
                 var P2 = new Vector2(iMinX + halfX,   iMaxZ - qtrZ); // col-0 bottom-left corner
                 // Emit P0,P2,P1 for CCW from +Y
-                AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+                AddTopTri(st, V(P0,h), V(P2,h), V(P1,h));
                 // Skip P1→P0 (inner S wall)
                 AddWallEdge(st, P0, P2, h);
                 AddWallEdge(st, P2, P1, h);
@@ -605,7 +571,7 @@ public partial class HexGrid3D : Node3D
                 var P0   = new Vector2(cx,            iMaxZ);
                 var P1   = new Vector2(cx + halfX,    iMaxZ - qtrZ); // shared corner
                 var P2   = new Vector2(cx + colStep,  iMaxZ);         // next tip
-                AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+                AddTopTri(st, V(P0,h), V(P1,h), V(P2,h));
                 // Skip P2→P0 (inner S wall)
                 AddWallEdge(st, P0, P1, h);
                 AddWallEdge(st, P1, P2, h);
@@ -616,7 +582,7 @@ public partial class HexGrid3D : Node3D
                 var P0 = new Vector2(lastTipX, iMaxZ);
                 var P1 = new Vector2(iMaxX,    iMaxZ - qtrZ); // bottom-right hex corner
                 var P2 = new Vector2(iMaxX,    iMaxZ);         // inner E+S corner
-                AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+                AddTopTri(st, V(P0,h), V(P1,h), V(P2,h));
                 // Skip P1→P2 (inner E wall), skip P2→P0 (inner S wall)
                 AddWallEdge(st, P0, P1, h);
             }
@@ -647,7 +613,7 @@ public partial class HexGrid3D : Node3D
                 var C = new Vector2(xC + qtrX,  iMinZ + halfZ);
                 var D = new Vector2(xC + halfX, iMinZ);
                 // Top face D→C→B→A is CCW from +Y; skip A→D (inner N wall)
-                AddQuad(st, V(D,h), V(C,h), V(B,h), V(A,h));
+                AddTopFaceQuad(st, V(D,h), V(C,h), V(B,h), V(A,h));
                 AddWallEdge(st, D, C, h);
                 // Skip C→B (interior face, z=iMinZ+halfZ)
                 AddWallEdge(st, B, A, h);
@@ -659,7 +625,7 @@ public partial class HexGrid3D : Node3D
                 var C = new Vector2(xC + qtrX,  iMaxZ - halfZ);
                 var D = new Vector2(xC + halfX, iMaxZ);
                 // Top face A→B→C→D is CCW from +Y; skip D→A (inner S wall)
-                AddQuad(st, V(A,h), V(B,h), V(C,h), V(D,h));
+                AddTopFaceQuad(st, V(A,h), V(B,h), V(C,h), V(D,h));
                 AddWallEdge(st, A, B, h);
                 // Skip B→C (interior face, z=iMaxZ-halfZ)
                 AddWallEdge(st, C, D, h);
@@ -672,7 +638,7 @@ public partial class HexGrid3D : Node3D
             var P0 = new Vector2(iMinX,          iMinZ);
             var P1 = new Vector2(iMinX + qtrX,   iMinZ);
             var P2 = new Vector2(iMinX,          iMinZ + halfZ);
-            AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+            AddTopTri(st, V(P0,h), V(P1,h), V(P2,h));
             // Skip P0→P1 (inner N wall), skip P2→P0 (inner W wall)
             AddWallEdge(st, P1, P2, h);
         }
@@ -683,7 +649,7 @@ public partial class HexGrid3D : Node3D
             var P0   = new Vector2(iMinX,         rz);
             var P1   = new Vector2(iMinX + qtrX,  rz + halfZ);
             var P2   = new Vector2(iMinX,         rz + rowStep);
-            AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+            AddTopTri(st, V(P0,h), V(P1,h), V(P2,h));
             // Skip P2→P0 (inner W wall)
             AddWallEdge(st, P0, P1, h);
             AddWallEdge(st, P1, P2, h);
@@ -695,7 +661,7 @@ public partial class HexGrid3D : Node3D
             var P1 = new Vector2(iMinX,          iMaxZ);
             var P2 = new Vector2(iMinX + qtrX,   iMaxZ - halfZ);
             // Emit P0,P2,P1 for CCW from +Y
-            AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+            AddTopTri(st, V(P0,h), V(P2,h), V(P1,h));
             // Skip P1→P0 (inner W wall)
             AddWallEdge(st, P0, P2, h);
             AddWallEdge(st, P2, P1, h);
@@ -714,7 +680,7 @@ public partial class HexGrid3D : Node3D
                 var P1 = new Vector2(iMaxX - qtrX,   iMinZ);
                 var P2 = new Vector2(iMaxX,          iMinZ + halfZ);
                 // Emit P0,P2,P1 for CCW from +Y
-                AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+                AddTopTri(st, V(P0,h), V(P2,h), V(P1,h));
                 // Skip P0→P2 (inner E wall), skip P1→P0 (inner N wall)
                 AddWallEdge(st, P2, P1, h);
             }
@@ -726,7 +692,7 @@ public partial class HexGrid3D : Node3D
                 var P1   = new Vector2(iMaxX - qtrX,  rz + halfZ);
                 var P2   = new Vector2(iMaxX,         rz + rowStep);
                 // Emit P0,P2,P1 for CCW from +Y (mirrored vs left-edge valleys)
-                AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+                AddTopTri(st, V(P0,h), V(P2,h), V(P1,h));
                 // Skip P0→P2 (inner E wall)
                 AddWallEdge(st, P2, P1, h);
                 AddWallEdge(st, P1, P0, h);
@@ -737,7 +703,7 @@ public partial class HexGrid3D : Node3D
                 var P0 = new Vector2(iMaxX,          lastRZ);
                 var P1 = new Vector2(iMaxX,          iMaxZ);
                 var P2 = new Vector2(iMaxX - qtrX,   iMaxZ - halfZ);
-                AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+                AddTopTri(st, V(P0,h), V(P1,h), V(P2,h));
                 // Skip P0→P1 (inner E wall)
                 AddWallEdge(st, P1, P2, h);
                 AddWallEdge(st, P2, P0, h);
@@ -752,7 +718,7 @@ public partial class HexGrid3D : Node3D
                 var P0 = new Vector2(iMaxX,          iMinZ);
                 var P1 = new Vector2(iMaxX,          firstTipZ);
                 var P2 = new Vector2(iMaxX - qtrX,   iMinZ);
-                AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+                AddTopTri(st, V(P0,h), V(P1,h), V(P2,h));
                 // Skip P0→P1 (inner E wall), skip P2→P0 (inner N wall)
                 AddWallEdge(st, P1, P2, h);
             }
@@ -764,7 +730,7 @@ public partial class HexGrid3D : Node3D
                 var P1   = new Vector2(iMaxX - qtrX,  rz + halfZ);
                 var P2   = new Vector2(iMaxX,         rz + rowStep);
                 // Emit P0,P2,P1 for CCW from +Y
-                AddTri(st, V(P0,h), V(P2,h), V(P1,h));
+                AddTopTri(st, V(P0,h), V(P2,h), V(P1,h));
                 // Skip P0→P2 (inner E wall)
                 AddWallEdge(st, P2, P1, h);
                 AddWallEdge(st, P1, P0, h);
@@ -775,7 +741,7 @@ public partial class HexGrid3D : Node3D
                 var P0 = new Vector2(iMaxX,          lastTipZ);
                 var P1 = new Vector2(iMaxX,          iMaxZ);
                 var P2 = new Vector2(iMaxX - qtrX,   iMaxZ);
-                AddTri(st, V(P0,h), V(P1,h), V(P2,h));
+                AddTopTri(st, V(P0,h), V(P1,h), V(P2,h));
                 // Skip P0→P1 (inner E wall), skip P1→P2 (inner S wall)
                 AddWallEdge(st, P2, P0, h);
             }
@@ -785,38 +751,54 @@ public partial class HexGrid3D : Node3D
     /// <summary>Horizontal quad at Y=h over the rectangle (x1,z1)→(x2,z2), normal pointing up.</summary>
     private static void AddTopQuad(SurfaceTool st, float x1, float z1, float x2, float z2, float h)
     {
-        // CCW winding when viewed from +Y → normal = +Y
-        AddQuad(st,
-            new Vector3(x1, h, z1),
-            new Vector3(x2, h, z1),
-            new Vector3(x2, h, z2),
-            new Vector3(x1, h, z2));
+        var n = Vector3.Up;
+        st.SetNormal(n); st.AddVertex(new Vector3(x1, h, z1));
+        st.SetNormal(n); st.AddVertex(new Vector3(x2, h, z1));
+        st.SetNormal(n); st.AddVertex(new Vector3(x2, h, z2));
+        st.SetNormal(n); st.AddVertex(new Vector3(x1, h, z1));
+        st.SetNormal(n); st.AddVertex(new Vector3(x2, h, z2));
+        st.SetNormal(n); st.AddVertex(new Vector3(x1, h, z2));
     }
 
-    /// <summary>Emits two triangles (a, b, c) and (a, c, d) forming a quad.</summary>
-    private static void AddQuad(SurfaceTool st, Vector3 a, Vector3 b, Vector3 c, Vector3 d)
+    /// <summary>Emits a top-face quad (a,b,c,d) with normal = +Y.</summary>
+    private static void AddTopFaceQuad(SurfaceTool st, Vector3 a, Vector3 b, Vector3 c, Vector3 d)
     {
-        st.AddVertex(a); st.AddVertex(b); st.AddVertex(c);
-        st.AddVertex(a); st.AddVertex(c); st.AddVertex(d);
+        var n = Vector3.Up;
+        st.SetNormal(n); st.AddVertex(a);
+        st.SetNormal(n); st.AddVertex(b);
+        st.SetNormal(n); st.AddVertex(c);
+        st.SetNormal(n); st.AddVertex(a);
+        st.SetNormal(n); st.AddVertex(c);
+        st.SetNormal(n); st.AddVertex(d);
     }
 
-    /// <summary>Emits a single triangle (a, b, c).</summary>
-    private static void AddTri(SurfaceTool st, Vector3 a, Vector3 b, Vector3 c)
+    /// <summary>Emits a top-face triangle (a, b, c) with normal = +Y.</summary>
+    private static void AddTopTri(SurfaceTool st, Vector3 a, Vector3 b, Vector3 c)
     {
-        st.AddVertex(a); st.AddVertex(b); st.AddVertex(c);
+        var n = Vector3.Up;
+        st.SetNormal(n); st.AddVertex(a);
+        st.SetNormal(n); st.AddVertex(b);
+        st.SetNormal(n); st.AddVertex(c);
     }
 
     /// <summary>
     /// Emits a vertical wall quad for the edge a→b extruded from y=h down to y=0.
-    /// The normal faces LEFT of the directed edge a→b (Godot winding convention).
+    /// The normal faces LEFT of the directed edge a→b in XZ.
     /// </summary>
     private static void AddWallEdge(SurfaceTool st, Vector2 a, Vector2 b, float h)
     {
-        AddQuad(st,
-            new Vector3(a.X, h,  a.Y),
-            new Vector3(b.X, h,  b.Y),
-            new Vector3(b.X, 0f, b.Y),
-            new Vector3(a.X, 0f, a.Y));
+        var d = (b - a).Normalized();
+        var n = new Vector3(-d.Y, 0f, d.X); // left perpendicular of a→b in XZ
+        var topA = new Vector3(a.X, h,  a.Y);
+        var topB = new Vector3(b.X, h,  b.Y);
+        var botA = new Vector3(a.X, 0f, a.Y);
+        var botB = new Vector3(b.X, 0f, b.Y);
+        st.SetNormal(n); st.AddVertex(topA);
+        st.SetNormal(n); st.AddVertex(topB);
+        st.SetNormal(n); st.AddVertex(botB);
+        st.SetNormal(n); st.AddVertex(topA);
+        st.SetNormal(n); st.AddVertex(botB);
+        st.SetNormal(n); st.AddVertex(botA);
     }
 
     /// <summary>Lifts a 2-D XZ point to a 3-D position at the given Y height.</summary>

@@ -160,10 +160,6 @@ public partial class HexGridEditorPlugin : EditorPlugin
                     if (HandlePick(viewportCamera, mouseBtn.Position))
                         return 1;
                 }
-                else if (mouseBtn.ShiftPressed)
-                {
-                    _toolbar.SetTool(HexGridEditorToolbar.ToolMode.Erase);
-                }
 
                 if (HandlePaint(viewportCamera, mouseBtn.Position))
                     return 1;
