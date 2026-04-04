@@ -332,7 +332,12 @@ public partial class HexGridEditorPlugin : EditorPlugin
     }
 
     // ── Toolbar signal callbacks ───────────────────────────────────────────────
-    private void OnTileSelected(string _scenePath) => RebuildGhostPreview();
+    private void OnTileSelected(string _scenePath)
+    {
+        // Selecting a tile from the palette switches back to Paint mode.
+        _toolbar.SetTool(HexGridEditorToolbar.ToolMode.Paint);
+        RebuildGhostPreview();
+    }
 
     private void OnToolChanged(HexGridEditorToolbar.ToolMode toolMode)
     {
