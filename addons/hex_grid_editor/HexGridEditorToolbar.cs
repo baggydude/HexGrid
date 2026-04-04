@@ -20,7 +20,7 @@ public partial class HexGridEditorToolbar : VBoxContainer
     public enum ToolMode { Paint, Erase }
 
     public const float HeightMin  = 1f;
-    public const float HeightMax  = 10f;
+    public const float HeightMax  = 2f;
     public const float HeightStep = 0.25f;
 
     private const int PreviewSizeMin     = 48;

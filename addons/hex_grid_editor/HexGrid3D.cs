@@ -4,11 +4,6 @@ using System.Collections.Generic;
 
 /// <summary>
 /// 3D hex grid node with editor support for painting tile scenes.
-///
-/// PROCEDURAL BASE HEX: Each placed tile gets an auto-generated hex prism that fills from
-/// Y=0 (world floor) up to Y=HeightScale (where the tile scene sits). This means tile scenes
-/// no longer need a "Base" MeshInstance3D child — the gap is filled automatically at any
-/// elevation. The prism material is controlled by the BaseMaterial export.
 /// </summary>
 [Tool]
 [GlobalClass]
@@ -50,7 +45,7 @@ public partial class HexGrid3D : Node3D
     }
 
     private float _hexSize = 1f;
-    [Export(PropertyHint.Range, "0.1,100.0,0.01,suffix:m")]
+    [Export(PropertyHint.Range, "0.1,100.0,0.001,suffix:m")]
     public float HexSize
     {
         get => _hexSize;
@@ -142,17 +137,6 @@ public partial class HexGrid3D : Node3D
         set { _borderMaterial = value; UpdateBorderMaterial(); }
     }
 
-    // ── Base Hex Settings ────────────────────────────────────────────────────
-    [ExportGroup("Base Hex Settings")]
-
-    /// <summary>
-    /// Material applied to the procedurally generated base hex prisms.
-    /// Each placed tile gets a prism from Y=0 to Y=HeightScale automatically.
-    /// Leave null to use Godot's default material.
-    /// </summary>
-    [Export]
-    public Material BaseMaterial { get; set; }
-
     // ── Data & Tile Folder ───────────────────────────────────────────────────
     [ExportGroup("Data")]
 
@@ -186,8 +170,6 @@ public partial class HexGrid3D : Node3D
 
     // Tracks instantiated tile scenes per axial coord
     private readonly System.Collections.Generic.Dictionary<Vector2I, Node3D> _cellInstances = new();
-    // Tracks procedural base prism meshes per axial coord
-    private readonly System.Collections.Generic.Dictionary<Vector2I, MeshInstance3D> _baseInstances = new();
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
     public override void _Ready()
@@ -386,7 +368,7 @@ public partial class HexGrid3D : Node3D
         return border;
     }
 
-    // ── Hex prism geometry (shared by border and base hex) ───────────────────
+    // ── Hex prism geometry (used by border) ──────────────────────────────────
     /// <summary>
     /// Adds a solid hex prism to the SurfaceTool.
     /// Bottom face is at Y=0, top face is at Y=height.
@@ -440,60 +422,6 @@ public partial class HexGrid3D : Node3D
         }
     }
 
-    // ── Procedural base hex ───────────────────────────────────────────────────
-
-    /// <summary>
-    /// Recursively finds the minimum local Y position of any MeshInstance3D in the scene,
-    /// accounting for each node's own Y offset relative to the scene root.
-    /// Used to anchor the base prism top to the actual bottom of the scene's geometry.
-    /// </summary>
-    public static float GetSceneMinLocalY(Node node, float parentOffsetY = 0f)
-    {
-        float minY = 0f;
-        foreach (Node child in node.GetChildren())
-        {
-            float childOffsetY = parentOffsetY;
-            if (child is Node3D n3d) childOffsetY = parentOffsetY + n3d.Position.Y;
-
-            if (child is MeshInstance3D mesh && mesh.Mesh != null)
-            {
-                float bottom = childOffsetY + mesh.GetAabb().Position.Y;
-                if (bottom < minY) minY = bottom;
-            }
-
-            if (child.GetChildCount() > 0)
-            {
-                float childMin = GetSceneMinLocalY(child, childOffsetY);
-                if (childMin < minY) minY = childMin;
-            }
-        }
-        return minY;
-    }
-
-    private void CreateOrUpdateBaseInstance(Vector2I axial, Vector3 worldPos, float prismHeight)
-    {
-        if (_baseInstances.TryGetValue(axial, out var existing))
-        {
-            existing.QueueFree();
-            _baseInstances.Remove(axial);
-        }
-
-        var baseMesh = new MeshInstance3D { Name = $"Base_{axial.X}_{axial.Y}" };
-        _cellContainer.AddChild(baseMesh);
-        if (Engine.IsEditorHint() && GetTree() != null)
-            baseMesh.Owner = GetTree().EditedSceneRoot;
-
-        var st = new SurfaceTool();
-        st.Begin(Mesh.PrimitiveType.Triangles);
-        AddHexPrism(st, new Vector3(worldPos.X, 0f, worldPos.Z), prismHeight);
-        st.GenerateNormals();
-        baseMesh.Mesh = st.Commit();
-
-        if (BaseMaterial != null) baseMesh.MaterialOverride = BaseMaterial;
-
-        _baseInstances[axial] = baseMesh;
-    }
-
     // ── Public API ────────────────────────────────────────────────────────────
     /// <summary>Place a tile scene at the given axial coordinate.</summary>
     public void PlaceTile(Vector2I axialCoord, string scenePath,
@@ -542,12 +470,6 @@ public partial class HexGrid3D : Node3D
             _cellInstances.Remove(axialCoord);
         }
 
-        if (_baseInstances.TryGetValue(axialCoord, out var baseMesh))
-        {
-            baseMesh.QueueFree();
-            _baseInstances.Remove(axialCoord);
-        }
-
         EmitSignal(SignalName.CellChanged, axialCoord);
     }
 
@@ -566,9 +488,6 @@ public partial class HexGrid3D : Node3D
 
         foreach (var cell in _cellInstances.Values) cell.QueueFree();
         _cellInstances.Clear();
-
-        foreach (var b in _baseInstances.Values) b.QueueFree();
-        _baseInstances.Clear();
 
         EmitSignal(SignalName.GridCleared);
     }
@@ -625,16 +544,6 @@ public partial class HexGrid3D : Node3D
         instance.SetMeta("world_position",     worldPos);
         instance.SetMeta("placed_pointy_top",  placedPointyTop);
         instance.SetMeta("height_scale",       heightScale);
-
-        // Procedural base — only when elevated above default height.
-        // Top anchored to the actual bottom of the scene's mesh geometry via AABB scan.
-        if (heightScale > 1.0f)
-        {
-            float sceneBottom = GetSceneMinLocalY(instance);
-            float worldBottom = heightScale + sceneBottom;
-            if (worldBottom > 0.001f)
-                CreateOrUpdateBaseInstance(axialCoord, worldPos, worldBottom);
-        }
     }
 
     private void SyncFromData()
@@ -643,9 +552,6 @@ public partial class HexGrid3D : Node3D
 
         foreach (var cell in _cellInstances.Values) cell.QueueFree();
         _cellInstances.Clear();
-
-        foreach (var b in _baseInstances.Values) b.QueueFree();
-        _baseInstances.Clear();
 
         // Node properties are the source of truth
         _gridData.GridWidth  = _gridWidth;

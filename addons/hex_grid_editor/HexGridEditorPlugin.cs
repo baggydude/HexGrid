@@ -3,10 +3,6 @@ using Godot;
 /// <summary>
 /// Editor plugin for the hex grid — handles the bottom panel toolbar,
 /// mouse/keyboard input in the 3D viewport, ghost tile preview, and undo/redo.
-///
-/// PROCEDURAL BASE PREVIEW: The ghost preview for height now generates its own hex prism
-/// (using the same AddHexPrism method from HexGrid3D) rather than finding a "Base" child
-/// inside the tile scene. This means tile scenes are no longer required to have a "Base" node.
 /// </summary>
 [Tool]
 public partial class HexGridEditorPlugin : EditorPlugin
@@ -19,8 +15,6 @@ public partial class HexGridEditorPlugin : EditorPlugin
 
     // Ghost preview — the tile scene instance following the mouse
     private Node3D _previewInstance;
-    // Procedural base prism for the ghost preview
-    private MeshInstance3D _previewBaseMesh;
 
     // ── Plugin lifecycle ───────────────────────────────────────────────────────
     public override void _EnterTree()
@@ -104,16 +98,6 @@ public partial class HexGridEditorPlugin : EditorPlugin
             _previewInstance.QueueFree();
             _previewInstance = null;
         }
-        CleanupPreviewBase();
-    }
-
-    private void CleanupPreviewBase()
-    {
-        if (_previewBaseMesh != null && IsInstanceValid(_previewBaseMesh))
-        {
-            _previewBaseMesh.QueueFree();
-            _previewBaseMesh = null;
-        }
     }
 
     private void RebuildGhostPreview()
@@ -132,24 +116,6 @@ public partial class HexGridEditorPlugin : EditorPlugin
             _previewInstance.RotationDegrees = new Vector3(0f, oldRot, 0f);
             _previewInstance.Visible = true;
         }
-    }
-
-    private void UpdatePreviewBase(Vector3 worldPos, float heightScale)
-    {
-        CleanupPreviewBase();
-        if (_editedGrid == null) return;
-
-        _previewBaseMesh = new MeshInstance3D { Name = "PreviewBase" };
-        _editedGrid.AddChild(_previewBaseMesh);
-
-        var st = new SurfaceTool();
-        st.Begin(Mesh.PrimitiveType.Triangles);
-        _editedGrid.AddHexPrism(st, new Vector3(worldPos.X, 0f, worldPos.Z), heightScale);
-        st.GenerateNormals();
-        _previewBaseMesh.Mesh = st.Commit();
-
-        if (_editedGrid.BaseMaterial != null)
-            _previewBaseMesh.MaterialOverride = _editedGrid.BaseMaterial;
     }
 
     // ── Viewport input ────────────────────────────────────────────────────────
@@ -340,7 +306,6 @@ public partial class HexGridEditorPlugin : EditorPlugin
             _toolbar.GetTool() != HexGridEditorToolbar.ToolMode.Paint)
         {
             _previewInstance.Visible = false;
-            CleanupPreviewBase();
             return;
         }
 
@@ -351,20 +316,6 @@ public partial class HexGridEditorPlugin : EditorPlugin
 
         _previewInstance.Position = new Vector3(worldPos.X, height, worldPos.Z);
         UpdatePreviewRotation();
-
-        if (height > 1.0f)
-        {
-            float sceneBottom = HexGrid3D.GetSceneMinLocalY(_previewInstance);
-            float worldBottom = height + sceneBottom;
-            if (worldBottom > 0.001f)
-                UpdatePreviewBase(worldPos, worldBottom);
-            else
-                CleanupPreviewBase();
-        }
-        else
-        {
-            CleanupPreviewBase();
-        }
     }
 
     private void UpdatePreviewRotation()
@@ -382,21 +333,6 @@ public partial class HexGridEditorPlugin : EditorPlugin
         _previewInstance.Position = new Vector3(
             _previewInstance.Position.X, height, _previewInstance.Position.Z);
 
-        // Rebuild preview base at current position
-        var worldPos = new Vector3(_previewInstance.Position.X, 0f, _previewInstance.Position.Z);
-        if (height > 1.0f)
-        {
-            float sceneBottom = HexGrid3D.GetSceneMinLocalY(_previewInstance);
-            float worldBottom = height + sceneBottom;
-            if (worldBottom > 0.001f)
-                UpdatePreviewBase(worldPos, worldBottom);
-            else
-                CleanupPreviewBase();
-        }
-        else
-        {
-            CleanupPreviewBase();
-        }
     }
 
     // ── Toolbar signal callbacks ───────────────────────────────────────────────
@@ -406,7 +342,5 @@ public partial class HexGridEditorPlugin : EditorPlugin
     {
         if (_previewInstance != null)
             _previewInstance.Visible = toolMode == HexGridEditorToolbar.ToolMode.Paint;
-        if (toolMode != HexGridEditorToolbar.ToolMode.Paint)
-            CleanupPreviewBase();
     }
 }
