@@ -163,6 +163,12 @@ public partial class HexGridEditorPlugin : EditorPlugin
 
                 if (HandlePaint(viewportCamera, mouseBtn.Position))
                     return 1;
+
+                // Click landed on the grid but did nothing (e.g. erasing an
+                // empty cell) — still consume so the editor doesn't treat it
+                // as a node-deselection click.
+                if (RaycastToGrid(viewportCamera, mouseBtn.Position).Count > 0)
+                    return 1;
             }
             else
             {
