@@ -310,116 +310,143 @@ public partial class HexGrid3D : Node3D
             return;
         }
 
-        var borderPositions = GenerateBorderPositions();
-        if (borderPositions.Count == 0)
-        {
-            _borderMeshInstance.Mesh = null;
-            return;
-        }
-
         var st = new SurfaceTool();
         st.Begin(Mesh.PrimitiveType.Triangles);
-        foreach (var axial in borderPositions)
-        {
-            var center = HexMath.AxialToWorld(axial, _hexSize, _pointyTop);
-            AddHexPrism(st, center, _borderHeight);
-        }
+        AddRectangularFrame(st, _borderHeight);
         st.GenerateNormals();
         _borderMeshInstance.Mesh = st.Commit();
         UpdateBorderMaterial();
         _borderMeshInstance.Visible = true;
     }
 
-    private List<Vector2I> GenerateBorderPositions()
+    // ── Rectangular border geometry ───────────────────────────────────────────
+
+    /// <summary>
+    /// Generates a rectangular frame mesh around the hex grid.
+    /// The inner edge aligns exactly with the outermost hex cell extents;
+    /// the outer edge is 1 hex-cell-spacing further out on each axis.
+    /// The frame is solid from Y=0 up to <paramref name="height"/>.
+    /// </summary>
+    private void AddRectangularFrame(SurfaceTool st, float height)
     {
-        var gridSet = new HashSet<Vector2I>();
-        for (int row = 0; row < _gridHeight; row++)
-            for (int col = 0; col < _gridWidth; col++)
-                gridSet.Add(HexMath.OffsetToAxial(new Vector2I(col, row), _pointyTop));
+        // --- Inner rectangle: outer edge of the grid hex cells ---
+        float halfX = _pointyTop ? _hexSize * Mathf.Sqrt(3f) / 2f : _hexSize;
+        float halfZ = _pointyTop ? _hexSize                        : _hexSize * Mathf.Sqrt(3f) / 2f;
 
-        float minX = float.PositiveInfinity, maxX = float.NegativeInfinity;
-        float minZ = float.PositiveInfinity, maxZ = float.NegativeInfinity;
-        foreach (var axial in gridSet)
+        float minCX = float.PositiveInfinity, maxCX = float.NegativeInfinity;
+        float minCZ = float.PositiveInfinity, maxCZ = float.NegativeInfinity;
+        foreach (var axial in HexMath.GetGridCoords(_gridWidth, _gridHeight, _pointyTop))
         {
-            var pos = HexMath.AxialToWorld(axial, _hexSize, _pointyTop);
-            if (pos.X < minX) minX = pos.X;
-            if (pos.X > maxX) maxX = pos.X;
-            if (pos.Z < minZ) minZ = pos.Z;
-            if (pos.Z > maxZ) maxZ = pos.Z;
+            var p = HexMath.AxialToWorld(axial, _hexSize, _pointyTop);
+            if (p.X < minCX) minCX = p.X;
+            if (p.X > maxCX) maxCX = p.X;
+            if (p.Z < minCZ) minCZ = p.Z;
+            if (p.Z > maxCZ) maxCZ = p.Z;
         }
 
-        float hexWidth  = _pointyTop ? _hexSize * Mathf.Sqrt(3f) : _hexSize * 2f;
-        float hexHeight = _pointyTop ? _hexSize * 2f : _hexSize * Mathf.Sqrt(3f);
-        minX -= hexWidth  * 1.5f; maxX += hexWidth  * 1.5f;
-        minZ -= hexHeight * 1.5f; maxZ += hexHeight * 1.5f;
+        float iMinX = minCX - halfX;
+        float iMaxX = maxCX + halfX;
+        float iMinZ = minCZ - halfZ;
+        float iMaxZ = maxCZ + halfZ;
 
-        var border = new List<Vector2I>();
-        for (int row = -2; row < _gridHeight + 3; row++)
-        {
-            for (int col = -2; col < _gridWidth + 3; col++)
-            {
-                var axial = HexMath.OffsetToAxial(new Vector2I(col, row), _pointyTop);
-                if (gridSet.Contains(axial)) continue;
-                var pos = HexMath.AxialToWorld(axial, _hexSize, _pointyTop);
-                if (pos.X >= minX && pos.X <= maxX && pos.Z >= minZ && pos.Z <= maxZ)
-                    border.Add(axial);
-            }
-        }
-        return border;
+        // --- Outer rectangle: 1 hex-cell-spacing further out ---
+        float thickX = _pointyTop ? _hexSize * Mathf.Sqrt(3f) : _hexSize * 1.5f;
+        float thickZ = _pointyTop ? _hexSize * 1.5f            : _hexSize * Mathf.Sqrt(3f);
+
+        float oMinX = iMinX - thickX;
+        float oMaxX = iMaxX + thickX;
+        float oMinZ = iMinZ - thickZ;
+        float oMaxZ = iMaxZ + thickZ;
+
+        float h = height;
+
+        // --- Top ring (8 quads, normal = +Y) ---
+        // NW corner
+        AddTopQuad(st, oMinX, oMinZ, iMinX, iMinZ, h);
+        // N strip
+        AddTopQuad(st, iMinX, oMinZ, iMaxX, iMinZ, h);
+        // NE corner
+        AddTopQuad(st, iMaxX, oMinZ, oMaxX, iMinZ, h);
+        // W strip
+        AddTopQuad(st, oMinX, iMinZ, iMinX, iMaxZ, h);
+        // E strip
+        AddTopQuad(st, iMaxX, iMinZ, oMaxX, iMaxZ, h);
+        // SW corner
+        AddTopQuad(st, oMinX, iMaxZ, iMinX, oMaxZ, h);
+        // S strip
+        AddTopQuad(st, iMinX, iMaxZ, iMaxX, oMaxZ, h);
+        // SE corner
+        AddTopQuad(st, iMaxX, iMaxZ, oMaxX, oMaxZ, h);
+
+        // --- Outer walls (normals face outward) ---
+        // N wall faces -Z
+        AddQuad(st,
+            new Vector3(oMaxX, h,   oMinZ),
+            new Vector3(oMinX, h,   oMinZ),
+            new Vector3(oMinX, 0f,  oMinZ),
+            new Vector3(oMaxX, 0f,  oMinZ));
+        // S wall faces +Z
+        AddQuad(st,
+            new Vector3(oMinX, h,   oMaxZ),
+            new Vector3(oMaxX, h,   oMaxZ),
+            new Vector3(oMaxX, 0f,  oMaxZ),
+            new Vector3(oMinX, 0f,  oMaxZ));
+        // W wall faces -X
+        AddQuad(st,
+            new Vector3(oMinX, h,   oMinZ),
+            new Vector3(oMinX, h,   oMaxZ),
+            new Vector3(oMinX, 0f,  oMaxZ),
+            new Vector3(oMinX, 0f,  oMinZ));
+        // E wall faces +X
+        AddQuad(st,
+            new Vector3(oMaxX, h,   oMaxZ),
+            new Vector3(oMaxX, h,   oMinZ),
+            new Vector3(oMaxX, 0f,  oMinZ),
+            new Vector3(oMaxX, 0f,  oMaxZ));
+
+        // --- Inner walls (normals face inward toward grid) ---
+        // N inner faces +Z
+        AddQuad(st,
+            new Vector3(iMinX, h,   iMinZ),
+            new Vector3(iMaxX, h,   iMinZ),
+            new Vector3(iMaxX, 0f,  iMinZ),
+            new Vector3(iMinX, 0f,  iMinZ));
+        // S inner faces -Z
+        AddQuad(st,
+            new Vector3(iMaxX, h,   iMaxZ),
+            new Vector3(iMinX, h,   iMaxZ),
+            new Vector3(iMinX, 0f,  iMaxZ),
+            new Vector3(iMaxX, 0f,  iMaxZ));
+        // W inner faces +X
+        AddQuad(st,
+            new Vector3(iMinX, h,   iMaxZ),
+            new Vector3(iMinX, h,   iMinZ),
+            new Vector3(iMinX, 0f,  iMinZ),
+            new Vector3(iMinX, 0f,  iMaxZ));
+        // E inner faces -X
+        AddQuad(st,
+            new Vector3(iMaxX, h,   iMinZ),
+            new Vector3(iMaxX, h,   iMaxZ),
+            new Vector3(iMaxX, 0f,  iMaxZ),
+            new Vector3(iMaxX, 0f,  iMinZ));
     }
 
-    // ── Hex prism geometry (used by border) ──────────────────────────────────
-    /// <summary>
-    /// Adds a solid hex prism to the SurfaceTool.
-    /// Bottom face is at Y=0, top face is at Y=height.
-    /// center.Y is ignored — XZ position only.
-    /// </summary>
-    public void AddHexPrism(SurfaceTool st, Vector3 center, float height)
+    /// <summary>Horizontal quad at Y=h over the rectangle (x1,z1)→(x2,z2), normal pointing up.</summary>
+    private static void AddTopQuad(SurfaceTool st, float x1, float z1, float x2, float z2, float h)
     {
-        float angleOffset = _pointyTop ? -Mathf.Pi / 2f : 0f;
-        var topCorners    = new Vector3[6];
-        var bottomCorners = new Vector3[6];
+        // CCW winding when viewed from +Y → normal = +Y
+        AddQuad(st,
+            new Vector3(x1, h, z1),
+            new Vector3(x2, h, z1),
+            new Vector3(x2, h, z2),
+            new Vector3(x1, h, z2));
+    }
 
-        for (int i = 0; i < 6; i++)
-        {
-            float angle = angleOffset + i * Mathf.Pi / 3f;
-            float dx = _hexSize * Mathf.Cos(angle);
-            float dz = _hexSize * Mathf.Sin(angle);
-            topCorners[i]    = new Vector3(center.X + dx, height, center.Z + dz);
-            bottomCorners[i] = new Vector3(center.X + dx, 0f,     center.Z + dz);
-        }
-
-        var topCenter    = new Vector3(center.X, height, center.Z);
-        var bottomCenter = new Vector3(center.X, 0f,     center.Z);
-
-        // Top face (facing up)
-        for (int i = 0; i < 6; i++)
-        {
-            st.AddVertex(topCenter);
-            st.AddVertex(topCorners[i]);
-            st.AddVertex(topCorners[(i + 1) % 6]);
-        }
-
-        // Bottom face (reversed winding, facing down)
-        for (int i = 0; i < 6; i++)
-        {
-            st.AddVertex(bottomCenter);
-            st.AddVertex(bottomCorners[(i + 1) % 6]);
-            st.AddVertex(bottomCorners[i]);
-        }
-
-        // Side walls (6 quads = 12 triangles)
-        for (int i = 0; i < 6; i++)
-        {
-            int next = (i + 1) % 6;
-            st.AddVertex(topCorners[i]);
-            st.AddVertex(bottomCorners[i]);
-            st.AddVertex(bottomCorners[next]);
-
-            st.AddVertex(topCorners[i]);
-            st.AddVertex(bottomCorners[next]);
-            st.AddVertex(topCorners[next]);
-        }
+    /// <summary>Emits two triangles (a, b, c) and (a, c, d) forming a quad.</summary>
+    private static void AddQuad(SurfaceTool st, Vector3 a, Vector3 b, Vector3 c, Vector3 d)
+    {
+        st.AddVertex(a); st.AddVertex(b); st.AddVertex(c);
+        st.AddVertex(a); st.AddVertex(c); st.AddVertex(d);
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
