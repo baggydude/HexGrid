@@ -234,6 +234,10 @@ public partial class HexGridEditorToolbar : VBoxContainer
         foreach (var (path, btn) in _tileButtons)
             btn.SetPressedNoSignal(path == scenePath);
 
+        // Selecting a tile implicitly switches to Paint mode.
+        if (_currentTool != ToolMode.Paint)
+            SetTool(ToolMode.Paint);
+
         EmitSignal(SignalName.TileSelected, scenePath);
     }
 

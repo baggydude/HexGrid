@@ -297,14 +297,15 @@ public partial class HexGrid3D : Node3D
         if (_borderMeshInstance == null) return;
         if (_borderMaterial is BaseMaterial3D baseMat)
         {
-            // Duplicate so we don't mutate the user's asset, then force double-sided.
-            var copy = (BaseMaterial3D)baseMat.Duplicate();
-            copy.CullMode = BaseMaterial3D.CullModeEnum.Disabled;
-            _borderMeshInstance.MaterialOverride = copy;
+            // Force double-sided on the material itself so the user's live edits
+            // (albedo, shadows, alpha, etc.) are always reflected immediately.
+            // Duplicating would snapshot the material and break live editing.
+            baseMat.CullMode = BaseMaterial3D.CullModeEnum.Disabled;
+            _borderMeshInstance.MaterialOverride = baseMat;
         }
         else if (_borderMaterial != null)
         {
-            // ShaderMaterial: user is responsible for cull mode in their shader.
+            // ShaderMaterial: user controls culling in their shader.
             _borderMeshInstance.MaterialOverride = _borderMaterial;
         }
         else
