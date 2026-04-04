@@ -263,7 +263,7 @@ public partial class HexGrid3D : Node3D
         _guideMeshInstance.Mesh = st.Commit();
         UpdateGuideMaterial();
         UpdateGuideVisibility();
-        UpdateBorderMesh();
+        if (_showBorder) UpdateBorderMesh();
     }
 
     private void AddHexOutline(SurfaceTool st, Vector3 center)
@@ -456,7 +456,6 @@ public partial class HexGrid3D : Node3D
         CreateOrUpdateCellInstance(axialCoord, scene, scenePath, rotationDegrees, worldPos, _pointyTop, heightScale);
 
         EmitSignal(SignalName.CellChanged, axialCoord);
-        if (Engine.IsEditorHint()) NotifyPropertyListChanged();
     }
 
     /// <summary>Remove the tile at the given axial coordinate.</summary>
@@ -574,7 +573,15 @@ public partial class HexGrid3D : Node3D
             if (worldPos == Vector3.Zero)
                 worldPos = HexMath.AxialToWorld(axialCoord, _hexSize, placedPointy);
 
-            var scene = ResourceLoader.Load<PackedScene>(scenePath);
+            // Use pre-loaded palette; fall back to disk only for out-of-folder scenes
+            PackedScene scene;
+            if (TilePalette.TryGetValue(scenePath, out var cached) && cached.AsGodotObject() is PackedScene ps)
+                scene = ps;
+            else
+            {
+                scene = ResourceLoader.Load<PackedScene>(scenePath);
+                if (scene != null) TilePalette[scenePath] = scene;
+            }
             if (scene != null)
                 CreateOrUpdateCellInstance(axialCoord, scene, scenePath, rotation, worldPos, placedPointy, heightScale);
         }

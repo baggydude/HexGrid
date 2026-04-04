@@ -26,6 +26,7 @@ public partial class HexGridEditorToolbar : VBoxContainer
     private const int PreviewSizeMin     = 48;
     private const int PreviewSizeMax     = 160;
     private const int PreviewSizeDefault = 80;
+    private const int ViewportsPerFrame  = 2;   // SubViewports created per _Process tick
 
     // ── State ─────────────────────────────────────────────────────────────────
     private Dictionary _tileScenes = new();   // scene_path → PackedScene
@@ -35,6 +36,10 @@ public partial class HexGridEditorToolbar : VBoxContainer
     private float _currentHeight = 1f;
     private int _previewSize = PreviewSizeDefault;
     private string _filterText = "";
+
+    // Deferred preview queue: (scenePath, targetTextureRect)
+    private readonly System.Collections.Generic.Queue<(string scenePath, TextureRect texRect)>
+        _pendingPreviews = new();
 
     // ── UI references ─────────────────────────────────────────────────────────
     private System.Collections.Generic.Dictionary<ToolMode, Button> _toolButtons = new();
@@ -54,6 +59,20 @@ public partial class HexGridEditorToolbar : VBoxContainer
         SizeFlagsVertical   = SizeFlags.ExpandFill;
         BuildUi();
         Resized += OnResized;
+        SetProcess(false);
+    }
+
+    public override void _Process(double delta)
+    {
+        for (int i = 0; i < ViewportsPerFrame && _pendingPreviews.Count > 0; i++)
+        {
+            var (scenePath, texRect) = _pendingPreviews.Dequeue();
+            if (IsInstanceValid(texRect))
+                AttachViewportToPreview(scenePath, texRect);
+        }
+
+        if (_pendingPreviews.Count == 0)
+            SetProcess(false);
     }
 
     // ── UI construction ───────────────────────────────────────────────────────
@@ -221,6 +240,10 @@ public partial class HexGridEditorToolbar : VBoxContainer
     {
         if (!IsInstanceValid(_tileGrid)) return;
 
+        // Cancel any pending deferred work
+        _pendingPreviews.Clear();
+        SetProcess(false);
+
         foreach (Node child in _tileGrid.GetChildren())
         {
             _tileGrid.RemoveChild(child);
@@ -261,9 +284,15 @@ public partial class HexGridEditorToolbar : VBoxContainer
             tileBtn.AddChild(vbox);
             vbox.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
-            var previewTex = CreateScenePreview(path, _previewSize);
-            previewTex.MouseFilter = MouseFilterEnum.Ignore;
-            vbox.AddChild(previewTex);
+            // Placeholder TextureRect — viewport attached later in _Process
+            var texRect = new TextureRect
+            {
+                StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+                ExpandMode  = TextureRect.ExpandModeEnum.IgnoreSize,
+                MouseFilter = MouseFilterEnum.Ignore,
+            };
+            texRect.CustomMinimumSize = new Vector2(_previewSize, _previewSize);
+            vbox.AddChild(texRect);
 
             var nameLabel = new Label
             {
@@ -273,28 +302,30 @@ public partial class HexGridEditorToolbar : VBoxContainer
             };
             nameLabel.AddThemeFontSizeOverride("font_size", 10);
             vbox.AddChild(nameLabel);
+
+            _pendingPreviews.Enqueue((path, texRect));
         }
 
         if (_tileButtons.ContainsKey(_selectedTilePath))
             _tileButtons[_selectedTilePath].ButtonPressed = true;
+
+        if (_pendingPreviews.Count > 0)
+            SetProcess(true);
     }
 
-    private TextureRect CreateScenePreview(string scenePath, int previewSize)
+    /// <summary>
+    /// Creates a SubViewport for <paramref name="scenePath"/> and assigns its texture
+    /// to <paramref name="texRect"/>. Called from _Process to spread the cost over frames.
+    /// </summary>
+    private void AttachViewportToPreview(string scenePath, TextureRect texRect)
     {
-        var texRect = new TextureRect
-        {
-            StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-            ExpandMode  = TextureRect.ExpandModeEnum.IgnoreSize,
-        };
-        texRect.CustomMinimumSize = new Vector2(previewSize, previewSize);
-
-        if (!_tileScenes.TryGetValue(scenePath, out var sceneVariant)) return texRect;
+        if (!_tileScenes.TryGetValue(scenePath, out var sceneVariant)) return;
         var packedScene = sceneVariant.As<PackedScene>();
-        if (packedScene == null) return texRect;
+        if (packedScene == null) return;
 
         var viewport = new SubViewport
         {
-            Size = new Vector2I(previewSize * 2, previewSize * 2),
+            Size = new Vector2I(_previewSize * 2, _previewSize * 2),
             RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled,
             TransparentBg = true,
             OwnWorld3D = true,
@@ -343,7 +374,6 @@ public partial class HexGridEditorToolbar : VBoxContainer
         viewport.RenderTargetUpdateMode = SubViewport.UpdateMode.Once;
 
         texRect.Texture = viewport.GetTexture();
-        return texRect;
     }
 
     // ── Event handlers ────────────────────────────────────────────────────────
