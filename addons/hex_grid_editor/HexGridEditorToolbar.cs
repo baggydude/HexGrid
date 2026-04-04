@@ -423,7 +423,7 @@ public partial class HexGridEditorToolbar : VBoxContainer
     {
         _currentTool = mode;
         foreach (var (m, btn) in _toolButtons)
-            btn.ButtonPressed = m == mode;
+            btn.SetPressedNoSignal(m == mode);
         EmitSignal(SignalName.ToolChanged, (int)mode);
     }
 

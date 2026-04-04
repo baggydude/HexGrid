@@ -294,8 +294,20 @@ public partial class HexGrid3D : Node3D
 
     private void UpdateBorderMaterial()
     {
-        if (_borderMeshInstance != null)
+        if (_borderMeshInstance == null) return;
+        if (_borderMaterial != null)
+        {
             _borderMeshInstance.MaterialOverride = _borderMaterial;
+        }
+        else
+        {
+            var defaultMat = new StandardMaterial3D
+            {
+                ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+                CullMode    = BaseMaterial3D.CullModeEnum.Disabled,
+            };
+            _borderMeshInstance.MaterialOverride = defaultMat;
+        }
     }
 
     private void UpdateBorderMesh()
