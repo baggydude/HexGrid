@@ -429,6 +429,96 @@ public partial class HexGrid3D : Node3D
             new Vector3(iMaxX, h,   iMaxZ),
             new Vector3(iMaxX, 0f,  iMaxZ),
             new Vector3(iMaxX, 0f,  iMinZ));
+
+        // --- Gap fills: cover spaces left by offset rows/columns ---
+        AddOffsetGapFills(st, h, iMinX, iMaxX, iMinZ, iMaxZ, halfX, halfZ);
+    }
+
+    /// <summary>
+    /// Fills the gaps left by the staggered hex offset along the inner border edge.
+    ///
+    /// Pointy-top (odd-r offset): odd rows shift right by halfX, leaving a gap on the
+    /// left side; even rows leave a matching gap on the right side.
+    /// Flat-top (odd-q offset): odd columns shift down by halfZ, leaving a gap on the
+    /// top side; even columns leave a matching gap on the bottom side.
+    ///
+    /// For each gap area we emit:
+    ///   • a top quad  – fills the hole in the horizontal top face
+    ///   • a step wall – vertical face closing the open side of the gap cavity
+    /// </summary>
+    private void AddOffsetGapFills(SurfaceTool st, float height,
+                                    float iMinX, float iMaxX,
+                                    float iMinZ, float iMaxZ,
+                                    float halfX, float halfZ)
+    {
+        if (_pointyTop)
+        {
+            // Row centres are spaced 1.5 * hexSize apart in Z.
+            float rowStepZ = _hexSize * 1.5f;
+            for (int row = 0; row < _gridHeight; row++)
+            {
+                float zC  = rowStepZ * row;
+                float zLo = Mathf.Max(zC - halfZ, iMinZ);
+                float zHi = Mathf.Min(zC + halfZ, iMaxZ);
+
+                if ((row & 1) == 1)
+                {
+                    // Odd row – gap on the LEFT  (iMinX … iMinX+halfX)
+                    AddTopQuad(st, iMinX, zLo, iMinX + halfX, zHi, height);
+                    // Step wall at x = iMinX+halfX, faces –X (visible from inside the gap)
+                    AddQuad(st,
+                        new Vector3(iMinX + halfX, height, zLo),
+                        new Vector3(iMinX + halfX, height, zHi),
+                        new Vector3(iMinX + halfX, 0f,     zHi),
+                        new Vector3(iMinX + halfX, 0f,     zLo));
+                }
+                else
+                {
+                    // Even row – gap on the RIGHT  (iMaxX-halfX … iMaxX)
+                    AddTopQuad(st, iMaxX - halfX, zLo, iMaxX, zHi, height);
+                    // Step wall at x = iMaxX-halfX, faces +X (visible from inside the gap)
+                    AddQuad(st,
+                        new Vector3(iMaxX - halfX, height, zHi),
+                        new Vector3(iMaxX - halfX, height, zLo),
+                        new Vector3(iMaxX - halfX, 0f,     zLo),
+                        new Vector3(iMaxX - halfX, 0f,     zHi));
+                }
+            }
+        }
+        else
+        {
+            // Column centres are spaced 1.5 * hexSize apart in X.
+            float colStepX = _hexSize * 1.5f;
+            for (int col = 0; col < _gridWidth; col++)
+            {
+                float xC  = colStepX * col;
+                float xLo = Mathf.Max(xC - halfX, iMinX);
+                float xHi = Mathf.Min(xC + halfX, iMaxX);
+
+                if ((col & 1) == 1)
+                {
+                    // Odd col – gap on the TOP  (iMinZ … iMinZ+halfZ)
+                    AddTopQuad(st, xLo, iMinZ, xHi, iMinZ + halfZ, height);
+                    // Step wall at z = iMinZ+halfZ, faces –Z (visible from inside the gap)
+                    AddQuad(st,
+                        new Vector3(xHi, height, iMinZ + halfZ),
+                        new Vector3(xLo, height, iMinZ + halfZ),
+                        new Vector3(xLo, 0f,     iMinZ + halfZ),
+                        new Vector3(xHi, 0f,     iMinZ + halfZ));
+                }
+                else
+                {
+                    // Even col – gap on the BOTTOM  (iMaxZ-halfZ … iMaxZ)
+                    AddTopQuad(st, xLo, iMaxZ - halfZ, xHi, iMaxZ, height);
+                    // Step wall at z = iMaxZ-halfZ, faces +Z (visible from inside the gap)
+                    AddQuad(st,
+                        new Vector3(xLo, height, iMaxZ - halfZ),
+                        new Vector3(xHi, height, iMaxZ - halfZ),
+                        new Vector3(xHi, 0f,     iMaxZ - halfZ),
+                        new Vector3(xLo, 0f,     iMaxZ - halfZ));
+                }
+            }
+        }
     }
 
     /// <summary>Horizontal quad at Y=h over the rectangle (x1,z1)→(x2,z2), normal pointing up.</summary>
