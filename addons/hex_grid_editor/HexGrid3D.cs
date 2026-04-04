@@ -441,7 +441,36 @@ public partial class HexGrid3D : Node3D
     }
 
     // ── Procedural base hex ───────────────────────────────────────────────────
-    private void CreateOrUpdateBaseInstance(Vector2I axial, Vector3 worldPos, float heightScale)
+
+    /// <summary>
+    /// Recursively finds the minimum local Y position of any MeshInstance3D in the scene,
+    /// accounting for each node's own Y offset relative to the scene root.
+    /// Used to anchor the base prism top to the actual bottom of the scene's geometry.
+    /// </summary>
+    public static float GetSceneMinLocalY(Node node, float parentOffsetY = 0f)
+    {
+        float minY = 0f;
+        foreach (Node child in node.GetChildren())
+        {
+            float childOffsetY = parentOffsetY;
+            if (child is Node3D n3d) childOffsetY = parentOffsetY + n3d.Position.Y;
+
+            if (child is MeshInstance3D mesh && mesh.Mesh != null)
+            {
+                float bottom = childOffsetY + mesh.GetAabb().Position.Y;
+                if (bottom < minY) minY = bottom;
+            }
+
+            if (child.GetChildCount() > 0)
+            {
+                float childMin = GetSceneMinLocalY(child, childOffsetY);
+                if (childMin < minY) minY = childMin;
+            }
+        }
+        return minY;
+    }
+
+    private void CreateOrUpdateBaseInstance(Vector2I axial, Vector3 worldPos, float prismHeight)
     {
         if (_baseInstances.TryGetValue(axial, out var existing))
         {
@@ -456,7 +485,7 @@ public partial class HexGrid3D : Node3D
 
         var st = new SurfaceTool();
         st.Begin(Mesh.PrimitiveType.Triangles);
-        AddHexPrism(st, new Vector3(worldPos.X, 0f, worldPos.Z), heightScale);
+        AddHexPrism(st, new Vector3(worldPos.X, 0f, worldPos.Z), prismHeight);
         st.GenerateNormals();
         baseMesh.Mesh = st.Commit();
 
@@ -597,8 +626,15 @@ public partial class HexGrid3D : Node3D
         instance.SetMeta("placed_pointy_top",  placedPointyTop);
         instance.SetMeta("height_scale",       heightScale);
 
-        // Procedural base — fills from Y=0 to Y=heightScale
-        CreateOrUpdateBaseInstance(axialCoord, worldPos, heightScale);
+        // Procedural base — only when elevated above default height.
+        // Top anchored to the actual bottom of the scene's mesh geometry via AABB scan.
+        if (heightScale > 1.0f)
+        {
+            float sceneBottom = GetSceneMinLocalY(instance);
+            float worldBottom = heightScale + sceneBottom;
+            if (worldBottom > 0.001f)
+                CreateOrUpdateBaseInstance(axialCoord, worldPos, worldBottom);
+        }
     }
 
     private void SyncFromData()

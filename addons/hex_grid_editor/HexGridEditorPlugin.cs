@@ -351,7 +351,20 @@ public partial class HexGridEditorPlugin : EditorPlugin
 
         _previewInstance.Position = new Vector3(worldPos.X, height, worldPos.Z);
         UpdatePreviewRotation();
-        UpdatePreviewBase(worldPos, height);
+
+        if (height > 1.0f)
+        {
+            float sceneBottom = HexGrid3D.GetSceneMinLocalY(_previewInstance);
+            float worldBottom = height + sceneBottom;
+            if (worldBottom > 0.001f)
+                UpdatePreviewBase(worldPos, worldBottom);
+            else
+                CleanupPreviewBase();
+        }
+        else
+        {
+            CleanupPreviewBase();
+        }
     }
 
     private void UpdatePreviewRotation()
@@ -371,7 +384,19 @@ public partial class HexGridEditorPlugin : EditorPlugin
 
         // Rebuild preview base at current position
         var worldPos = new Vector3(_previewInstance.Position.X, 0f, _previewInstance.Position.Z);
-        UpdatePreviewBase(worldPos, height);
+        if (height > 1.0f)
+        {
+            float sceneBottom = HexGrid3D.GetSceneMinLocalY(_previewInstance);
+            float worldBottom = height + sceneBottom;
+            if (worldBottom > 0.001f)
+                UpdatePreviewBase(worldPos, worldBottom);
+            else
+                CleanupPreviewBase();
+        }
+        else
+        {
+            CleanupPreviewBase();
+        }
     }
 
     // ── Toolbar signal callbacks ───────────────────────────────────────────────
