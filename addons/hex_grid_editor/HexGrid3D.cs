@@ -164,6 +164,9 @@ public partial class HexGrid3D : Node3D
     public Dictionary TilePalette { get; } = new();
 
     // ── Cell Highlights ──────────────────────────────────────────────────────
+    // Arrays use OFFSET coordinates: X = column (left→right), Y = row (top→bottom).
+    // Column 0 going downward: (0,0)→(0,1)→(0,2) etc. Use WorldToOffset() in code
+    // to convert a click position, or the …Axial() methods if you already have axial coords.
     [ExportGroup("Cell Highlights")]
 
     private Godot.Collections.Array<Vector2I> _moveableCells = new();
@@ -1098,23 +1101,31 @@ public partial class HexGrid3D : Node3D
     }
 
     // ── Cell Highlight API ────────────────────────────────────────────────────
+    // Coordinates are OFFSET (col, row) — column 0 row 0 is top-left of the grid,
+    // row increases downward, so (0,0)→(0,1)→(0,2) is the leftmost zigzag column.
+    // If you have an axial coord (e.g. from WorldToAxial), use the …Axial overloads
+    // or convert with HexMath.AxialToOffset / the WorldToOffset helper below.
 
-    /// <summary>Add a cell to the moveable highlights. Does nothing if already present.</summary>
-    public void AddMoveableCell(Vector2I axial)
+    /// <summary>Add a cell to the moveable highlights using offset (col, row) coordinates.</summary>
+    public void AddMoveableCell(Vector2I offset)
     {
-        if (_moveableCells.Contains(axial)) return;
-        _moveableCells.Add(axial);
-        CreateOverlay(axial, _moveableGlowColor, _moveableGlowIntensity, _moveableTransparency, _moveableOverlays);
+        if (_moveableCells.Contains(offset)) return;
+        _moveableCells.Add(offset);
+        CreateOverlay(offset, _moveableGlowColor, _moveableGlowIntensity, _moveableTransparency, _moveableOverlays);
     }
 
-    /// <summary>Remove a cell from the moveable highlights.</summary>
-    public void RemoveMoveableCell(Vector2I axial)
+    /// <summary>Add a cell to the moveable highlights using axial (q, r) coordinates.</summary>
+    public void AddMoveableCellAxial(Vector2I axial) =>
+        AddMoveableCell(HexMath.AxialToOffset(axial, _pointyTop));
+
+    /// <summary>Remove a cell from the moveable highlights using offset (col, row) coordinates.</summary>
+    public void RemoveMoveableCell(Vector2I offset)
     {
-        _moveableCells.Remove(axial);
-        RemoveOverlay(axial, _moveableOverlays);
+        _moveableCells.Remove(offset);
+        RemoveOverlay(offset, _moveableOverlays);
     }
 
-    /// <summary>Replace all moveable highlight cells at once.</summary>
+    /// <summary>Replace all moveable highlight cells at once (offset coords).</summary>
     public void SetMoveableCells(Godot.Collections.Array<Vector2I> cells)
     {
         _moveableCells = cells ?? new();
@@ -1125,26 +1136,30 @@ public partial class HexGrid3D : Node3D
     public void ClearMoveableCells()
     {
         _moveableCells.Clear();
-        foreach (var overlay in _moveableOverlays.Values) overlay.QueueFree();
+        foreach (var overlay in _moveableOverlays.Values) overlay.Free();
         _moveableOverlays.Clear();
     }
 
-    /// <summary>Add a cell to the threatened highlights. Does nothing if already present.</summary>
-    public void AddThreatenedCell(Vector2I axial)
+    /// <summary>Add a cell to the threatened highlights using offset (col, row) coordinates.</summary>
+    public void AddThreatenedCell(Vector2I offset)
     {
-        if (_threatenedCells.Contains(axial)) return;
-        _threatenedCells.Add(axial);
-        CreateOverlay(axial, _threatenedGlowColor, _threatenedGlowIntensity, _threatenedTransparency, _threatenedOverlays);
+        if (_threatenedCells.Contains(offset)) return;
+        _threatenedCells.Add(offset);
+        CreateOverlay(offset, _threatenedGlowColor, _threatenedGlowIntensity, _threatenedTransparency, _threatenedOverlays);
     }
 
-    /// <summary>Remove a cell from the threatened highlights.</summary>
-    public void RemoveThreatenedCell(Vector2I axial)
+    /// <summary>Add a cell to the threatened highlights using axial (q, r) coordinates.</summary>
+    public void AddThreatenedCellAxial(Vector2I axial) =>
+        AddThreatenedCell(HexMath.AxialToOffset(axial, _pointyTop));
+
+    /// <summary>Remove a cell from the threatened highlights using offset (col, row) coordinates.</summary>
+    public void RemoveThreatenedCell(Vector2I offset)
     {
-        _threatenedCells.Remove(axial);
-        RemoveOverlay(axial, _threatenedOverlays);
+        _threatenedCells.Remove(offset);
+        RemoveOverlay(offset, _threatenedOverlays);
     }
 
-    /// <summary>Replace all threatened highlight cells at once.</summary>
+    /// <summary>Replace all threatened highlight cells at once (offset coords).</summary>
     public void SetThreatenedCells(Godot.Collections.Array<Vector2I> cells)
     {
         _threatenedCells = cells ?? new();
@@ -1155,9 +1170,13 @@ public partial class HexGrid3D : Node3D
     public void ClearThreatenedCells()
     {
         _threatenedCells.Clear();
-        foreach (var overlay in _threatenedOverlays.Values) overlay.QueueFree();
+        foreach (var overlay in _threatenedOverlays.Values) overlay.Free();
         _threatenedOverlays.Clear();
     }
+
+    /// <summary>Convert a world-space position to offset (col, row) grid coordinates.</summary>
+    public Vector2I WorldToOffset(Vector3 worldPos) =>
+        HexMath.AxialToOffset(WorldToAxial(worldPos), _pointyTop);
 
     // ── Overlay internals ─────────────────────────────────────────────────────
     private void UpdateCellOverlays()
@@ -1165,39 +1184,45 @@ public partial class HexGrid3D : Node3D
         if (!IsInsideTree()) return;
         SetupContainers();
 
-        foreach (var overlay in _moveableOverlays.Values) overlay.QueueFree();
+        // Free ALL children immediately — catches ghost nodes left from rapid inspector
+        // edits or scene reloads where the C# dict was reset but the nodes survived.
+        foreach (Node child in _highlightContainer.GetChildren())
+            child.Free();
         _moveableOverlays.Clear();
-        foreach (var overlay in _threatenedOverlays.Values) overlay.QueueFree();
         _threatenedOverlays.Clear();
 
-        foreach (var axial in _moveableCells)
-            CreateOverlay(axial, _moveableGlowColor, _moveableGlowIntensity, _moveableTransparency, _moveableOverlays);
+        foreach (var offset in _moveableCells)
+            CreateOverlay(offset, _moveableGlowColor, _moveableGlowIntensity, _moveableTransparency, _moveableOverlays);
 
-        foreach (var axial in _threatenedCells)
-            CreateOverlay(axial, _threatenedGlowColor, _threatenedGlowIntensity, _threatenedTransparency, _threatenedOverlays);
+        foreach (var offset in _threatenedCells)
+            CreateOverlay(offset, _threatenedGlowColor, _threatenedGlowIntensity, _threatenedTransparency, _threatenedOverlays);
     }
 
-    private void CreateOverlay(Vector2I axial, Color color, float intensity, float transparency,
+    private void CreateOverlay(Vector2I offsetCoord, Color color, float intensity, float transparency,
         System.Collections.Generic.Dictionary<Vector2I, MeshInstance3D> registry)
     {
         if (_highlightContainer == null) return;
 
+        // Convert offset (col, row) → axial internally; all public API uses offset coords.
+        var axial = HexMath.OffsetToAxial(offsetCoord, _pointyTop);
+
         // StandardMaterial3D is used instead of a custom shader to guarantee correct
         // colour, transparency and emission in both editor [Tool] and runtime contexts.
+        // ShadingMode must NOT be Unshaded: in that mode Godot outputs only ALBEDO and
+        // sends Emission to the bloom buffer only, making EmissionEnergyMultiplier changes
+        // invisible regardless of whether Glow is enabled in the Environment.
         var mat = new StandardMaterial3D
         {
-            // Transparent surface — alpha channel from AlbedoColor.A
+            // Transparent surface — alpha from AlbedoColor.A
             Transparency             = BaseMaterial3D.TransparencyEnum.Alpha,
-            // Dim colour base so the emissive hue is the primary visual
-            AlbedoColor              = new Color(color.R * 0.15f, color.G * 0.15f, color.B * 0.15f, transparency),
-            // Emission carries the actual glow colour; intensity animated in _Process
+            // Black base keeps PBR lighting from washing out the emission colour
+            AlbedoColor              = new Color(0f, 0f, 0f, transparency),
+            // Emission IS the visible colour; EmissionEnergyMultiplier is animated in _Process
             EmissionEnabled          = true,
             Emission                 = new Color(color.R, color.G, color.B),
             EmissionEnergyMultiplier = intensity,
-            // Render both sides so the pillar walls are visible from any angle
+            // Render both sides so all pillar walls are visible from any camera angle
             CullMode                 = BaseMaterial3D.CullModeEnum.Disabled,
-            // No lighting — consistent look regardless of scene lights
-            ShadingMode              = BaseMaterial3D.ShadingModeEnum.Unshaded,
             // Don't write depth so transparent faces don't occlude each other
             DepthDrawMode            = BaseMaterial3D.DepthDrawModeEnum.Disabled,
         };
@@ -1256,16 +1281,16 @@ public partial class HexGrid3D : Node3D
         meshInstance.MaterialOverride = mat;
         _highlightContainer.AddChild(meshInstance);
 
-        registry[axial] = meshInstance;
+        registry[offsetCoord] = meshInstance;
     }
 
-    private static void RemoveOverlay(Vector2I axial,
+    private static void RemoveOverlay(Vector2I offsetCoord,
         System.Collections.Generic.Dictionary<Vector2I, MeshInstance3D> registry)
     {
-        if (registry.TryGetValue(axial, out var overlay))
+        if (registry.TryGetValue(offsetCoord, out var overlay))
         {
-            overlay.QueueFree();
-            registry.Remove(axial);
+            overlay.Free();
+            registry.Remove(offsetCoord);
         }
     }
 
