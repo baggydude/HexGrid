@@ -174,7 +174,7 @@ public partial class HexGrid3D : Node3D
         set { _moveableCells = value ?? new(); UpdateCellOverlays(); }
     }
 
-    private Color _moveableGlowColor = new Color(0f, 0.8f, 1f, 0.7f);
+    private Color _moveableGlowColor = new Color(0f, 0.8f, 1f);
     [Export]
     public Color MoveableGlowColor
     {
@@ -190,6 +190,14 @@ public partial class HexGrid3D : Node3D
         set { _moveableGlowIntensity = value; UpdateMoveableOverlayColors(); }
     }
 
+    private float _moveableTransparency = 0.45f;
+    [Export(PropertyHint.Range, "0.0,1.0,0.01")]
+    public float MoveableTransparency
+    {
+        get => _moveableTransparency;
+        set { _moveableTransparency = value; UpdateMoveableOverlayColors(); }
+    }
+
     private Godot.Collections.Array<Vector2I> _threatenedCells = new();
     [Export]
     public Godot.Collections.Array<Vector2I> ThreatenedCells
@@ -198,7 +206,7 @@ public partial class HexGrid3D : Node3D
         set { _threatenedCells = value ?? new(); UpdateCellOverlays(); }
     }
 
-    private Color _threatenedGlowColor = new Color(1f, 0.15f, 0f, 0.7f);
+    private Color _threatenedGlowColor = new Color(1f, 0.15f, 0f);
     [Export]
     public Color ThreatenedGlowColor
     {
@@ -214,6 +222,14 @@ public partial class HexGrid3D : Node3D
         set { _threatenedGlowIntensity = value; UpdateThreatenedOverlayColors(); }
     }
 
+    private float _threatenedTransparency = 0.45f;
+    [Export(PropertyHint.Range, "0.0,1.0,0.01")]
+    public float ThreatenedTransparency
+    {
+        get => _threatenedTransparency;
+        set { _threatenedTransparency = value; UpdateThreatenedOverlayColors(); }
+    }
+
     private float _highlightHeight = 1.0f;
     [Export(PropertyHint.Range, "0.05,10.0,0.01,suffix:m")]
     public float HighlightHeight
@@ -227,7 +243,7 @@ public partial class HexGrid3D : Node3D
     public float PulseSpeed
     {
         get => _pulseSpeed;
-        set { _pulseSpeed = value; UpdateAllOverlayShaderParams(); }
+        set => _pulseSpeed = value; // applied live in _Process
     }
 
     private float _pulseAmount = 0.3f;
@@ -235,7 +251,7 @@ public partial class HexGrid3D : Node3D
     public float PulseAmount
     {
         get => _pulseAmount;
-        set { _pulseAmount = value; UpdateAllOverlayShaderParams(); }
+        set => _pulseAmount = value; // applied live in _Process
     }
 
     // ── Internal nodes & state ───────────────────────────────────────────────
@@ -259,6 +275,22 @@ public partial class HexGrid3D : Node3D
         ScanTileFolder();
         if (_gridData != null) SyncFromData();
         UpdateCellOverlays();
+    }
+
+    public override void _Process(double delta)
+    {
+        if (_moveableOverlays.Count == 0 && _threatenedOverlays.Count == 0) return;
+
+        float time  = (float)Time.GetTicksMsec() / 1000f;
+        float pulse = 1f + _pulseAmount * Mathf.Sin(time * _pulseSpeed * Mathf.Tau);
+
+        foreach (var overlay in _moveableOverlays.Values)
+            if (overlay.MaterialOverride is StandardMaterial3D mat)
+                mat.EmissionEnergyMultiplier = _moveableGlowIntensity * pulse;
+
+        foreach (var overlay in _threatenedOverlays.Values)
+            if (overlay.MaterialOverride is StandardMaterial3D mat)
+                mat.EmissionEnergyMultiplier = _threatenedGlowIntensity * pulse;
     }
 
     private void SetupContainers()
@@ -1072,7 +1104,7 @@ public partial class HexGrid3D : Node3D
     {
         if (_moveableCells.Contains(axial)) return;
         _moveableCells.Add(axial);
-        CreateOverlay(axial, _moveableGlowColor, _moveableGlowIntensity, _moveableOverlays);
+        CreateOverlay(axial, _moveableGlowColor, _moveableGlowIntensity, _moveableTransparency, _moveableOverlays);
     }
 
     /// <summary>Remove a cell from the moveable highlights.</summary>
@@ -1102,7 +1134,7 @@ public partial class HexGrid3D : Node3D
     {
         if (_threatenedCells.Contains(axial)) return;
         _threatenedCells.Add(axial);
-        CreateOverlay(axial, _threatenedGlowColor, _threatenedGlowIntensity, _threatenedOverlays);
+        CreateOverlay(axial, _threatenedGlowColor, _threatenedGlowIntensity, _threatenedTransparency, _threatenedOverlays);
     }
 
     /// <summary>Remove a cell from the threatened highlights.</summary>
@@ -1139,31 +1171,40 @@ public partial class HexGrid3D : Node3D
         _threatenedOverlays.Clear();
 
         foreach (var axial in _moveableCells)
-            CreateOverlay(axial, _moveableGlowColor, _moveableGlowIntensity, _moveableOverlays);
+            CreateOverlay(axial, _moveableGlowColor, _moveableGlowIntensity, _moveableTransparency, _moveableOverlays);
 
         foreach (var axial in _threatenedCells)
-            CreateOverlay(axial, _threatenedGlowColor, _threatenedGlowIntensity, _threatenedOverlays);
+            CreateOverlay(axial, _threatenedGlowColor, _threatenedGlowIntensity, _threatenedTransparency, _threatenedOverlays);
     }
 
-    private void CreateOverlay(Vector2I axial, Color color, float intensity,
+    private void CreateOverlay(Vector2I axial, Color color, float intensity, float transparency,
         System.Collections.Generic.Dictionary<Vector2I, MeshInstance3D> registry)
     {
         if (_highlightContainer == null) return;
 
-        var shader = ResourceLoader.Load<Shader>(
-            "res://addons/hex_grid_editor/shaders/cell_highlight.gdshader");
-        if (shader == null) return;
-
-        var mat = new ShaderMaterial();
-        mat.Shader = shader;
-        mat.SetShaderParameter("glow_color",     color);
-        mat.SetShaderParameter("glow_intensity", intensity);
-        mat.SetShaderParameter("pulse_speed",    _pulseSpeed);
-        mat.SetShaderParameter("pulse_amount",   _pulseAmount);
+        // StandardMaterial3D is used instead of a custom shader to guarantee correct
+        // colour, transparency and emission in both editor [Tool] and runtime contexts.
+        var mat = new StandardMaterial3D
+        {
+            // Transparent surface — alpha channel from AlbedoColor.A
+            Transparency             = BaseMaterial3D.TransparencyEnum.Alpha,
+            // Dim colour base so the emissive hue is the primary visual
+            AlbedoColor              = new Color(color.R * 0.15f, color.G * 0.15f, color.B * 0.15f, transparency),
+            // Emission carries the actual glow colour; intensity animated in _Process
+            EmissionEnabled          = true,
+            Emission                 = new Color(color.R, color.G, color.B),
+            EmissionEnergyMultiplier = intensity,
+            // Render both sides so the pillar walls are visible from any angle
+            CullMode                 = BaseMaterial3D.CullModeEnum.Disabled,
+            // No lighting — consistent look regardless of scene lights
+            ShadingMode              = BaseMaterial3D.ShadingModeEnum.Unshaded,
+            // Don't write depth so transparent faces don't occlude each other
+            DepthDrawMode            = BaseMaterial3D.DepthDrawModeEnum.Disabled,
+        };
 
         var origin = HexMath.AxialToWorld(axial, _hexSize, _pointyTop);
-        const float baseY = 0.02f;           // just above ground to avoid z-fighting
-        float       topY  = _highlightHeight; // column height
+        const float baseY = 0.02f;
+        float       topY  = _highlightHeight;
 
         float angleOffset = _pointyTop ? -Mathf.Pi / 2f : 0f;
         var baseCorners = new Vector3[6];
@@ -1189,25 +1230,22 @@ public partial class HexGrid3D : Node3D
             st.SetNormal(Vector3.Up); st.AddVertex(topCorners[(i + 1) % 6]);
         }
 
-        // Side walls — 6 quads, normals pointing outward
+        // Six side walls — each is a quad split into two triangles
         for (int i = 0; i < 6; i++)
         {
             int next = (i + 1) % 6;
-
-            // Outward face normal: midpoint of this wall edge, projected away from origin in XZ
-            float midAngle = angleOffset + (i + 0.5f) * Mathf.Pi / 3f;
-            var wallNormal = new Vector3(Mathf.Cos(midAngle), 0f, Mathf.Sin(midAngle));
+            float midAngle  = angleOffset + (i + 0.5f) * Mathf.Pi / 3f;
+            var  wallNormal = new Vector3(Mathf.Cos(midAngle), 0f, Mathf.Sin(midAngle));
 
             var bl = baseCorners[i];
             var br = baseCorners[next];
             var tl = topCorners[i];
             var tr = topCorners[next];
 
-            // Triangle 1
             st.SetNormal(wallNormal); st.AddVertex(bl);
             st.SetNormal(wallNormal); st.AddVertex(tl);
             st.SetNormal(wallNormal); st.AddVertex(tr);
-            // Triangle 2
+
             st.SetNormal(wallNormal); st.AddVertex(bl);
             st.SetNormal(wallNormal); st.AddVertex(tr);
             st.SetNormal(wallNormal); st.AddVertex(br);
@@ -1235,10 +1273,15 @@ public partial class HexGrid3D : Node3D
     {
         foreach (var overlay in _moveableOverlays.Values)
         {
-            if (overlay.MaterialOverride is ShaderMaterial mat)
+            if (overlay.MaterialOverride is StandardMaterial3D mat)
             {
-                mat.SetShaderParameter("glow_color",     _moveableGlowColor);
-                mat.SetShaderParameter("glow_intensity", _moveableGlowIntensity);
+                mat.AlbedoColor = new Color(
+                    _moveableGlowColor.R * 0.15f,
+                    _moveableGlowColor.G * 0.15f,
+                    _moveableGlowColor.B * 0.15f,
+                    _moveableTransparency);
+                mat.Emission                 = new Color(_moveableGlowColor.R, _moveableGlowColor.G, _moveableGlowColor.B);
+                mat.EmissionEnergyMultiplier = _moveableGlowIntensity;
             }
         }
     }
@@ -1247,30 +1290,15 @@ public partial class HexGrid3D : Node3D
     {
         foreach (var overlay in _threatenedOverlays.Values)
         {
-            if (overlay.MaterialOverride is ShaderMaterial mat)
+            if (overlay.MaterialOverride is StandardMaterial3D mat)
             {
-                mat.SetShaderParameter("glow_color",     _threatenedGlowColor);
-                mat.SetShaderParameter("glow_intensity", _threatenedGlowIntensity);
-            }
-        }
-    }
-
-    private void UpdateAllOverlayShaderParams()
-    {
-        foreach (var overlay in _moveableOverlays.Values)
-        {
-            if (overlay.MaterialOverride is ShaderMaterial mat)
-            {
-                mat.SetShaderParameter("pulse_speed",  _pulseSpeed);
-                mat.SetShaderParameter("pulse_amount", _pulseAmount);
-            }
-        }
-        foreach (var overlay in _threatenedOverlays.Values)
-        {
-            if (overlay.MaterialOverride is ShaderMaterial mat)
-            {
-                mat.SetShaderParameter("pulse_speed",  _pulseSpeed);
-                mat.SetShaderParameter("pulse_amount", _pulseAmount);
+                mat.AlbedoColor = new Color(
+                    _threatenedGlowColor.R * 0.15f,
+                    _threatenedGlowColor.G * 0.15f,
+                    _threatenedGlowColor.B * 0.15f,
+                    _threatenedTransparency);
+                mat.Emission                 = new Color(_threatenedGlowColor.R, _threatenedGlowColor.G, _threatenedGlowColor.B);
+                mat.EmissionEnergyMultiplier = _threatenedGlowIntensity;
             }
         }
     }
