@@ -1111,7 +1111,8 @@ public partial class HexGrid3D : Node3D
     {
         if (_moveableCells.Contains(offset)) return;
         _moveableCells.Add(offset);
-        CreateOverlay(offset, _moveableGlowColor, _moveableGlowIntensity, _moveableTransparency, _moveableOverlays);
+        // Full rebuild needed: the newly adjacent cells must drop their shared walls.
+        UpdateMoveableOverlays();
     }
 
     /// <summary>Add a cell to the moveable highlights using axial (q, r) coordinates.</summary>
@@ -1122,7 +1123,8 @@ public partial class HexGrid3D : Node3D
     public void RemoveMoveableCell(Vector2I offset)
     {
         _moveableCells.Remove(offset);
-        RemoveOverlay(offset, _moveableOverlays);
+        // Full rebuild needed: previously-hidden walls on neighbours must reappear.
+        UpdateMoveableOverlays();
     }
 
     /// <summary>Replace all moveable highlight cells at once (offset coords).</summary>
@@ -1145,7 +1147,7 @@ public partial class HexGrid3D : Node3D
     {
         if (_threatenedCells.Contains(offset)) return;
         _threatenedCells.Add(offset);
-        CreateOverlay(offset, _threatenedGlowColor, _threatenedGlowIntensity, _threatenedTransparency, _threatenedOverlays);
+        UpdateThreatenedOverlays();
     }
 
     /// <summary>Add a cell to the threatened highlights using axial (q, r) coordinates.</summary>
@@ -1156,7 +1158,7 @@ public partial class HexGrid3D : Node3D
     public void RemoveThreatenedCell(Vector2I offset)
     {
         _threatenedCells.Remove(offset);
-        RemoveOverlay(offset, _threatenedOverlays);
+        UpdateThreatenedOverlays();
     }
 
     /// <summary>Replace all threatened highlight cells at once (offset coords).</summary>
@@ -1179,6 +1181,40 @@ public partial class HexGrid3D : Node3D
         HexMath.AxialToOffset(WorldToAxial(worldPos), _pointyTop);
 
     // ── Overlay internals ─────────────────────────────────────────────────────
+
+    // For wall index i (between corner[i] and corner[(i+1)%6]), the axial offset of
+    // the neighbouring cell that shares that face. Derived from the midAngle of each
+    // wall face and verified against HexMath.AxialToWorld for both orientations.
+    private static readonly Vector2I[] PointyTopWallNeighbour =
+    {
+        new( 1, -1), // wall 0 → upper-right
+        new( 1,  0), // wall 1 → right
+        new( 0,  1), // wall 2 → lower-right
+        new(-1,  1), // wall 3 → lower-left
+        new(-1,  0), // wall 4 → left
+        new( 0, -1), // wall 5 → upper-left
+    };
+
+    private static readonly Vector2I[] FlatTopWallNeighbour =
+    {
+        new( 1,  0), // wall 0 → lower-right
+        new( 0,  1), // wall 1 → down
+        new(-1,  1), // wall 2 → lower-left
+        new(-1,  0), // wall 3 → upper-left
+        new( 0, -1), // wall 4 → up
+        new( 1, -1), // wall 5 → upper-right
+    };
+
+    /// <summary>Convert a collection of offset coords to an axial HashSet for O(1) neighbour lookup.</summary>
+    private System.Collections.Generic.HashSet<Vector2I> ToAxialSet(
+        System.Collections.Generic.IEnumerable<Vector2I> offsets)
+    {
+        var set = new System.Collections.Generic.HashSet<Vector2I>();
+        foreach (var o in offsets)
+            set.Add(HexMath.OffsetToAxial(o, _pointyTop));
+        return set;
+    }
+
     private void UpdateCellOverlays()
     {
         if (!IsInsideTree()) return;
@@ -1191,20 +1227,55 @@ public partial class HexGrid3D : Node3D
         _moveableOverlays.Clear();
         _threatenedOverlays.Clear();
 
-        foreach (var offset in _moveableCells)
-            CreateOverlay(offset, _moveableGlowColor, _moveableGlowIntensity, _moveableTransparency, _moveableOverlays);
+        PopulateMoveableOverlays();
+        PopulateThreatenedOverlays();
+    }
 
+    /// <summary>Rebuild only the moveable overlays (neighbour-aware).</summary>
+    private void UpdateMoveableOverlays()
+    {
+        if (!IsInsideTree()) return;
+        foreach (var overlay in _moveableOverlays.Values) overlay.Free();
+        _moveableOverlays.Clear();
+        PopulateMoveableOverlays();
+    }
+
+    /// <summary>Rebuild only the threatened overlays (neighbour-aware).</summary>
+    private void UpdateThreatenedOverlays()
+    {
+        if (!IsInsideTree()) return;
+        foreach (var overlay in _threatenedOverlays.Values) overlay.Free();
+        _threatenedOverlays.Clear();
+        PopulateThreatenedOverlays();
+    }
+
+    private void PopulateMoveableOverlays()
+    {
+        var groupAxials = ToAxialSet(_moveableCells);
+        foreach (var offset in _moveableCells)
+            CreateOverlay(offset, _moveableGlowColor, _moveableGlowIntensity,
+                          _moveableTransparency, _moveableOverlays, groupAxials);
+    }
+
+    private void PopulateThreatenedOverlays()
+    {
+        var groupAxials = ToAxialSet(_threatenedCells);
         foreach (var offset in _threatenedCells)
-            CreateOverlay(offset, _threatenedGlowColor, _threatenedGlowIntensity, _threatenedTransparency, _threatenedOverlays);
+            CreateOverlay(offset, _threatenedGlowColor, _threatenedGlowIntensity,
+                          _threatenedTransparency, _threatenedOverlays, groupAxials);
     }
 
     private void CreateOverlay(Vector2I offsetCoord, Color color, float intensity, float transparency,
-        System.Collections.Generic.Dictionary<Vector2I, MeshInstance3D> registry)
+        System.Collections.Generic.Dictionary<Vector2I, MeshInstance3D> registry,
+        System.Collections.Generic.HashSet<Vector2I> groupAxials)
     {
         if (_highlightContainer == null) return;
 
         // Convert offset (col, row) → axial internally; all public API uses offset coords.
         var axial = HexMath.OffsetToAxial(offsetCoord, _pointyTop);
+
+        // Direction table: wall i faces the neighbour in this axial direction.
+        var wallNeighbour = _pointyTop ? PointyTopWallNeighbour : FlatTopWallNeighbour;
 
         // StandardMaterial3D is used instead of a custom shader to guarantee correct
         // colour, transparency and emission in both editor [Tool] and runtime contexts.
@@ -1247,7 +1318,7 @@ public partial class HexGrid3D : Node3D
         var st = new SurfaceTool();
         st.Begin(Mesh.PrimitiveType.Triangles);
 
-        // Top cap — hex fan
+        // Top cap — always rendered so every cell has a visible ceiling
         for (int i = 0; i < 6; i++)
         {
             st.SetNormal(Vector3.Up); st.AddVertex(centerTop);
@@ -1255,9 +1326,12 @@ public partial class HexGrid3D : Node3D
             st.SetNormal(Vector3.Up); st.AddVertex(topCorners[(i + 1) % 6]);
         }
 
-        // Six side walls — each is a quad split into two triangles
+        // Side walls — skip any wall whose neighbour belongs to the same group
+        // so that shared interior faces are not rendered.
         for (int i = 0; i < 6; i++)
         {
+            if (groupAxials.Contains(axial + wallNeighbour[i])) continue;
+
             int next = (i + 1) % 6;
             float midAngle  = angleOffset + (i + 0.5f) * Mathf.Pi / 3f;
             var  wallNormal = new Vector3(Mathf.Cos(midAngle), 0f, Mathf.Sin(midAngle));
@@ -1284,15 +1358,8 @@ public partial class HexGrid3D : Node3D
         registry[offsetCoord] = meshInstance;
     }
 
-    private static void RemoveOverlay(Vector2I offsetCoord,
-        System.Collections.Generic.Dictionary<Vector2I, MeshInstance3D> registry)
-    {
-        if (registry.TryGetValue(offsetCoord, out var overlay))
-        {
-            overlay.Free();
-            registry.Remove(offsetCoord);
-        }
-    }
+    // RemoveOverlay removed: all removals now trigger a full group rebuild so that
+    // previously-hidden walls on newly-exposed neighbours are correctly restored.
 
     private void UpdateMoveableOverlayColors()
     {
